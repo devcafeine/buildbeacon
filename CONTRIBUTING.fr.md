@@ -1,4 +1,4 @@
-<!-- BuildBeacon — guide de contribution (français). Version 1.1 (2026-11-11) — mise run hub. -->
+<!-- BuildBeacon — guide de contribution (français). Version 1.2 (2026-11-11) — mise run hub ; matériel publié. -->
 # Participer à BuildBeacon
 
 [English version](CONTRIBUTING.md)
@@ -16,8 +16,10 @@ compte, du signalement d'un bug à un nouveau plugin.
 - **Traduire** : les interfaces existent en anglais et en français. Corriger une traduction
   ou ajouter une langue est bienvenu (voir [Langues](#langues)).
 - **Améliorer la documentation** : phrase peu claire, étape manquante, coquille.
-- **Matériel** : les modèles 3D et les cartes seront publiés plus tard ; les retours sur vos
-  montages sont déjà bienvenus dans les issues.
+- **Matériel** : les modèles 3D et les cartes sont dans [`hardware/`](hardware/README.fr.md).
+  Vos retours de montage (photos, réglages d'impression, corrections des cartes) sont
+  bienvenus dans les issues. Tout fichier matériel modifié change de numéro de version (nom
+  du fichier et en-tête).
 
 ## Bien démarrer
 

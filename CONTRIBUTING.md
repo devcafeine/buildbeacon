@@ -1,4 +1,4 @@
-<!-- BuildBeacon — contributing guide (English). Version 1.1 (2026-11-11) — mise run hub. -->
+<!-- BuildBeacon — contributing guide (English). Version 1.2 (2026-11-11) — mise run hub; hardware published. -->
 # Contributing to BuildBeacon
 
 [Version française](CONTRIBUTING.fr.md)
@@ -16,8 +16,9 @@ helps, from a bug report to a new plugin.
 - **Translate**: the interfaces exist in English and French. Fixing a translation or adding
   a language is welcome (see [Languages](#languages)).
 - **Improve the docs**: unclear sentence, missing step, typo.
-- **Hardware**: the 3D models and boards will be published later; feedback on builds is
-  already welcome in the issues.
+- **Hardware**: the 3D models and boards are in [`hardware/`](hardware/README.md). Build
+  reports (photos, print settings, board fixes) are welcome in the issues. Bump the version
+  number in the file name and header of any hardware file you change.
 
 ## Getting started
 

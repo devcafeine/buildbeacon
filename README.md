@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.1 (2026-11-11) — running the Hub, supported hardware. -->
+<!-- BuildBeacon — README (English). Version 1.2 (2026-11-11) — running the Hub, supported hardware; hardware published. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -52,7 +52,8 @@ wall: `config.json` stores both.
 Display modes: `overall` (color of the current state), `history` (last 5 runs on the dots),
 `thresholds` (a measurement compared to thresholds), `gauge` (progress bar on the dots).
 
-The 3D models and circuit boards will be published later under CERN-OHL-P-2.0.
+The 3D models (OpenSCAD) and circuit boards (KiCad) are in [`hardware/`](hardware/README.md),
+under CERN-OHL-P-2.0.
 
 ## Quick start (developers)
 
@@ -171,6 +172,7 @@ hub/                 Dart workspace
   server/            the Hub (bin/hub.dart), DDP output, simulator, test pattern
   tool/              new_plugin.dart (mise run new-plugin <name>)
 docs/                guides
+hardware/            3D models (cad/), circuit boards (pcb/), build guide
 config.example.json example configuration (public repositories)
 ```
 
@@ -181,4 +183,5 @@ Bug reports, ideas, plugins and translations are welcome: see
 
 ## License
 
-Software: [MIT](LICENSE). Hardware (3D models, boards, published later): CERN-OHL-P-2.0.
+Software: [MIT](LICENSE). Hardware (3D models, boards, in `hardware/`):
+[CERN-OHL-P-2.0](hardware/LICENSE).
