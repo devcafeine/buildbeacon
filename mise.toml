@@ -1,0 +1,54 @@
+# BuildBeacon — outils et tâches du projet (mise).
+# Version 1.5 (2026-11-11) — tâches en anglais (simulator, test-pattern, new-plugin).
+#
+# Flutter 3.47.6 embarque Dart 3.13.5 : le même SDK sert au Hub (hub/) et à
+# l'interface Flutter Web (hub/ui). L'image Docker devra suivre cette version.
+#
+# Langue des programmes : BB_LANG=fr ou BB_LANG=en (défaut : langue du système).
+
+[tools]
+flutter = "3.47.6"
+
+[tasks.get]
+description = "Fetch the dependencies of the whole workspace"
+dir = "{{config_root}}/hub"
+run = "dart pub get"
+
+[tasks.format]
+description = "Format the Hub code"
+dir = "{{config_root}}/hub"
+run = "dart format sdk core plugins server tool"
+
+[tasks.analyze]
+description = "Static analysis of the Hub"
+dir = "{{config_root}}/hub"
+run = "dart analyze"
+
+[tasks.test]
+description = "Unit tests of each Hub package (SDK, core, plugins, server)"
+dir = "{{config_root}}/hub"
+run = 'for p in sdk core plugins/* server; do echo "== $p"; (cd "$p" && dart test) || exit 1; done'
+
+[tasks.check]
+description = "Check format, analysis and tests (before committing)"
+dir = "{{config_root}}/hub"
+run = [
+  "dart format --output=none --set-exit-if-changed sdk core plugins server tool",
+  "dart analyze --fatal-infos",
+  'for p in sdk core plugins/* server; do echo "== $p"; (cd "$p" && dart test) || exit 1; done',
+]
+
+[tasks.new-plugin]
+description = "Create a source plugin and register it in the Hub: mise run new-plugin <name>"
+dir = "{{config_root}}/hub"
+run = "dart run tool/new_plugin.dart"
+
+[tasks.simulator]
+description = "Fake WLED: web page http://localhost:8090 of the LEDs received over DDP (port 4048); options: mise run simulator -- --help"
+dir = "{{config_root}}/hub/server"
+run = "dart run bin/simulator.dart"
+
+[tasks.test-pattern]
+description = "Test pattern to WLED; to the simulator: mise run test-pattern -- --host 127.0.0.1"
+dir = "{{config_root}}/hub/server"
+run = "dart run bin/test_pattern.dart"

@@ -1,0 +1,23 @@
+# BuildBeacon — fichiers à ne jamais versionner.
+# Version 1.1 (2026-11-11) — CLAUDE.md gardé en local (notes personnelles).
+
+# Secrets : le jeton GitHub vit uniquement dans .env (voir .env.example).
+.env
+*.env
+!.env.example
+
+# Contexte de travail local (notes personnelles), non publié.
+CLAUDE.md
+
+# Données d'exécution du Hub (config.json local, volume Docker).
+data/
+
+# Dart / Flutter
+.dart_tool/
+build/
+*.g.dart.tmp
+
+# Système / éditeurs
+.DS_Store
+.idea/
+.vscode/

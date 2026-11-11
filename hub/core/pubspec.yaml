@@ -1,0 +1,21 @@
+# BuildBeacon Hub — cœur : modèle, calcul de l'image LED, registre des plugins.
+# Version du fichier : 1.1 (2026-11-11) — dépend du SDK des plugins (contrat, état des sources).
+name: buildbeacon_core
+description: >-
+  Cœur de BuildBeacon — modèle de configuration, calcul de l'image des LED et
+  registre des plugins de source. Pur Dart, partagé par le serveur et
+  l'interface.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  buildbeacon_plugin_sdk:
+    path: ../sdk
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.26.0

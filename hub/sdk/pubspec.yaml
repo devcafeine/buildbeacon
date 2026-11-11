@@ -1,0 +1,19 @@
+# BuildBeacon Hub — SDK des plugins de source.
+# Version du fichier : 1.0 (2026-11-11)
+name: buildbeacon_plugin_sdk
+description: >-
+  SDK des plugins BuildBeacon — contrat d'un plugin de source, réglages typés,
+  scrutation, validation et outils de test. Seule dépendance d'un plugin.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  http: ^1.2.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.26.0
