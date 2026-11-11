@@ -1,4 +1,4 @@
-<!-- BuildBeacon — hardware (English). Version 1.1 (2026-11-11) — v1.2 boards, KiCad 3D renders -->
+<!-- BuildBeacon — hardware (English). Version 1.2 (2026-11-11) — shopping list and tools -->
 # BuildBeacon — hardware
 
 [Version française](README.fr.md)
@@ -97,6 +97,44 @@ connectors and solder jumpers. Copper pours: +5 V on the front, GND on the back.
 **Common**: JST PH 3-pin double-ended "same direction" cables, M2.5 × 4 × 3.5 brass inserts
 + M2.5 × 6 screws to hold the board, M3 × 5 × 4 inserts + M3 screws (or 6 × 3 mm magnets) to
 close the tile.
+
+### Shopping list
+
+For a setup of **1 master + N project tiles** (example: N = 4).
+
+| Item | Quantity | Example N = 4 |
+|---|---|---|
+| Board `buildbeacon_master_v1.2` | 1 | 1 |
+| Board `buildbeacon_tuile_v1.2` | N | 4 |
+| ESP32-C3 SuperMini (with pin headers) | 1 | 1 |
+| WS2812B strip, 5 V, 100 LEDs/m, 10 mm | 3 + 9 × N LEDs (1 m = 100 LEDs, up to 10 tiles) | 39 LEDs → 1 m |
+| 330 Ω ¼ W resistor | N + 1 | 5 |
+| 10 kΩ ¼ W resistor | N | 4 |
+| 10 µF 16 V electrolytic capacitor, 5 mm pitch | N + 1 | 5 |
+| 1N4148 diode (or 1N4001 to 1N4007) | 1 | 1 |
+| JST PH S3B-PH-SM4-TB connector | at least 2 × N (2 per project tile, 1 on the master and on the last tile); up to 6 × N + 5 to allow any layout | 8 to 29 |
+| JST PH 3-pin double-ended "same direction" cable | N (one per link between two tiles) | 4 |
+| M2.5 × 4 × 3.5 brass insert + M2.5 × 6 screw (board mounting) | 4 × (N + 1) | 20 + 20 |
+| Tile closing: 6 × 3 mm magnets **or** M3 × 5 × 4 inserts + M3 screws | 6 × (N + 1) magnets **or** 3 × (N + 1) inserts and screws | 30 magnets or 15 + 15 |
+| USB-C cable | 1 | 1 |
+| 5 V power supply (optional, on J7 "ALIM") | at least 0.6 A × N (see [Power](#power)) | 5 V 3 A |
+| 2-pin 5.08 mm terminal block (optional, J7) | 1 | 1 |
+| White or "natural" PLA or PETG filament | shells, back plates, links, stand or clips | |
+
+Board makers often ship a minimum of 5 boards per design.
+For [building without boards](#building-without-boards), you only need the ESP32, the
+strip, one 330 Ω resistor, the tile closing parts and the power supply, plus 22 to 28 AWG
+silicone wire (3 wires per link).
+
+### Tools
+
+- 3D printer.
+- Fine-tip soldering iron (the JST connectors are SMD), solder, flux.
+- Desoldering braid (to move a jumper blob).
+- Scissors or a cutter to cut the LED strip on its cut marks.
+- Side cutters, tweezers; a multimeter is recommended (check there is no short between +5 V
+  and GND before powering up for the first time).
+- A computer to install WLED on the ESP32 (see [Configuring WLED](#configuring-wled)).
 
 ### Why D1 on the master?
 
