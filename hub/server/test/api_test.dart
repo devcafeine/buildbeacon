@@ -1,0 +1,468 @@
+// BuildBeacon Hub — Tests : API REST (configuration, plugins, état, actions, sécurité).
+// Version 1.0 (2026-11-11)
+
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:buildbeacon_core/buildbeacon_core.dart';
+import 'package:buildbeacon_hub/buildbeacon_hub.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+import 'package:shelf/shelf.dart';
+import 'package:test/test.dart';
+
+/// Plugin alimenté à la main par le test, avec un secret facultatif.
+final class _ManualPlugin extends SourcePlugin {
+  final controllers = <String, StreamController<SourceState>>{};
+
+  @override
+  String get type => 'manual';
+
+  @override
+  LocalizedText get label =>
+      const LocalizedText({'en': 'Manual', 'fr': 'Manuel'});
+
+  @override
+  LocalizedText get description => const LocalizedText.same('Test plugin.');
+
+  @override
+  List<SettingField> get settings => const [
+    SettingField(id: 'name', label: LocalizedText.same('Name'), required: true),
+  ];
+
+  @override
+  List<SecretField> get secrets => const [
+    SecretField(env: 'BB_MANUAL_KEY', label: LocalizedText.same('Key')),
+  ];
+
+  @override
+  bool get providesHistory => true;
+
+  @override
+  Stream<SourceState> connect(SourceSettings settings, PluginContext context) {
+    final controller = StreamController<SourceState>();
+    controllers[settings.text('name')] = controller;
+    return controller.stream;
+  }
+}
+
+final class _NullSink implements LedSink {
+  @override
+  void send(Uint8List rgb) {}
+}
+
+Map<String, Object?> _configJson({
+  String source = 'a',
+  int brightness = 128,
+  int poll = 30,
+}) => {
+  'version': 1,
+  'wled': {'host': '127.0.0.1', 'brightness': brightness},
+  'poll_seconds': poll,
+  'tiles': [
+    {
+      'id': 'master',
+      'label': 'BuildBeacon',
+      'kind': 'master',
+      'chain_index': 0,
+      'pos': {'q': 0, 'r': 1},
+    },
+    {
+      'id': 'app',
+      'label': 'App',
+      'kind': 'project',
+      'chain_index': 1,
+      'pos': {'q': 0, 'r': 0},
+      'zones': {
+        'ambient': {
+          'source': {'type': 'manual', 'name': source},
+          'mode': 'overall',
+        },
+        'dots': {
+          'source': {'type': 'manual', 'name': source},
+          'mode': 'history',
+        },
+      },
+    },
+  ],
+};
+
+void main() {
+  late Directory dir;
+  late String configPath;
+  late _ManualPlugin plugin;
+  late Hub hub;
+  late HubService service;
+  late List<String> logs;
+
+  Future<Handler> start({
+    String? apiToken,
+    String? webDir,
+    Map<String, String> environment = const {},
+  }) async {
+    dir = await Directory.systemTemp.createTemp('bb-api');
+    configPath = '${dir.path}/config.json';
+    File(configPath).writeAsStringSync(jsonEncode(_configJson()));
+    plugin = _ManualPlugin();
+    logs = [];
+    hub = Hub(
+      plugins: PluginRegistry([plugin]),
+      httpClient: MockClient(
+        (_) async => throw http.ClientException('no WLED'),
+      ),
+      environment: environment,
+      openOutput: (wled, log) async => (sink: _NullSink(), close: () async {}),
+      log: (message) => logs.add(message.resolve('fr')),
+    );
+    await hub.start(await readConfigFile(configPath));
+    service = HubService(
+      hub: hub,
+      configPath: configPath,
+      environment: environment,
+      log: (message) => logs.add(message.resolve('fr')),
+    );
+    return hubHandler(service, apiToken: apiToken, webDir: webDir);
+  }
+
+  tearDown(() async {
+    await hub.stop();
+    await dir.delete(recursive: true);
+  });
+
+  Request request(
+    String method,
+    String path, {
+    Object? body,
+    String contentType = 'application/json',
+    Map<String, String> headers = const {},
+  }) => Request(
+    method,
+    Uri.parse('http://localhost$path'),
+    body: body is String ? body : (body == null ? null : jsonEncode(body)),
+    headers: {
+      if (method != 'GET') HttpHeaders.contentTypeHeader: contentType,
+      ...headers,
+    },
+  );
+
+  Future<(int, Object?)> call(Handler handler, Request r) async {
+    final response = await handler(r);
+    final text = await response.readAsString();
+    return (response.statusCode, text.isEmpty ? null : jsonDecode(text));
+  }
+
+  test('santé : nom, versions, langues', () async {
+    final handler = await start();
+    final (status, json) = await call(handler, request('GET', '/api/health'));
+    expect(status, 200);
+    expect(json, containsPair('api_version', 1));
+    expect(json, containsPair('languages', ['en', 'fr']));
+  });
+
+  group('configuration', () {
+    test('lire', () async {
+      final handler = await start();
+      final (status, json) = await call(handler, request('GET', '/api/config'));
+      expect(status, 200);
+      expect(
+        jsonEncode(json),
+        jsonEncode(Config.fromJson(_configJson()).toJson()),
+      );
+    });
+
+    test('remplacer : validée, appliquée à chaud, enregistrée', () async {
+      final handler = await start();
+      final (status, json) = await call(
+        handler,
+        request('PUT', '/api/config', body: _configJson(source: 'b')),
+      );
+
+      expect(status, 200);
+      expect(json, containsPair('changed', true));
+      expect(plugin.controllers['b']!.hasListener, isTrue);
+      expect(plugin.controllers['a']!.hasListener, isFalse);
+      final saved = await readConfigFile(configPath);
+      expect(saved.toJson(), hub.config.toJson());
+      expect(File('$configPath.tmp').existsSync(), isFalse);
+      expect(
+        logs,
+        contains('Configuration modifiée par l\'API et enregistrée'),
+      );
+    });
+
+    test(
+      'identique à celle en cours : ni réenregistrée ni réappliquée',
+      () async {
+        final handler = await start();
+        final (status, json) = await call(
+          handler,
+          request('PUT', '/api/config', body: _configJson()),
+        );
+        expect(status, 200);
+        expect(json, containsPair('changed', false));
+        expect(logs, isNot(contains(contains('par l\'API'))));
+      },
+    );
+
+    test(
+      'incohérente : 422, problèmes dans chaque langue, rien ne change',
+      () async {
+        final handler = await start();
+        final before = File(configPath).readAsStringSync();
+        final (status, json) = await call(
+          handler,
+          request('PUT', '/api/config', body: _configJson(poll: 2)),
+        );
+
+        expect(status, 422);
+        final issues =
+            (json! as Map<String, Object?>)['issues']! as List<Object?>;
+        expect(issues.single, {
+          'en': 'Polling interval too short (2 s, minimum 10 s)',
+          'fr': 'Intervalle de scrutation trop court (2 s, minimum 10 s)',
+        });
+        expect(File(configPath).readAsStringSync(), before);
+        expect(hub.config.pollSeconds, 30);
+      },
+    );
+
+    test('illisible : 400, message dans chaque langue', () async {
+      final handler = await start();
+      final (status, json) = await call(
+        handler,
+        request('PUT', '/api/config', body: '{"tiles": [}'),
+      );
+      expect(status, 400);
+      expect(
+        ((json! as Map<String, Object?>)['error']!
+            as Map<String, Object?>)['fr'],
+        startsWith('JSON invalide'),
+      );
+
+      final (status2, _) = await call(
+        handler,
+        request('PUT', '/api/config', body: [1, 2]),
+      );
+      expect(status2, 400);
+    });
+
+    test('valider sans appliquer', () async {
+      final handler = await start();
+      final (_, valid) = await call(
+        handler,
+        request('POST', '/api/config/validate', body: _configJson(source: 'z')),
+      );
+      expect(valid, {'valid': true, 'issues': <Object?>[]});
+      expect(plugin.controllers.containsKey('z'), isFalse);
+
+      final (_, invalid) = await call(
+        handler,
+        request('POST', '/api/config/validate', body: _configJson(poll: 1)),
+      );
+      expect(invalid, containsPair('valid', false));
+    });
+  });
+
+  group('sécurité des écritures', () {
+    test('JSON obligatoire : 415 sinon (protège des sites tiers)', () async {
+      final handler = await start();
+      final (status, _) = await call(
+        handler,
+        request(
+          'PUT',
+          '/api/config',
+          body: jsonEncode(_configJson(source: 'b')),
+          contentType: 'text/plain',
+        ),
+      );
+      expect(status, 415);
+      expect(plugin.controllers.containsKey('b'), isFalse);
+    });
+
+    test('avec BB_API_TOKEN : 401 sans le jeton, accepté avec', () async {
+      final handler = await start(apiToken: 's3cret');
+      final body = _configJson(source: 'b');
+
+      final (refused, _) = await call(
+        handler,
+        request('PUT', '/api/config', body: body),
+      );
+      final (wrong, _) = await call(
+        handler,
+        request(
+          'PUT',
+          '/api/config',
+          body: body,
+          headers: {'authorization': 'Bearer nope'},
+        ),
+      );
+      final (accepted, _) = await call(
+        handler,
+        request(
+          'PUT',
+          '/api/config',
+          body: body,
+          headers: {'authorization': 'Bearer s3cret'},
+        ),
+      );
+      final (read, _) = await call(handler, request('GET', '/api/config'));
+
+      expect([refused, wrong, accepted, read], [401, 401, 200, 200]);
+    });
+  });
+
+  test(
+    'plugins : description, secret renseigné ou non, jamais sa valeur',
+    () async {
+      final handler = await start(environment: {'BB_MANUAL_KEY': 'top-secret'});
+      final response = await handler(request('GET', '/api/plugins'));
+      final text = await response.readAsString();
+
+      expect(text, isNot(contains('top-secret')));
+      final plugins =
+          (jsonDecode(text) as Map<String, Object?>)['plugins']!
+              as List<Object?>;
+      final manual = plugins.single! as Map<String, Object?>;
+      expect(manual['label'], {'en': 'Manual', 'fr': 'Manuel'});
+      expect(manual['secrets'], [
+        {
+          'env': 'BB_MANUAL_KEY',
+          'label': {'en': 'Key', 'fr': 'Key'},
+          'required': false,
+          'configured': true,
+        },
+      ]);
+    },
+  );
+
+  test('état en direct : zones, couleurs, sources, WLED', () async {
+    final handler = await start();
+    plugin.controllers['a']!.add(
+      const SourceState(history: [Status.failure, Status.success]),
+    );
+    await pumpEventQueue();
+
+    final (status, json) = await call(handler, request('GET', '/api/state'));
+    expect(status, 200);
+    final state = json! as Map<String, Object?>;
+    expect(state['led_count'], 12);
+    expect(state['pulsing'], ['running', 'queued']);
+
+    final app = (state['tiles']! as List<Object?>)[1]! as Map<String, Object?>;
+    final zones = app['zones']! as Map<String, Object?>;
+    final ambient = zones['ambient']! as Map<String, Object?>;
+    expect(ambient['mode'], 'overall');
+    expect(
+      ambient['leds'],
+      everyElement({'status': 'failure', 'intensity': 1.0, 'color': '#FF0000'}),
+    );
+    final dots =
+        (zones['dots']! as Map<String, Object?>)['leds']! as List<Object?>;
+    expect(
+      [for (final led in dots) (led! as Map<String, Object?>)['status']],
+      ['failure', 'success', 'unknown', 'unknown', 'unknown'],
+    );
+
+    final source =
+        (state['sources']! as Map<String, Object?>).values.single!
+            as Map<String, Object?>;
+    expect(source['label'], 'manual · a');
+    expect(source['history'], ['failure', 'success']);
+
+    final wled = state['wled']! as Map<String, Object?>;
+    expect(wled['host'], '127.0.0.1');
+    expect(wled['info'], isNull);
+    expect(wled['error'], contains('no WLED'));
+  });
+
+  test('image envoyée aux LED', () async {
+    final handler = await start();
+    final (status, json) = await call(handler, request('GET', '/api/frame'));
+    expect(status, 200);
+    expect(json, containsPair('led_count', 12));
+    expect((json! as Map<String, Object?>)['leds'], hasLength(12 * 6));
+  });
+
+  group('identifier une tuile', () {
+    test('la tuile clignote', () async {
+      final handler = await start();
+      final (status, json) = await call(
+        handler,
+        request('POST', '/api/tiles/app/identify', body: {'seconds': 2}),
+      );
+      expect(status, 202);
+      expect(json, {'tile': 'app', 'seconds': 2});
+      expect(hub.identifying, {'app'});
+    });
+
+    test('tuile inconnue : 404 ; durée hors limites : 400', () async {
+      final handler = await start();
+      final (unknown, _) = await call(
+        handler,
+        request('POST', '/api/tiles/nope/identify'),
+      );
+      final (tooLong, _) = await call(
+        handler,
+        request('POST', '/api/tiles/app/identify', body: {'seconds': 600}),
+      );
+      expect([unknown, tooLong], [404, 400]);
+    });
+  });
+
+  test('revérifier WLED', () async {
+    final handler = await start();
+    final (status, json) = await call(
+      handler,
+      request('POST', '/api/wled/check'),
+    );
+    expect(status, 200);
+    expect(json, containsPair('error', contains('no WLED')));
+  });
+
+  test('flux en direct (SSE) : un premier état tout de suite', () async {
+    final handler = await start();
+    final response = await handler(request('GET', '/api/events'));
+    expect(response.headers['content-type'], startsWith('text/event-stream'));
+
+    final first = await response
+        .read()
+        .transform(utf8.decoder)
+        .first
+        .timeout(const Duration(seconds: 5));
+    expect(first, startsWith('event: state\ndata: {'));
+  });
+
+  group('hors de l\'API', () {
+    test('route inconnue : 404 JSON traduit', () async {
+      final handler = await start();
+      final (status, json) = await call(handler, request('GET', '/api/nope'));
+      expect(status, 404);
+      expect(json, {
+        'error': {
+          'en': 'Not found: /api/nope',
+          'fr': 'Introuvable : /api/nope',
+        },
+      });
+    });
+
+    test('sans interface web : la racine présente l\'API', () async {
+      final handler = await start();
+      final (status, json) = await call(handler, request('GET', '/'));
+      expect(status, 200);
+      expect(json, containsPair('api', '/api'));
+    });
+
+    test('avec une interface web : ses fichiers sont servis', () async {
+      final web = await Directory.systemTemp.createTemp('bb-web');
+      addTearDown(() => web.delete(recursive: true));
+      File('${web.path}/index.html').writeAsStringSync('<h1>BuildBeacon</h1>');
+
+      final handler = await start(webDir: web.path);
+      final response = await handler(request('GET', '/'));
+      expect(response.statusCode, 200);
+      expect(await response.readAsString(), '<h1>BuildBeacon</h1>');
+    });
+  });
+}

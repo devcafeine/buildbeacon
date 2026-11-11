@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (français). Version 1.1 (2026-11-11) — lancer le Hub, matériel pris en charge. -->
+<!-- BuildBeacon — README (français). Version 1.2 (2026-11-11) — API REST. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -15,8 +15,8 @@ un run), et ses cinq points montrent les cinq derniers runs. La tuile master, qu
 l'ESP32, affiche l'état du système.
 
 > **État : début du développement.** Le Hub tourne à partir de `config.json` : plugin
-> GitHub, rendu des LED, sortie vers WLED, rechargement à chaud de la configuration, plus
-> un simulateur et une mire. L'API REST, l'interface web et l'image Docker arrivent
+> GitHub, rendu des LED, sortie vers WLED, rechargement à chaud de la configuration, API
+> REST, plus un simulateur et une mire. L'interface web et l'image Docker arrivent
 > ensuite.
 
 ## Fonctionnement
@@ -28,7 +28,7 @@ API GitHub ──(scrutation, ETag)──┐
               │  plugins de source → cache d'états  │
               │        ↓                            │
               │  image des LED (20 img/s)           │──DDP/UDP──▶ ESP32 + WLED ──▶ tuiles
-              │  API REST + interface web (bientôt) │
+              │  API REST · interface web (bientôt) │
               └─────────────────────────────────────┘
 ```
 
@@ -97,6 +97,16 @@ Sans tuiles, mettez `"host": "127.0.0.1"` dans la section `wled` de
 `data/config.json` dès que vous l'enregistrez, et refuse une version invalide (la
 précédente est gardée).
 
+Le Hub sert aussi son API REST sur http://localhost:8080/api (`--port` pour en changer) :
+
+```sh
+curl http://localhost:8080/api/state        # ce que montrent les tuiles, en JSON
+curl -X POST http://localhost:8080/api/tiles/wled/identify \
+     -H 'Content-Type: application/json' -d '{}'   # faire clignoter une tuile
+```
+
+Voir [API REST](docs/api.fr.md) : routes, événements en direct, sécurité (`BB_API_TOKEN`).
+
 Sans jeton, GitHub autorise 60 requêtes par heure : l'exemple interroge toutes les 180 s
 pour ses 3 sources, et le Hub vous prévient si votre configuration en demande plus. Avec
 un jeton (`cp .env.example .env`, puis remplir `BB_GITHUB_TOKEN`), vous pouvez descendre
@@ -135,7 +145,8 @@ prises en charge par Dart mais pas encore testées : vos retours sont bienvenus.
 
 ## Configuration
 
-`config.json` (bientôt modifiable depuis l'interface web) :
+`config.json` (modifiable à la main ou par l'[API REST](docs/api.fr.md) ; depuis
+l'interface web, bientôt) :
 
 ```json
 {
@@ -158,7 +169,8 @@ prises en charge par Dart mais pas encore testées : vos retours sont bienvenus.
 
 Les secrets ne vont jamais dans `config.json` : le jeton GitHub (*fine-grained*, lecture
 seule, *Actions: read* et *Metadata: read*) passe par la variable d'environnement
-`BB_GITHUB_TOKEN` — voir [`.env.example`](.env.example).
+`BB_GITHUB_TOKEN` — voir [`.env.example`](.env.example). L'API REST ne renvoie jamais de
+secret.
 
 ## Langues
 
@@ -173,9 +185,9 @@ hub/                 espace de travail Dart
   sdk/               SDK des plugins (seule dépendance d'un plugin)
   core/              modèle, rendu des LED, registre des plugins
   plugins/github/    plugin GitHub Actions
-  server/            le Hub (bin/hub.dart), sortie DDP, simulateur, mire
+  server/            le Hub (bin/hub.dart), API REST, sortie DDP, simulateur, mire
   tool/              new_plugin.dart (mise run new-plugin <nom>)
-docs/                guides
+docs/                guides, API REST
 config.example.json configuration d'exemple (dépôts publics)
 ```
 

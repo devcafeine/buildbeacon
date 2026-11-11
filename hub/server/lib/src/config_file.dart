@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Lecture de config.json.
-// Version 1.1 (2026-11-11) — erreurs traduites.
+// BuildBeacon Hub — Lecture et écriture de config.json.
+// Version 1.2 (2026-11-11) — écriture atomique (API) ; chemin cité une seule fois dans les erreurs.
 
 import 'dart:convert';
 import 'dart:io';
@@ -30,20 +30,37 @@ Future<Config> readConfigFile(String path) async {
       }),
     );
   }
+  final Object? json;
   try {
-    final json = jsonDecode(await file.readAsString());
-    if (json is! Map<String, Object?>) {
-      throw inFile(
-        const LocalizedText({
-          'en': 'JSON object expected',
-          'fr': 'objet JSON attendu',
-        }),
-      );
-    }
-    return Config.fromJson(json);
-  } on LocalizedFormatException catch (e) {
-    throw inFile(e.text);
+    json = jsonDecode(await file.readAsString());
   } on FormatException catch (e) {
     throw inFile(LocalizedText.same(e.message));
   }
+  if (json is! Map<String, Object?>) {
+    throw inFile(
+      const LocalizedText({
+        'en': 'JSON object expected',
+        'fr': 'objet JSON attendu',
+      }),
+    );
+  }
+  try {
+    return Config.fromJson(json);
+  } on LocalizedFormatException catch (e) {
+    throw inFile(e.text);
+  }
+}
+
+/// Enregistre [config] dans [path] de façon atomique : écriture d'un fichier
+/// temporaire voisin, puis renommage. Un arrêt brutal pendant l'écriture
+/// laisse l'ancien fichier intact.
+Future<void> writeConfigFile(String path, Config config) async {
+  final file = File(path);
+  await file.parent.create(recursive: true);
+  final temporary = File('$path.tmp');
+  await temporary.writeAsString(
+    '${const JsonEncoder.withIndent('  ').convert(config.toJson())}\n',
+    flush: true,
+  );
+  await temporary.rename(file.path);
 }

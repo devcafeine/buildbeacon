@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.1 (2026-11-11) — running the Hub, supported hardware. -->
+<!-- BuildBeacon — README (English). Version 1.2 (2026-11-11) — REST API. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -15,8 +15,8 @@ its five dots show the last five runs. The master tile, which holds the ESP32, s
 state of the system.
 
 > **Status: early development.** The Hub runs from `config.json`: GitHub plugin, LED
-> rendering, output to WLED, hot reload of the configuration, plus a simulator and a test
-> pattern. The REST API, the web interface and the Docker image are next.
+> rendering, output to WLED, hot reload of the configuration, REST API, plus a simulator
+> and a test pattern. The web interface and the Docker image are next.
 
 ## How it works
 
@@ -27,7 +27,7 @@ GitHub API ──(polling, ETag)──┐
               │  source plugins → state cache       │
               │        ↓                            │
               │  LED frame (20 fps)                 │──DDP/UDP──▶ ESP32 + WLED ──▶ tiles
-              │  REST API + web interface (soon)    │
+              │  REST API · web interface (soon)    │
               └─────────────────────────────────────┘
 ```
 
@@ -93,6 +93,16 @@ Without tiles, set `"host": "127.0.0.1"` in the `wled` section of `data/config.j
 so the Hub sends to the simulator. The Hub reloads `data/config.json` as soon as you save
 it, and refuses an invalid version (the previous one is kept).
 
+The Hub also serves its REST API on http://localhost:8080/api (`--port` to change it):
+
+```sh
+curl http://localhost:8080/api/state        # what the tiles show, as JSON
+curl -X POST http://localhost:8080/api/tiles/wled/identify \
+     -H 'Content-Type: application/json' -d '{}'   # make a tile blink
+```
+
+See [REST API](docs/api.md): routes, live events, security (`BB_API_TOKEN`).
+
 Without a token, GitHub allows 60 requests per hour: the example polls every 180 s for
 its 3 sources, and the Hub tells you if your configuration needs more. With a token
 (`cp .env.example .env`, then fill `BB_GITHUB_TOKEN`), you can go down to 30 s and follow
@@ -130,7 +140,8 @@ supported by Dart but not tested yet: reports are welcome.
 
 ## Configuration
 
-`config.json` (edited from the web interface, soon):
+`config.json` (edited by hand or through the [REST API](docs/api.md); from the web
+interface, soon):
 
 ```json
 {
@@ -153,7 +164,7 @@ supported by Dart but not tested yet: reports are welcome.
 
 Secrets never go into `config.json`: the GitHub token (fine-grained, read-only, *Actions:
 read* and *Metadata: read*) is given through the `BB_GITHUB_TOKEN` environment variable —
-see [`.env.example`](.env.example).
+see [`.env.example`](.env.example). The REST API never returns a secret.
 
 ## Languages
 
@@ -168,9 +179,9 @@ hub/                 Dart workspace
   sdk/               plugin SDK (the only dependency of a plugin)
   core/              model, LED rendering, plugin registry
   plugins/github/    GitHub Actions plugin
-  server/            the Hub (bin/hub.dart), DDP output, simulator, test pattern
+  server/            the Hub (bin/hub.dart), REST API, DDP output, simulator, test pattern
   tool/              new_plugin.dart (mise run new-plugin <name>)
-docs/                guides
+docs/                guides, REST API
 config.example.json example configuration (public repositories)
 ```
 
