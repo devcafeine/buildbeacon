@@ -1,4 +1,4 @@
-<!-- BuildBeacon — matériel (français). Version 1.0 (2026-11-11) -->
+<!-- BuildBeacon — matériel (français). Version 1.1 (2026-11-11) — cartes v1.2, rendus 3D KiCad -->
 # BuildBeacon — matériel
 
 [English version](README.md)
@@ -6,7 +6,7 @@
 Tout ce qu'il faut pour fabriquer les tuiles : modèles 3D paramétriques (OpenSCAD) et
 circuits imprimés (KiCad), sous licence [CERN-OHL-P-2.0](LICENSE).
 
-> **État :** les modèles 3D sont imprimés et testés. Les cartes sont commandées et
+> **État :** les modèles 3D sont imprimés et testés. Les cartes **v1.2** sont commandées et
 > **pas encore validées** sur une vraie tuile : attendez le retour du premier montage avant
 > d'en commander beaucoup, ou montez sans circuit imprimé (voir
 > [Montage sans circuit imprimé](#montage-sans-circuit-imprimé)).
@@ -15,12 +15,11 @@ circuits imprimés (KiCad), sous licence [CERN-OHL-P-2.0](LICENSE).
 
 ```
 hardware/
-  cad/buildbeacon_tile_v1.0.scad      tuiles, plaques arrière, socle, clips Skådis… (OpenSCAD)
-  pcb/buildbeacon_tuile_v1.0.kicad_pcb    carte de la tuile projet (9 LED)
-  pcb/buildbeacon_master_v1.0.kicad_pcb   carte de la tuile master (ESP32-C3 + 3 LED)
-  pcb/gen_buildbeacon_pcb_v1.0.py     script Python qui génère les deux cartes
-  pcb/render_pcb_v1.0.py              aperçus PNG des cartes (images/)
-  images/                             aperçus
+  cad/buildbeacon_tile_v1.1.scad      tuiles, plaques arrière, socle, clips Skådis… (OpenSCAD)
+  pcb/buildbeacon_tuile_v1.2.kicad_pcb    carte de la tuile projet (9 LED)
+  pcb/buildbeacon_master_v1.2.kicad_pcb   carte de la tuile master (ESP32-C3 + 3 LED)
+  pcb/gen_buildbeacon_pcb_v1.2.py     script Python qui génère les deux cartes
+  images/                             rendus 3D KiCad des cartes
   LICENSE                             CERN-OHL-P-2.0
 ```
 
@@ -48,8 +47,10 @@ compte de cet ordre.
 
 ## Cartes électroniques
 
-![Tuile projet v1.0](images/pcb_tuile_v1.0.png)
-![Master v1.0](images/pcb_master_v1.0.png)
+| | Face avant | Dos |
+|---|---|---|
+| **Tuile projet** | ![Tuile projet, face avant](images/pcb_tuile_v1.2_avant.png) | ![Tuile projet, dos](images/pcb_tuile_v1.2_dos.png) |
+| **Master** | ![Master, face avant](images/pcb_master_v1.2_avant.png) | ![Master, dos](images/pcb_master_v1.2_dos.png) |
 
 Cartes à 2 couches, 1,6 mm. Face avant : rubans LED, résistances, condensateur, ESP32 (master).
 Dos : connecteurs JST et cavaliers. Plan de cuivre : +5 V sur la face avant, GND au dos.
@@ -71,7 +72,7 @@ Dos : connecteurs JST et cavaliers. Plan de cuivre : +5 V sur la face avant, GND
 
 | Repère | Composant | Remarque |
 |---|---|---|
-| — | Carte `buildbeacon_tuile_v1.0` | |
+| — | Carte `buildbeacon_tuile_v1.2` | |
 | RB1, RB2, RB3 | Ruban WS2812B 5 V, 100 LED/m, 10 mm : morceaux de 2, 5 et 2 LED | flèches « DIN >>> » sur la carte |
 | R1 | Résistance 330 Ω, ¼ W, traversante | 220 à 470 Ω conviennent |
 | R2 | Résistance 10 kΩ, ¼ W, traversante | 10 à 100 kΩ conviennent ; évite le scintillement quand l'entrée est en l'air |
@@ -83,7 +84,7 @@ Dos : connecteurs JST et cavaliers. Plan de cuivre : +5 V sur la face avant, GND
 
 | Repère | Composant | Remarque |
 |---|---|---|
-| — | Carte `buildbeacon_master_v1.0` | |
+| — | Carte `buildbeacon_master_v1.2` | |
 | U1 | ESP32-C3 SuperMini + barrettes mâles | USB vers le bord marqué « USB » |
 | RB1 | Ruban WS2812B : morceau de 3 LED | |
 | D1 | 1N4148 (ou 1N4001 à 1N4007) | **bague vers la pastille carrée**, voir ci-dessous |
@@ -131,13 +132,12 @@ côtés (le numéro de chaque côté est imprimé à côté de son connecteur).
 
 ### Régénérer les cartes
 
-Les cartes sont produites par `gen_buildbeacon_pcb_v1.0.py` (Python 3, sans dépendance) :
+Les cartes sont produites par `gen_buildbeacon_pcb_v1.2.py` (Python 3, sans dépendance) :
 
 ```sh
 cd hardware/pcb
-python3 gen_buildbeacon_pcb_v1.0.py          # tuile projet
-python3 gen_buildbeacon_pcb_v1.0.py --logo   # master
-python3 render_pcb_v1.0.py buildbeacon_tuile_v1.0.kicad_pcb ../images/pcb_tuile_v1.0.png "Tuile"
+python3 gen_buildbeacon_pcb_v1.2.py          # tuile projet
+python3 gen_buildbeacon_pcb_v1.2.py --logo   # master
 ```
 
 Toute modification de carte change la variable `VERSION` du script (et donc le nom des
@@ -145,7 +145,7 @@ fichiers et le texte imprimé au dos de la carte).
 
 ## Modèles 3D
 
-Un seul fichier paramétrique : [`cad/buildbeacon_tile_v1.0.scad`](cad/buildbeacon_tile_v1.0.scad),
+Un seul fichier paramétrique : [`cad/buildbeacon_tile_v1.1.scad`](cad/buildbeacon_tile_v1.1.scad),
 à ouvrir dans [OpenSCAD](https://openscad.org/) (2021 ou plus récent). Réglez les paramètres
 dans le **Customizer**, choisissez la pièce avec `part`, faites le rendu (**F6**) puis
 exportez en STL.

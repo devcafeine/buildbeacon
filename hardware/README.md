@@ -1,4 +1,4 @@
-<!-- BuildBeacon — hardware (English). Version 1.0 (2026-11-11) -->
+<!-- BuildBeacon — hardware (English). Version 1.1 (2026-11-11) — v1.2 boards, KiCad 3D renders -->
 # BuildBeacon — hardware
 
 [Version française](README.fr.md)
@@ -6,7 +6,7 @@
 Everything you need to build the tiles: parametric 3D models (OpenSCAD) and circuit boards
 (KiCad), licensed under [CERN-OHL-P-2.0](LICENSE).
 
-> **Status:** the 3D models are printed and tested. The boards are ordered and
+> **Status:** the 3D models are printed and tested. The **v1.2** boards are ordered and
 > **not yet validated** on a real tile: wait for feedback from the first build before ordering
 > many, or build without boards (see [Building without boards](#building-without-boards)).
 
@@ -14,12 +14,11 @@ Everything you need to build the tiles: parametric 3D models (OpenSCAD) and circ
 
 ```
 hardware/
-  cad/buildbeacon_tile_v1.0.scad      tiles, back plates, stand, Skådis clips… (OpenSCAD)
-  pcb/buildbeacon_tuile_v1.0.kicad_pcb    project tile board (9 LEDs)
-  pcb/buildbeacon_master_v1.0.kicad_pcb   master tile board (ESP32-C3 + 3 LEDs)
-  pcb/gen_buildbeacon_pcb_v1.0.py     Python script that generates both boards
-  pcb/render_pcb_v1.0.py              PNG previews of the boards (images/)
-  images/                             previews
+  cad/buildbeacon_tile_v1.1.scad      tiles, back plates, stand, Skådis clips… (OpenSCAD)
+  pcb/buildbeacon_tuile_v1.2.kicad_pcb    project tile board (9 LEDs)
+  pcb/buildbeacon_master_v1.2.kicad_pcb   master tile board (ESP32-C3 + 3 LEDs)
+  pcb/gen_buildbeacon_pcb_v1.2.py     Python script that generates both boards
+  images/                             KiCad 3D renders of the boards
   LICENSE                             CERN-OHL-P-2.0
 ```
 
@@ -49,8 +48,10 @@ Inside a project tile, data enters the top strip (left → right), goes through 
 
 ## Circuit boards
 
-![Project tile v1.0](images/pcb_tuile_v1.0.png)
-![Master v1.0](images/pcb_master_v1.0.png)
+| | Front | Back |
+|---|---|---|
+| **Project tile** | ![Project tile, front](images/pcb_tuile_v1.2_avant.png) | ![Project tile, back](images/pcb_tuile_v1.2_dos.png) |
+| **Master** | ![Master, front](images/pcb_master_v1.2_avant.png) | ![Master, back](images/pcb_master_v1.2_dos.png) |
 
 2-layer, 1.6 mm boards. Front: LED strips, resistors, capacitor, ESP32 (master). Back: JST
 connectors and solder jumpers. Copper pours: +5 V on the front, GND on the back.
@@ -71,7 +72,7 @@ connectors and solder jumpers. Copper pours: +5 V on the front, GND on the back.
 
 | Ref | Part | Notes |
 |---|---|---|
-| — | Board `buildbeacon_tuile_v1.0` | |
+| — | Board `buildbeacon_tuile_v1.2` | |
 | RB1, RB2, RB3 | WS2812B strip, 5 V, 100 LEDs/m, 10 mm: pieces of 2, 5 and 2 LEDs | follow the "DIN >>>" arrows |
 | R1 | 330 Ω resistor, ¼ W, through-hole | 220 to 470 Ω is fine |
 | R2 | 10 kΩ resistor, ¼ W, through-hole | 10 to 100 kΩ is fine; prevents flicker when the input floats |
@@ -83,7 +84,7 @@ connectors and solder jumpers. Copper pours: +5 V on the front, GND on the back.
 
 | Ref | Part | Notes |
 |---|---|---|
-| — | Board `buildbeacon_master_v1.0` | |
+| — | Board `buildbeacon_master_v1.2` | |
 | U1 | ESP32-C3 SuperMini + pin headers | USB towards the edge marked "USB" |
 | RB1 | WS2812B strip: piece of 3 LEDs | |
 | D1 | 1N4148 (or 1N4001 to 1N4007) | **band towards the square pad**, see below |
@@ -129,13 +130,12 @@ On the back, the jumpers are grouped in blocks of 6 rows numbered **1 to 6**, li
 
 ### Regenerating the boards
 
-The boards are produced by `gen_buildbeacon_pcb_v1.0.py` (Python 3, no dependencies):
+The boards are produced by `gen_buildbeacon_pcb_v1.2.py` (Python 3, no dependencies):
 
 ```sh
 cd hardware/pcb
-python3 gen_buildbeacon_pcb_v1.0.py          # project tile
-python3 gen_buildbeacon_pcb_v1.0.py --logo   # master
-python3 render_pcb_v1.0.py buildbeacon_tuile_v1.0.kicad_pcb ../images/pcb_tuile_v1.0.png "Tile"
+python3 gen_buildbeacon_pcb_v1.2.py          # project tile
+python3 gen_buildbeacon_pcb_v1.2.py --logo   # master
 ```
 
 Any board change bumps the script's `VERSION` variable (and so the file names and the text
@@ -143,7 +143,7 @@ printed on the back of the board).
 
 ## 3D models
 
-A single parametric file: [`cad/buildbeacon_tile_v1.0.scad`](cad/buildbeacon_tile_v1.0.scad),
+A single parametric file: [`cad/buildbeacon_tile_v1.1.scad`](cad/buildbeacon_tile_v1.1.scad),
 to open in [OpenSCAD](https://openscad.org/) (2021 or later). Set the parameters in the
 **Customizer**, pick the part with `part`, render (**F6**) and export to STL. Comments in the
 file are in French.
