@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Programme principal : config.json → plugins → image des LED → WLED.
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Programme principal : config.json → plugins → image des LED → WLED, et API REST.
+// Version 1.1 (2026-11-11) — API REST (--port, --listen, --web, BB_API_TOKEN) ; rechargement par le service du Hub.
 
 import 'dart:async';
 import 'dart:io';
@@ -9,12 +9,14 @@ import 'package:buildbeacon_hub/buildbeacon_hub.dart';
 import 'package:buildbeacon_hub/src/cli.dart';
 import 'package:buildbeacon_plugin_github/buildbeacon_plugin_github.dart';
 import 'package:http/http.dart' as http;
+import 'package:shelf/shelf_io.dart' as shelf_io;
 
 String _usage(String l) => tr(
   l,
   en: '''
-BuildBeacon Hub: reads config.json, runs the source plugins and sends the LED
-frames to WLED (or to the simulator). Reloads config.json when it changes.
+BuildBeacon Hub: reads config.json, runs the source plugins, sends the LED
+frames to WLED (or to the simulator) and serves the REST API. Reloads
+config.json when it changes.
 
 Usage: mise run hub [-- options]          (at the repository root: uses
                                           data/config.json and .env)
@@ -24,14 +26,19 @@ Options:
   --config <file>     configuration (default: BB_CONFIG, otherwise /data/config.json)
   --env-file <file>   variables file such as .env (optional; real environment
                       variables take precedence)
+  --port <n>          HTTP port of the API (default: BB_PORT, otherwise 8080)
+  --listen <address>  listening address (default: BB_LISTEN, otherwise 0.0.0.0,
+                      all interfaces; 127.0.0.1 for this machine only)
+  --web <folder>      web interface files to serve (default: BB_WEB_DIR)
   --help              this help
 
-Secret: BB_GITHUB_TOKEN (optional for public repositories, 60 requests per hour
-without it). Language: BB_LANG=fr or BB_LANG=en (default: system language).''',
+Secrets: BB_GITHUB_TOKEN (optional for public repositories, 60 requests per hour
+without it); BB_API_TOKEN (optional: protects the API writes).
+Language: BB_LANG=fr or BB_LANG=en (default: system language).''',
   fr: '''
-BuildBeacon Hub : lit config.json, fait tourner les plugins de source et envoie
-les images des LED à WLED (ou au simulateur). Recharge config.json quand il
-change.
+BuildBeacon Hub : lit config.json, fait tourner les plugins de source, envoie
+les images des LED à WLED (ou au simulateur) et sert l'API REST. Recharge
+config.json quand il change.
 
 Usage : mise run hub [-- options]          (à la racine du dépôt : utilise
                                            data/config.json et .env)
@@ -41,19 +48,25 @@ Options :
   --config <fichier>    configuration (défaut : BB_CONFIG, sinon /data/config.json)
   --env-file <fichier>  fichier de variables comme .env (facultatif ; les vraies
                         variables d'environnement ont priorité)
+  --port <n>            port HTTP de l'API (défaut : BB_PORT, sinon 8080)
+  --listen <adresse>    adresse d'écoute (défaut : BB_LISTEN, sinon 0.0.0.0,
+                        toutes les interfaces ; 127.0.0.1 pour cette machine seule)
+  --web <dossier>       fichiers de l'interface web à servir (défaut : BB_WEB_DIR)
   --help                cette aide
 
-Secret : BB_GITHUB_TOKEN (facultatif pour les dépôts publics, 60 requêtes par
-heure sans lui). Langue : BB_LANG=fr ou BB_LANG=en (défaut : langue du système).''',
+Secrets : BB_GITHUB_TOKEN (facultatif pour les dépôts publics, 60 requêtes par
+heure sans lui) ; BB_API_TOKEN (facultatif : protège les écritures de l'API).
+Langue : BB_LANG=fr ou BB_LANG=en (défaut : langue du système).''',
 );
 
 Future<void> main(List<String> args) async {
   final systemLanguage = cliLanguage();
+  final usage = _usage(systemLanguage);
   final options = parseOptions(
     args,
-    usage: _usage(systemLanguage),
+    usage: usage,
     language: systemLanguage,
-    withValue: {'config', 'env-file'},
+    withValue: {'config', 'env-file', 'port', 'listen', 'web'},
   );
   final environment = await loadEnvironment(envFile: options['env-file']);
   // BB_LANG peut venir du fichier .env.
@@ -65,6 +78,17 @@ Future<void> main(List<String> args) async {
 
   final configPath =
       options['config'] ?? environment['BB_CONFIG'] ?? '/data/config.json';
+  final port = intOption(
+    {'port': options['port'] ?? environment['BB_PORT']},
+    'port',
+    8080,
+    usage: usage,
+    language: l,
+  );
+  final listen = options['listen'] ?? environment['BB_LISTEN'] ?? '0.0.0.0';
+  final webDir = options['web'] ?? environment['BB_WEB_DIR'];
+  final apiToken = environment['BB_API_TOKEN'];
+
   final plugins = builtinPlugins();
   final Config config;
   try {
@@ -124,54 +148,57 @@ Future<void> main(List<String> args) async {
     log: log,
   );
   await hub.start(config);
+  final service = HubService(
+    hub: hub,
+    configPath: configPath,
+    environment: environment,
+    log: log,
+  );
+
+  final HttpServer server;
+  try {
+    server = await shelf_io.serve(
+      hubHandler(service, apiToken: apiToken, webDir: webDir),
+      listen,
+      port,
+    );
+  } on SocketException catch (e) {
+    await hub.stop();
+    httpClient.close();
+    final reason = e.osError?.message ?? e.message;
+    fail(
+      tr(
+        l,
+        en:
+            'Cannot listen on $listen:$port ($reason). Choose another port '
+            'with --port.',
+        fr:
+            'Impossible d\'écouter sur $listen:$port ($reason). Choisir un '
+            'autre port avec --port.',
+      ),
+    );
+  }
+  final shown = listen == '0.0.0.0' ? 'localhost' : listen;
+  log(
+    LocalizedText.build(
+      (l) => tr(
+        l,
+        en:
+            'API: http://$shown:${server.port}/api — writes '
+            '${apiToken == null ? 'not protected (BB_API_TOKEN not set)' : 'protected by BB_API_TOKEN'}',
+        fr:
+            'API : http://$shown:${server.port}/api — écritures '
+            '${apiToken == null ? 'non protégées (BB_API_TOKEN absent)' : 'protégées par BB_API_TOKEN'}',
+      ),
+    ),
+  );
 
   // Rechargement à chaud : surveiller le dossier, car beaucoup d'éditeurs
-  // remplacent le fichier au lieu de le réécrire.
+  // remplacent le fichier au lieu de le réécrire. Une configuration que l'API
+  // vient d'enregistrer est identique : le service l'ignore.
   final file = File(configPath).absolute;
   final name = _fileName(file.path);
   Timer? debounce;
-  Future<void> reload() async {
-    try {
-      final next = await readConfigFile(configPath);
-      final problems = next.validate(plugins: plugins);
-      if (problems.isNotEmpty) {
-        log(
-          LocalizedText.build(
-            (l) => tr(
-              l,
-              en: 'New configuration refused, the previous one is kept:',
-              fr: 'Nouvelle configuration refusée, la précédente est gardée :',
-            ),
-          ),
-        );
-        for (final problem in problems) {
-          log(LocalizedText.build((l) => '  - ${problem.resolve(l)}'));
-        }
-        return;
-      }
-      await hub.apply(next);
-      log(
-        const LocalizedText({
-          'en': 'Configuration reloaded',
-          'fr': 'Configuration rechargée',
-        }),
-      );
-      if (githubQuotaWarning(next, environment) case final warning?) {
-        log(warning);
-      }
-    } on LocalizedFormatException catch (e) {
-      log(
-        LocalizedText.build(
-          (l) => tr(
-            l,
-            en: '${e.text.resolve(l)} — the previous configuration is kept',
-            fr: '${e.text.resolve(l)} — la configuration précédente est gardée',
-          ),
-        ),
-      );
-    }
-  }
-
   final watcher = file.parent
       .watch()
       .where(
@@ -184,7 +211,7 @@ Future<void> main(List<String> args) async {
         debounce?.cancel();
         debounce = Timer(
           const Duration(milliseconds: 300),
-          () => unawaited(reload()),
+          () => unawaited(service.reloadFromDisk()),
         );
       });
 
@@ -201,6 +228,7 @@ Future<void> main(List<String> args) async {
   log(const LocalizedText({'en': 'Stopping…', 'fr': 'Arrêt…'}));
   debounce?.cancel();
   await watcher.cancel();
+  await server.close(force: true);
   await hub.stop();
   httpClient.close();
   exit(0);

@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Le Hub : config → plugins → image des LED → WLED.
-// Version 1.1 (2026-11-11) — cause courte d'une erreur réseau vers WLED.
+// Version 1.2 (2026-11-11) — pour l'API : identifier une tuile, signal de changement, état de WLED, image courante.
 
 import 'dart:async';
 
@@ -22,6 +22,10 @@ typedef LedOutputOpener =
       WledConfig wled,
       void Function(LocalizedText message) log,
     );
+
+/// Résultat de la dernière vérification de WLED par son API JSON : ses
+/// informations, ou la cause de l'échec.
+typedef WledStatus = ({DateTime checkedAt, WledInfo? info, String? error});
 
 /// Le Hub assemblé : il fait tourner les plugins de la configuration, calcule
 /// l'image des LED 20 fois par seconde et l'envoie à WLED (ou au simulateur).
@@ -60,10 +64,52 @@ final class Hub {
   /// journalisés).
   final _shown = <String, String>{};
 
+  final _events = StreamController<void>.broadcast();
+  final _identifyUntil = <String, DateTime>{};
+  final _clock = Stopwatch();
+  WledStatus? _wled;
+
   Config get config => _config;
 
   /// États actuels des sources, par clé.
   Map<String, SourceState> get states => _manager.states;
+
+  /// Émet quand ce que montre le Hub change : état d'une source,
+  /// configuration, tuile identifiée, vérification de WLED.
+  Stream<void> get changes => _events.stream;
+
+  /// Dernière vérification de WLED ; `null` avant la première.
+  WledStatus? get wled => _wled;
+
+  /// Tuiles en train de clignoter (bouton « identifier »).
+  Set<String> get identifying {
+    final now = DateTime.now();
+    _identifyUntil.removeWhere((_, until) => !until.isAfter(now));
+    return _identifyUntil.keys.toSet();
+  }
+
+  /// L'image envoyée aux LED en ce moment.
+  LedFrame currentFrame() => _frameAt(_clock.elapsed);
+
+  LedFrame _frameAt(Duration t) =>
+      _renderer.render(_config, _manager.states, t, identify: identifying);
+
+  /// Fait clignoter la tuile [tileId] pendant [duration] ; `false` si elle
+  /// n'existe pas dans la configuration.
+  bool identify(
+    String tileId, {
+    Duration duration = const Duration(seconds: 5),
+  }) {
+    if (!_config.tiles.any((tile) => tile.id == tileId)) return false;
+    _identifyUntil[tileId] = DateTime.now().add(duration);
+    _notify();
+    Timer(duration, _notify);
+    return true;
+  }
+
+  void _notify() {
+    if (!_events.isClosed) _events.add(null);
+  }
 
   /// Ouvre la sortie DDP vers WLED.
   static Future<LedOutputHandle> openDdp(
@@ -86,12 +132,17 @@ final class Hub {
       environment: _environment,
       log: (message) => _log(LocalizedText.same(message)),
     );
-    _changes = _manager.changes.listen((_) => _reportChanges());
+    _changes = _manager.changes.listen((_) {
+      _reportChanges();
+      _notify();
+    });
     await _openOutput(config.wled);
     await _manager.apply(config);
+    _clock.start();
     _loop = LedOutputLoop(
-      frameAt: (t) => _renderer.render(_config, _manager.states, t),
+      frameAt: _frameAt,
       sink: _sink,
+      elapsed: () => _clock.elapsed,
       log: _log,
     )..start();
     await checkWled();
@@ -107,7 +158,11 @@ final class Hub {
       await _openOutput(wled);
     }
     await _manager.apply(config);
+    _identifyUntil.removeWhere(
+      (id, _) => !config.tiles.any((tile) => tile.id == id),
+    );
     _reportChanges();
+    _notify();
     if (wled.host != previous.host ||
         wled.port != previous.port ||
         wled.brightness != previous.brightness) {
@@ -118,7 +173,14 @@ final class Hub {
   /// Vérifie WLED par son API JSON (connexion, nombre de LED) et règle la
   /// luminosité. Une API injoignable n'empêche pas l'envoi des couleurs en
   /// DDP (simulateur, réseau filtré) : elle est seulement signalée.
-  Future<void> checkWled() async {
+  Future<WledStatus> checkWled() async {
+    final status = await _checkWled();
+    _wled = status;
+    _notify();
+    return status;
+  }
+
+  Future<WledStatus> _checkWled() async {
     final wled = _config.wled;
     final expected = _config.ledCount;
     final client = WledClient(host: wled.host, port: wled.port, client: _http);
@@ -159,6 +221,7 @@ final class Hub {
           ),
         ),
       );
+      return (checkedAt: DateTime.now(), info: info, error: null);
     } catch (error) {
       final url = 'http://${wled.host}:${wled.port}';
       final reason = _shortError(error);
@@ -176,6 +239,7 @@ final class Hub {
           ),
         ),
       );
+      return (checkedAt: DateTime.now(), info: null, error: reason);
     }
   }
 
@@ -184,6 +248,7 @@ final class Hub {
     await _changes?.cancel();
     await _manager.close();
     await _closeOutput();
+    await _events.close();
   }
 
   Future<void> _openOutput(WledConfig wled) async {
