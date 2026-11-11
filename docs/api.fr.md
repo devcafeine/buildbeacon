@@ -1,4 +1,4 @@
-<!-- BuildBeacon — API REST (français). Version 1.0 (2026-11-11) -->
+<!-- BuildBeacon — API REST (français). Version 1.1 (2026-11-11) — événement config, validation sans jeton, interface web. -->
 # API REST
 
 [English version](api.md)
@@ -38,8 +38,9 @@ http://<adresse du hub>:8080/api
   envoyer une telle requête depuis le navigateur d'une personne de votre réseau : il lui
   faudrait une autorisation CORS que le Hub ne donne jamais.
 - **Jeton facultatif** : définissez `BB_API_TOKEN`, et chaque écriture devra porter
-  `Authorization: Bearer <jeton>`. Les lectures restent ouvertes sur votre réseau (elles ne
-  contiennent aucun secret).
+  `Authorization: Bearer <jeton>` (l'interface web le demande quand il le faut). Les lectures
+  restent ouvertes sur votre réseau (elles ne contiennent aucun secret), comme
+  `POST /api/config/validate`, qui ne change rien.
 - **Adresse d'écoute** : toutes les interfaces par défaut (`--listen 0.0.0.0`, nécessaire
   pour joindre l'interface depuis une autre machine) ; `--listen 127.0.0.1` pour cette
   machine seulement.
@@ -55,7 +56,7 @@ http://<adresse du hub>:8080/api
 | `POST /api/config/validate` | valider une configuration sans l'appliquer |
 | `GET /api/plugins` | plugins disponibles et leurs réglages |
 | `GET /api/state` | ce que montre le Hub (tuiles, zones, sources, WLED) |
-| `GET /api/events` | la même chose, en direct (Server-Sent Events) |
+| `GET /api/events` | configuration et état, en direct (Server-Sent Events) |
 | `GET /api/frame` | l'image exacte envoyée aux LED |
 | `POST /api/tiles/{id}/identify` | faire clignoter une tuile |
 | `POST /api/wled/check` | revérifier WLED et régler sa luminosité |
@@ -138,14 +139,21 @@ l'interface anime elle-même les états listés dans `pulsing`.
 
 ### `GET /api/events`
 
-Server-Sent Events : un événement `state` (même contenu que `/api/state`) tout de suite, puis
-à chaque changement, au plus 4 par seconde. Un commentaire toutes les 15 s garde la connexion
-ouverte.
+Server-Sent Events, tout de suite : un événement `config` (même contenu que
+`GET /api/config`), puis un événement `state` (même contenu que `/api/state`). Ensuite, à
+chaque changement, au plus 4 par seconde : `config` à nouveau si la configuration a changé
+(enregistrée par l'API ou modifiée à la main), puis `state`. Un commentaire toutes les 15 s
+garde la connexion ouverte.
 
 ```js
 const events = new EventSource("/api/events");
+events.addEventListener("config", (e) => edit(JSON.parse(e.data)));
 events.addEventListener("state", (e) => render(JSON.parse(e.data)));
 ```
+
+Derrière un proxy inverse, désactivez la mise en tampon pour cette route (nginx :
+`proxy_buffering off;`). Sinon les événements restent bloqués, et l'interface web se replie
+sur une lecture de `/api/config` et `/api/state` toutes les 2 s.
 
 ### `GET /api/frame`
 
@@ -172,5 +180,5 @@ configuration ; répond la section `wled` de l'état.
 |---|---|---|
 | `--port <n>` | `BB_PORT` | `8080` |
 | `--listen <adresse>` | `BB_LISTEN` | `0.0.0.0` (toutes les interfaces) |
-| `--web <dossier>` | `BB_WEB_DIR` | aucun : la racine `/` présente seulement l'API |
+| `--web <dossier>` | `BB_WEB_DIR` | aucun : la racine `/` présente seulement l'API (`mise run hub` sert `hub/ui/build/web`, compilée par `mise run ui-build`) |
 | — | `BB_API_TOKEN` | aucun : les écritures ne sont pas protégées par un jeton |

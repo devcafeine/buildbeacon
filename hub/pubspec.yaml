@@ -1,5 +1,5 @@
-# BuildBeacon Hub — espace de travail Dart : SDK, cœur, plugins, serveur.
-# Version du fichier : 1.2 (2026-11-11) — repère en anglais pour `mise run new-plugin`.
+# BuildBeacon Hub — espace de travail Dart : SDK, cœur, plugins, serveur, interface web.
+# Version du fichier : 1.3 (2026-11-11) — interface Flutter Web (ui).
 #
 # Un seul `dart pub get` ici résout tous les paquets ci-dessous.
 name: buildbeacon_workspace
@@ -14,6 +14,7 @@ workspace:
   - plugins/github
   # new-plugin: plugins are added above this line.
   - server
+  - ui
 
 dev_dependencies:
   lints: ^6.0.0

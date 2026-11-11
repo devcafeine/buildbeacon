@@ -1,0 +1,41 @@
+# BuildBeacon — interface web (Flutter Web), servie par le Hub (--web build/web).
+# Version du fichier : 1.0 (2026-11-11)
+name: buildbeacon_ui
+description: BuildBeacon web interface — edit the tiles and follow them live.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.9.0
+  flutter: ">=3.35.0"
+
+dependencies:
+  buildbeacon_core:
+    path: ../core
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  http: ^1.2.0
+  intl: any
+  web: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^6.0.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+  # Roboto embarquée : sinon Flutter Web la télécharge chez Google à chaque
+  # ouverture (le Hub doit marcher sur un réseau local, sans CDN).
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700

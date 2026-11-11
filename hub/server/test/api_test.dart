@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests : API REST (configuration, plugins, état, actions, sécurité).
-// Version 1.0 (2026-11-11)
+// Version 1.1 (2026-11-11) — événement SSE config.
 
 import 'dart:async';
 import 'dart:convert';
@@ -311,6 +311,27 @@ void main() {
 
       expect([refused, wrong, accepted, read], [401, 401, 200, 200]);
     });
+
+    test('avec BB_API_TOKEN : valider sans jeton reste possible (sans effet), '
+        'mais en JSON', () async {
+      final handler = await start(apiToken: 's3cret');
+      final (status, json) = await call(
+        handler,
+        request('POST', '/api/config/validate', body: _configJson(poll: 1)),
+      );
+      expect(status, 200);
+      expect(json, containsPair('valid', false));
+      final (notJson, _) = await call(
+        handler,
+        request('POST', '/api/config/validate', contentType: 'text/plain'),
+      );
+      expect(notJson, 415);
+      final (identify, _) = await call(
+        handler,
+        request('POST', '/api/tiles/app/identify'),
+      );
+      expect(identify, 401);
+    });
   });
 
   test(
@@ -421,17 +442,62 @@ void main() {
     expect(json, containsPair('error', contains('no WLED')));
   });
 
-  test('flux en direct (SSE) : un premier état tout de suite', () async {
-    final handler = await start();
-    final response = await handler(request('GET', '/api/events'));
-    expect(response.headers['content-type'], startsWith('text/event-stream'));
+  group('flux en direct (SSE)', () {
+    /// Événements reçus (nom, données décodées), au fil de l'eau.
+    Future<StreamIterator<(String, Object?)>> open(Handler handler) async {
+      final response = await handler(request('GET', '/api/events'));
+      expect(response.headers['content-type'], startsWith('text/event-stream'));
+      final events = response
+          .read()
+          .transform(utf8.decoder)
+          .where((chunk) => chunk.startsWith('event: '))
+          .map((chunk) {
+            final [name, data] = chunk.trim().split('\n');
+            return (
+              name.substring('event: '.length),
+              jsonDecode(data.substring('data: '.length)),
+            );
+          });
+      return StreamIterator(events);
+    }
 
-    final first = await response
-        .read()
-        .transform(utf8.decoder)
-        .first
-        .timeout(const Duration(seconds: 5));
-    expect(first, startsWith('event: state\ndata: {'));
+    Future<(String, Object?)> next(StreamIterator<(String, Object?)> it) async {
+      expect(await it.moveNext().timeout(const Duration(seconds: 5)), isTrue);
+      return it.current;
+    }
+
+    test('la configuration puis l\'état, tout de suite', () async {
+      final events = await open(await start());
+      final (first, config) = await next(events);
+      expect(first, 'config');
+      expect(config, containsPair('poll_seconds', 30));
+      final (second, state) = await next(events);
+      expect(second, 'state');
+      expect(state, containsPair('led_count', 12));
+      await events.cancel();
+    });
+
+    test('config renvoyée seulement quand elle change', () async {
+      final handler = await start();
+      final events = await open(handler);
+      await next(events); // config
+      await next(events); // state
+
+      // Un changement d'état seul : pas de nouvelle config.
+      await Future<void>.delayed(Duration.zero);
+      plugin.controllers['a']!.add(const SourceState(status: Status.success));
+      expect((await next(events)).$1, 'state');
+
+      await call(
+        handler,
+        request('PUT', '/api/config', body: _configJson(brightness: 90)),
+      );
+      final (name, config) = await next(events);
+      expect(name, 'config');
+      expect(config, containsPair('wled', containsPair('brightness', 90)));
+      expect((await next(events)).$1, 'state');
+      await events.cancel();
+    });
   });
 
   group('hors de l\'API', () {
@@ -463,6 +529,14 @@ void main() {
       final response = await handler(request('GET', '/'));
       expect(response.statusCode, 200);
       expect(await response.readAsString(), '<h1>BuildBeacon</h1>');
+      // Revalidé à chaque fois : jamais d'ancienne interface après une mise à jour.
+      expect(response.headers['cache-control'], 'no-cache');
+
+      final modified = response.headers['last-modified']!;
+      final again = await handler(
+        request('GET', '/', headers: {'if-modified-since': modified}),
+      );
+      expect(again.statusCode, 304);
     });
   });
 }

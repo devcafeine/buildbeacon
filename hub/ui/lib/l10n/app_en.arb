@@ -1,0 +1,263 @@
+{
+  "@@locale": "en",
+  "@@x-version": "1.0 (2026-11-11)",
+  "appTitle": "BuildBeacon",
+  "linkConnecting": "Connecting…",
+  "linkLive": "Live",
+  "linkLost": "Hub unreachable",
+  "language": "Language",
+  "languageAuto": "Browser language",
+  "discard": "Discard changes",
+  "save": "Save",
+  "saving": "Saving…",
+  "saved": "Saved",
+  "saveDone": "Saved: the Hub applies the new configuration.",
+  "saveRejected": "The Hub refused the configuration: see the problems above.",
+  "issuesTitle": "{count, plural, =1{1 problem to fix before saving} other{{count} problems to fix before saving}}",
+  "@issuesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "remoteChanged": "The configuration was changed on the Hub (file edited or another window) while you were editing.",
+  "remoteKeepMine": "Keep my changes",
+  "remoteLoad": "Load the Hub version",
+  "loadFailed": "Cannot load the configuration of the Hub",
+  "retry": "Retry",
+  "hubUnreachable": "The Hub does not answer: is it running, and is this page served by it?",
+  "httpError": "The Hub answered with an error ({status}).",
+  "@httpError": {
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "errorUnknown": "Unknown error.",
+  "undo": "Undo",
+  "cancel": "Cancel",
+  "ok": "OK",
+  "tokenTitle": "API token",
+  "tokenExplain": "This Hub protects its changes with BB_API_TOKEN. Enter the token to continue; it is only kept in this page.",
+  "tokenLabel": "Token",
+  "tokenRefused": "Token refused by the Hub.",
+  "tabTile": "Tile",
+  "tabChain": "Chain",
+  "tabSettings": "Settings",
+  "wallAddTile": "Add a tile here",
+  "wallTileHint": "Select; drag to move",
+  "tileNoneSelected": "Select a tile on the wall to set it up, or a + to add one. Drag a tile to move it.",
+  "tileChainRank": "chain position {rank}",
+  "@tileChainRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "ledRange": "LEDs {first}–{last}",
+  "@ledRange": {
+    "placeholders": {
+      "first": {
+        "type": "int"
+      },
+      "last": {
+        "type": "int"
+      }
+    }
+  },
+  "tileLabel": "Name",
+  "tileLabelHelp": "Shown in this interface (the name on the tile itself is printed).",
+  "tileId": "Identifier",
+  "tileIdHelp": "Unique name of the tile in config.json and the API.",
+  "tileIdEmpty": "Identifier required",
+  "tileIdTaken": "\"{id}\" is already used by another tile",
+  "@tileIdTaken": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "tileRemove": "Remove the tile",
+  "tileRemoved": "Tile removed; the next ones move up one position in the chain.",
+  "identifyTooltip": "Identify: blink this tile on the wall",
+  "identifyStarted": "The tile blinks on the wall for 5 s.",
+  "identifyNeedsSave": "Save first: the Hub does not know this tile yet.",
+  "zoneAmbientHelp": "Top and bottom strips (4 LEDs)",
+  "zoneDotsHelp": "The 5 dots, from left to right",
+  "zoneSystemHelp": "The 3 LEDs behind the logo",
+  "zoneOff": "Off.",
+  "zoneSource": "Source",
+  "zoneMode": "Display",
+  "pluginUnknown": "Unknown plugin: {type}",
+  "@pluginUnknown": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "modeUnsupported": "This source does not provide what this mode needs",
+  "modeOverallHelp": "All the LEDs take the color of the current state.",
+  "modeHistoryHelp": "One dot per run, the most recent on the left; the run in progress pulses.",
+  "modeThresholdsHelp": "The color of a measurement compared to thresholds.",
+  "modeGaugeHelp": "A progress bar from left to right.",
+  "metric": "Measurement",
+  "metricFirst": "First provided by the source",
+  "metricFreeHelp": "Identifier of the measurement; empty: the first one provided.",
+  "thresholdWarning": "Warning from",
+  "thresholdFailure": "Failure from",
+  "alertAbove": "Alert above",
+  "alertBelow": "Alert below",
+  "thresholdsHelp": "Before the warning threshold: success. At least one threshold.",
+  "thresholdsGaugeHelp": "Optional: without thresholds, the gauge takes the color of the source state.",
+  "gaugeMin": "Minimum",
+  "gaugeMax": "Maximum",
+  "gaugeBoundsHelp": "Empty: the bounds given by the source, otherwise 0 – 100.",
+  "secretMissing": "{env} is not set on the Hub.",
+  "@secretMissing": {
+    "placeholders": {
+      "env": {
+        "type": "String"
+      }
+    }
+  },
+  "secretConfigured": "{env}: set on the Hub",
+  "@secretConfigured": {
+    "placeholders": {
+      "env": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceNotRead": "Not read yet: the Hub will read this source once the configuration is saved.",
+  "sourceNow": "Now: {status}",
+  "@sourceNow": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "metricLine": "{name}: {value}",
+  "@metricLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "numberExpected": "Number expected",
+  "integerExpected": "Whole number expected",
+  "integerAtLeast": "At least {min}",
+  "@integerAtLeast": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "integerAtMost": "At most {max}",
+  "@integerAtMost": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "chainHelp": "Wiring order of the tiles, independent from their place on the wall: the master first, then the project tiles. Drag to reorder; the test pattern (mise run test-pattern) helps find the real order.",
+  "chainDrag": "Drag to change the chain position",
+  "chainLedTotal": "Chain length: {count} LEDs (3 + 9 per project tile).",
+  "@chainLedTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chainWledMatches": "WLED is set to {count} LEDs: OK.",
+  "@chainWledMatches": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chainWledMismatch": "WLED is set to {actual} LEDs but this configuration describes {expected}: adjust LED Preferences → Length in WLED.",
+  "@chainWledMismatch": {
+    "placeholders": {
+      "actual": {
+        "type": "int"
+      },
+      "expected": {
+        "type": "int"
+      }
+    }
+  },
+  "chainWledUnknown": "LED count of WLED unknown (WLED not reached).",
+  "settingsWled": "WLED controller",
+  "wledHost": "Address",
+  "wledHostHelp": ".local name or IP address; 127.0.0.1 for the simulator.",
+  "wledHttpPort": "HTTP port",
+  "wledDdpPort": "DDP port",
+  "wledBrightness": "Brightness: {percent} % ({value}/255)",
+  "@wledBrightness": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "wledBrightnessHelp": "Overall brightness, set in WLED when the Hub starts or saves.",
+  "wledBrightnessHigh": "Above 50 %, the LEDs may flicker with a USB-C power supply: check the current limit of WLED.",
+  "wledNotChecked": "Not checked yet.",
+  "wledReachable": "WLED {version} \"{name}\": {count} LEDs.",
+  "@wledReachable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wledUnreachable": "JSON API of WLED unreachable ({reason}): the colors are still sent over DDP (normal with the simulator).",
+  "@wledUnreachable": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "wledCheck": "Check WLED",
+  "wledCheckSavedOnly": "The check uses the saved settings: save first to check the new ones.",
+  "settingsPolling": "Polling",
+  "pollSeconds": "Interval",
+  "pollHelp": "Time between two readings of each source (at least {min} s). Without a GitHub token, 60 requests per hour in all.",
+  "@pollHelp": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsColors": "Colors of the states",
+  "colorPulses": "Pulses",
+  "colorExpected": "#RRGGBB expected",
+  "colorsReset": "Default colors",
+  "settingsSources": "Sources",
+  "secretsHelp": "Secrets (tokens) are never set here: they are environment variables of the Hub (.env file)."
+}

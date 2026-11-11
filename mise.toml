@@ -1,5 +1,5 @@
 # BuildBeacon — outils et tâches du projet (mise).
-# Version 1.6 (2026-11-11) — tâche hub (programme principal : data/config.json, .env).
+# Version 1.7 (2026-11-11) — interface web : ui-build, ui-dev ; get, format, test et check l'incluent.
 #
 # Flutter 3.47.6 embarque Dart 3.13.5 : le même SDK sert au Hub (hub/) et à
 # l'interface Flutter Web (hub/ui). L'image Docker devra suivre cette version.
@@ -10,14 +10,14 @@
 flutter = "3.47.6"
 
 [tasks.get]
-description = "Fetch the dependencies of the whole workspace"
+description = "Fetch the dependencies of the whole workspace (and generate the translations of the web interface)"
 dir = "{{config_root}}/hub"
-run = "dart pub get"
+run = "flutter pub get"
 
 [tasks.format]
 description = "Format the Hub code"
 dir = "{{config_root}}/hub"
-run = "dart format sdk core plugins server tool"
+run = "dart format sdk core plugins server tool ui"
 
 [tasks.analyze]
 description = "Static analysis of the Hub"
@@ -25,17 +25,19 @@ dir = "{{config_root}}/hub"
 run = "dart analyze"
 
 [tasks.test]
-description = "Unit tests of each Hub package (SDK, core, plugins, server)"
+description = "Tests of each Hub package (SDK, core, plugins, server, web interface)"
 dir = "{{config_root}}/hub"
-run = 'for p in sdk core plugins/* server; do echo "== $p"; (cd "$p" && dart test) || exit 1; done'
+run = 'for p in sdk core plugins/* server; do echo "== $p"; (cd "$p" && dart test) || exit 1; done; echo "== ui"; cd ui && flutter test'
 
 [tasks.check]
 description = "Check format, analysis and tests (before committing)"
 dir = "{{config_root}}/hub"
 run = [
-  "dart format --output=none --set-exit-if-changed sdk core plugins server tool",
+  "cd ui && flutter gen-l10n",
+  "dart format --output=none --set-exit-if-changed sdk core plugins server tool ui",
   "dart analyze --fatal-infos",
   'for p in sdk core plugins/* server; do echo "== $p"; (cd "$p" && dart test) || exit 1; done',
+  'echo "== ui"; cd ui && flutter test',
 ]
 
 [tasks.new-plugin]
@@ -44,9 +46,19 @@ dir = "{{config_root}}/hub"
 run = "dart run tool/new_plugin.dart"
 
 [tasks.hub]
-description = "Run the Hub: data/config.json (copy config.example.json) and .env at the repository root"
+description = "Run the Hub: data/config.json (copy config.example.json) and .env at the repository root; web interface on http://localhost:8080 once built (mise run ui-build)"
 dir = "{{config_root}}/hub/server"
-run = "dart run bin/hub.dart --config {{config_root}}/data/config.json --env-file {{config_root}}/.env"
+run = "dart run bin/hub.dart --config {{config_root}}/data/config.json --env-file {{config_root}}/.env --web {{config_root}}/hub/ui/build/web"
+
+[tasks.ui-build]
+description = "Build the web interface (hub/ui/build/web), served by the Hub"
+dir = "{{config_root}}/hub/ui"
+run = "flutter build web --release --no-web-resources-cdn --no-wasm-dry-run"
+
+[tasks.ui-dev]
+description = "Web interface with hot reload on http://localhost:8081, next to a running Hub (mise run hub)"
+dir = "{{config_root}}/hub/ui"
+run = "flutter run -d chrome"
 
 [tasks.simulator]
 description = "Fake WLED: web page http://localhost:8090 of the LEDs received over DDP (port 4048); options: mise run simulator -- --help"

@@ -1,5 +1,5 @@
 // BuildBeacon Hub — API publique du cœur : modèle, rendu, registre des plugins.
-// Version 1.4 (2026-11-11) — mire de mise en service (TestPattern).
+// Version 1.5 (2026-11-11) — état d'une source ↔ JSON (SourceStateJson).
 
 /// Cœur de BuildBeacon : modèle de configuration, calcul de l'image des LED
 /// et registre des plugins de source.
@@ -15,6 +15,7 @@ export 'src/model/led_layout.dart';
 export 'src/model/palette.dart';
 export 'src/model/rgb.dart';
 export 'src/model/source_config.dart';
+export 'src/model/source_state_json.dart';
 export 'src/model/thresholds.dart';
 export 'src/model/tile.dart';
 export 'src/model/zone_action.dart';

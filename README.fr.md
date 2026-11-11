@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (français). Version 1.3 (2026-11-11) — API REST. -->
+<!-- BuildBeacon — README (français). Version 1.4 (2026-11-11) — interface web. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -16,8 +16,7 @@ l'ESP32, affiche l'état du système.
 
 > **État : début du développement.** Le Hub tourne à partir de `config.json` : plugin
 > GitHub, rendu des LED, sortie vers WLED, rechargement à chaud de la configuration, API
-> REST, plus un simulateur et une mire. L'interface web et l'image Docker arrivent
-> ensuite.
+> REST et interface web, plus un simulateur et une mire. L'image Docker arrive ensuite.
 
 ## Fonctionnement
 
@@ -28,7 +27,7 @@ API GitHub ──(scrutation, ETag)──┐
               │  plugins de source → cache d'états  │
               │        ↓                            │
               │  image des LED (20 img/s)           │──DDP/UDP──▶ ESP32 + WLED ──▶ tuiles
-              │  API REST · interface web (bientôt) │
+              │  API REST · interface web           │
               └─────────────────────────────────────┘
 ```
 
@@ -89,9 +88,19 @@ lui-même (tuile master), WLED et mise — et ne demande pas de jeton.
 
 ```sh
 mkdir -p data && cp config.example.json data/config.json
+mise run ui-build                                             # une fois : l'interface web
 mise run simulator -- --open --config "$PWD/data/config.json" # terminal 1, sans matériel
 mise run hub                                                  # terminal 2
 ```
+
+Ouvrez ensuite **http://localhost:8080** : le mur dessiné à sa vraie place, avec les
+couleurs en direct. Touchez une tuile pour choisir la source et le mode d'affichage de
+chaque zone ; ajoutez une tuile avec un **+**, déplacez-la en la faisant glisser, réglez
+l'ordre de la chaîne, WLED, la luminosité et les couleurs. Vos modifications s'affichent
+sur le mur et sont vérifiées par le Hub pendant la saisie ; rien n'arrive aux LED avant
+d'**enregistrer**. Langue : français ou anglais (menu, ou `?lang=en`).
+
+![L'interface web : le mur et les réglages d'une tuile](docs/images/web-ui_fr_v1.0.png)
 
 Sans tuiles, mettez `"host": "127.0.0.1"` dans la section `wled` de
 `data/config.json` pour que le Hub envoie au simulateur. Le Hub recharge
@@ -146,8 +155,8 @@ prises en charge par Dart mais pas encore testées : vos retours sont bienvenus.
 
 ## Configuration
 
-`config.json` (modifiable à la main ou par l'[API REST](docs/api.fr.md) ; depuis
-l'interface web, bientôt) :
+`config.json` (modifiable depuis l'interface web, à la main ou par
+l'[API REST](docs/api.fr.md)) :
 
 ```json
 {
@@ -176,8 +185,8 @@ secret.
 ## Langues
 
 Les interfaces existent en anglais et en français (`BB_LANG=fr` ou `BB_LANG=en` pour les
-outils en ligne de commande, langue du navigateur pour les pages web). Les plugins apportent
-leurs propres traductions.
+outils en ligne de commande ; pour les pages web, la langue du navigateur ou le menu des
+langues). Les plugins apportent leurs propres traductions.
 
 ## Le dépôt
 
@@ -187,6 +196,7 @@ hub/                 espace de travail Dart
   core/              modèle, rendu des LED, registre des plugins
   plugins/github/    plugin GitHub Actions
   server/            le Hub (bin/hub.dart), API REST, sortie DDP, simulateur, mire
+  ui/                interface web (Flutter Web), servie par le Hub
   tool/              new_plugin.dart (mise run new-plugin <nom>)
 docs/                guides, API REST
 hardware/            modèles 3D (cad/), cartes (pcb/), guide de montage
@@ -201,4 +211,5 @@ Signalements de bugs, idées, plugins et traductions sont les bienvenus : voir
 ## Licence
 
 Logiciel : [MIT](LICENSE). Matériel (modèles 3D, cartes, dans `hardware/`) :
-[CERN-OHL-P-2.0](hardware/LICENSE).
+[CERN-OHL-P-2.0](hardware/LICENSE). L'interface web embarque la police Roboto
+([licence Apache 2.0](hub/ui/assets/fonts/Roboto_LICENSE.txt)).

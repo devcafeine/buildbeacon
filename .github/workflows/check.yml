@@ -1,5 +1,5 @@
 # BuildBeacon — vérification continue : format, analyse statique, tests (comme `mise run check`).
-# Version du fichier : 1.0 (2026-11-11)
+# Version du fichier : 1.1 (2026-11-11) — Flutter (interface web) : tests et compilation web.
 name: check
 
 on:
@@ -19,16 +19,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Même SDK que mise.toml : Flutter 3.47.6 embarque Dart 3.13.5.
-      - uses: dart-lang/setup-dart@v1
+      # Même SDK que mise.toml : Flutter 3.47.6, qui embarque Dart 3.13.5.
+      - uses: subosito/flutter-action@v2
         with:
-          sdk: 3.13.5
+          flutter-version: 3.47.6
+          channel: stable
+          cache: true
 
+      # Génère aussi les traductions de l'interface (fichiers ARB).
       - name: Dependencies
-        run: dart pub get
+        run: flutter pub get
 
       - name: Format
-        run: dart format --output=none --set-exit-if-changed sdk core plugins server tool
+        run: dart format --output=none --set-exit-if-changed sdk core plugins server tool ui
 
       - name: Analyze
         run: dart analyze --fatal-infos
@@ -39,3 +42,9 @@ jobs:
             echo "== $p"
             (cd "$p" && dart test) || exit 1
           done
+          echo "== ui"
+          (cd ui && flutter test)
+
+      - name: Web build
+        working-directory: hub/ui
+        run: flutter build web --release --no-web-resources-cdn --no-wasm-dry-run
