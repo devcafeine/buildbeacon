@@ -1,5 +1,5 @@
 # BuildBeacon — outils et tâches du projet (mise).
-# Version 1.5 (2026-11-11) — tâches en anglais (simulator, test-pattern, new-plugin).
+# Version 1.6 (2026-11-11) — tâche hub (programme principal : data/config.json, .env).
 #
 # Flutter 3.47.6 embarque Dart 3.13.5 : le même SDK sert au Hub (hub/) et à
 # l'interface Flutter Web (hub/ui). L'image Docker devra suivre cette version.
@@ -42,6 +42,11 @@ run = [
 description = "Create a source plugin and register it in the Hub: mise run new-plugin <name>"
 dir = "{{config_root}}/hub"
 run = "dart run tool/new_plugin.dart"
+
+[tasks.hub]
+description = "Run the Hub: data/config.json (copy config.example.json) and .env at the repository root"
+dir = "{{config_root}}/hub/server"
+run = "dart run bin/hub.dart --config {{config_root}}/data/config.json --env-file {{config_root}}/.env"
 
 [tasks.simulator]
 description = "Fake WLED: web page http://localhost:8090 of the LEDs received over DDP (port 4048); options: mise run simulator -- --help"

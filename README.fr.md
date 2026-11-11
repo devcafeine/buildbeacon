@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (français). Version 1.0 (2026-11-11) -->
+<!-- BuildBeacon — README (français). Version 1.1 (2026-11-11) — lancer le Hub, matériel pris en charge. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -14,10 +14,10 @@ haut et du bas prennent la couleur de l'état global (vert, rouge, orange qui pu
 un run), et ses cinq points montrent les cinq derniers runs. La tuile master, qui contient
 l'ESP32, affiche l'état du système.
 
-> **État : début du développement.** Le cœur fonctionne et il est testé (modèle des tuiles,
-> rendu des LED, plugin GitHub, sortie vers WLED, simulateur, mire). Le programme qui fait
-> tout tourner à partir de `config.json`, l'API REST, l'interface web et l'image Docker
-> arrivent ensuite.
+> **État : début du développement.** Le Hub tourne à partir de `config.json` : plugin
+> GitHub, rendu des LED, sortie vers WLED, rechargement à chaud de la configuration, plus
+> un simulateur et une mire. L'API REST, l'interface web et l'image Docker arrivent
+> ensuite.
 
 ## Fonctionnement
 
@@ -81,6 +81,27 @@ mise run test-pattern -- --host 127.0.0.1       # terminal 2 : envoie une mire
 Options : `mise run simulator -- --help`. Ajouter `--config <config.json>` pour voir votre
 vraie disposition, `--terminal` pour dessiner dans le terminal.
 
+### Lancer le Hub avec des dépôts publics
+
+[`config.example.json`](config.example.json) suit trois projets publics — BuildBeacon
+lui-même (tuile master), WLED et mise — et ne demande pas de jeton.
+
+```sh
+mkdir -p data && cp config.example.json data/config.json
+mise run simulator -- --open --config "$PWD/data/config.json" # terminal 1, sans matériel
+mise run hub                                                  # terminal 2
+```
+
+Sans tuiles, mettez `"host": "127.0.0.1"` dans la section `wled` de
+`data/config.json` pour que le Hub envoie au simulateur. Le Hub recharge
+`data/config.json` dès que vous l'enregistrez, et refuse une version invalide (la
+précédente est gardée).
+
+Sans jeton, GitHub autorise 60 requêtes par heure : l'exemple interroge toutes les 180 s
+pour ses 3 sources, et le Hub vous prévient si votre configuration en demande plus. Avec
+un jeton (`cp .env.example .env`, puis remplir `BB_GITHUB_TOKEN`), vous pouvez descendre
+à 30 s et suivre des dépôts privés.
+
 ### Avec les tuiles
 
 1. Installer [WLED](https://install.wled.me/) sur l'ESP32-C3, puis dans son interface web :
@@ -90,6 +111,27 @@ vraie disposition, `--terminal` pour dessiner dans le terminal.
    - *Sync Interfaces* : « Receive UDP realtime » activé (par défaut).
 2. Vérifier le câblage et relever l'ordre de chaînage :
    `mise run test-pattern -- --host buildbeacon.local` (ou l'IP de WLED).
+3. Décrire vos tuiles dans `data/config.json` (`chain_index` = ordre de câblage, `pos` =
+   place au mur) et lancer `mise run hub`. Au démarrage, le Hub vérifie WLED (nombre de
+   LED) et règle sa luminosité.
+
+## Sur quel matériel le Hub tourne-t-il ?
+
+Le Hub est un petit programme natif : très peu de processeur, environ 50 Mo de mémoire. Il
+doit être sur le même réseau que WLED (UDP 4048, HTTP 80) et joindre Internet pour les
+sources.
+
+| Matériel | Pris en charge | Remarques |
+|---|---|---|
+| Mini PC, serveur ou NAS, Linux x86-64 | oui | recommandé : allumé en permanence (image Docker bientôt) |
+| Raspberry Pi 3, 4, 5, Zero 2 W avec un système 64 bits (arm64) | oui | un bon choix sans serveur |
+| Raspberry Pi 2 ou 3 avec un système 32 bits (ARMv7) | oui | |
+| macOS, Windows, Linux de bureau | oui | pour développer ou essayer |
+| Raspberry Pi 1, Zero, Zero W (ARMv6) | non | Dart ne prend pas en charge l'ARMv6 |
+| ESP32 et autres microcontrôleurs | non | l'ESP32 fait tourner WLED et reçoit seulement les couleurs |
+
+Testé à ce jour : macOS (Apple Silicon) et Linux x86-64 (CI). Les autres plateformes sont
+prises en charge par Dart mais pas encore testées : vos retours sont bienvenus.
 
 ## Configuration
 
@@ -131,9 +173,10 @@ hub/                 espace de travail Dart
   sdk/               SDK des plugins (seule dépendance d'un plugin)
   core/              modèle, rendu des LED, registre des plugins
   plugins/github/    plugin GitHub Actions
-  server/            exécution des plugins, sortie DDP, simulateur, mire
+  server/            le Hub (bin/hub.dart), sortie DDP, simulateur, mire
   tool/              new_plugin.dart (mise run new-plugin <nom>)
 docs/                guides
+config.example.json configuration d'exemple (dépôts publics)
 ```
 
 ## Participer

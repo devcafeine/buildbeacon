@@ -1,4 +1,4 @@
-<!-- BuildBeacon — guide de contribution (français). Version 1.0 (2026-11-11) -->
+<!-- BuildBeacon — guide de contribution (français). Version 1.1 (2026-11-11) — mise run hub. -->
 # Participer à BuildBeacon
 
 [English version](CONTRIBUTING.md)
@@ -39,6 +39,7 @@ Tâches utiles (`mise tasks` les liste toutes) :
 | `mise run check` | format, analyse statique, tous les tests — comme la CI |
 | `mise run format` | formate le code |
 | `mise run test` | tests de chaque paquet |
+| `mise run hub` | lance le Hub avec `data/config.json` (copie de `config.example.json`) |
 | `mise run simulator -- --open` | faux WLED dans une page web, pour travailler sans matériel |
 | `mise run test-pattern -- --host 127.0.0.1` | mire vers le simulateur |
 | `mise run new-plugin <nom>` | crée un plugin à partir du modèle |

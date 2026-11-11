@@ -1,4 +1,4 @@
-<!-- BuildBeacon — écrire un plugin (français). Version 1.0 (2026-11-11) -->
+<!-- BuildBeacon — écrire un plugin (français). Version 1.1 (2026-11-11) — essayer un plugin avec mise run hub. -->
 # Écrire un plugin
 
 [English version](writing-a-plugin.md)
@@ -245,6 +245,12 @@ N'utilisez jamais de vrais secrets ni le vrai service dans les tests.
 Les deux zones utilisent la même source : le Hub n'ouvre qu'une connexion. La jauge
 (`gauge`) allume les cinq points de gauche à droite, le dernier en partie ; `thresholds`
 colorerait la zone selon une mesure (`"thresholds": {"warning": 240, "failure": 260}`).
+
+Pour le voir tourner : ajoutez la source dans `data/config.json` (copié de
+`config.example.json`) et lancez `mise run hub` — avec le simulateur
+(`mise run simulator -- --open`) si vous n'avez pas de tuiles. Le Hub recharge le fichier
+dès que vous l'enregistrez et journalise chaque changement d'état de votre source, y
+compris ses messages d'erreur.
 
 ## 6. Ouvrir une pull request
 
