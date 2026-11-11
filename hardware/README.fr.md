@@ -1,4 +1,4 @@
-<!-- BuildBeacon — matériel (français). Version 1.1 (2026-11-11) — cartes v1.2, rendus 3D KiCad -->
+<!-- BuildBeacon — matériel (français). Version 1.2 (2026-11-11) — liste d'achat et outils -->
 # BuildBeacon — matériel
 
 [English version](README.md)
@@ -97,6 +97,44 @@ Dos : connecteurs JST et cavaliers. Plan de cuivre : +5 V sur la face avant, GND
 **Commun** : câbles JST PH 3 broches double extrémité « même sens », inserts laiton
 M2,5 × 4 × 3,5 + vis M2,5 × 6 pour fixer la carte, inserts M3 × 5 × 4 + vis M3 (ou aimants
 6 × 3 mm) pour fermer la tuile.
+
+### Liste d'achat
+
+Pour une installation de **1 master + N tuiles projet** (exemple : N = 4).
+
+| Article | Quantité | Exemple N = 4 |
+|---|---|---|
+| Carte `buildbeacon_master_v1.2` | 1 | 1 |
+| Carte `buildbeacon_tuile_v1.2` | N | 4 |
+| ESP32-C3 SuperMini (avec barrettes mâles) | 1 | 1 |
+| Ruban WS2812B 5 V, 100 LED/m, 10 mm | 3 + 9 × N LED (1 m = 100 LED, jusqu'à 10 tuiles) | 39 LED → 1 m |
+| Résistance 330 Ω ¼ W | N + 1 | 5 |
+| Résistance 10 kΩ ¼ W | N | 4 |
+| Condensateur électrolytique 10 µF 16 V, pas 5 mm | N + 1 | 5 |
+| Diode 1N4148 (ou 1N4001 à 1N4007) | 1 | 1 |
+| Connecteur JST PH S3B-PH-SM4-TB | au moins 2 × N (2 par tuile projet, 1 sur la master et la dernière tuile) ; jusqu'à 6 × N + 5 pour pouvoir tout changer | 8 à 29 |
+| Câble JST PH 3 broches double extrémité « même sens » | N (un par liaison entre deux tuiles) | 4 |
+| Insert laiton M2,5 × 4 × 3,5 + vis M2,5 × 6 (fixation des cartes) | 4 × (N + 1) | 20 + 20 |
+| Fermeture des tuiles : aimants 6 × 3 mm **ou** inserts M3 × 5 × 4 + vis M3 | 6 × (N + 1) aimants **ou** 3 × (N + 1) inserts et vis | 30 aimants ou 15 + 15 |
+| Câble USB-C | 1 | 1 |
+| Alimentation 5 V (optionnelle, sur J7 « ALIM ») | au moins 0,6 A × N (voir [Alimentation](#alimentation)) | 5 V 3 A |
+| Bornier 2 points au pas de 5,08 mm (optionnel, J7) | 1 | 1 |
+| Filament PLA ou PETG blanc ou « natural » | coques, plaques arrière, os de liaison, socle ou clips | |
+
+Les fabricants de circuits imprimés livrent souvent par lots de 5 cartes minimum par modèle.
+Pour le [montage sans circuit imprimé](#montage-sans-circuit-imprimé), il ne reste que
+l'ESP32, le ruban, une résistance de 330 Ω, la fermeture des tuiles et l'alimentation, plus
+du fil silicone 22 à 28 AWG (3 fils par liaison).
+
+### Outils
+
+- Imprimante 3D.
+- Fer à souder à panne fine (les connecteurs JST sont en CMS), étain, flux.
+- Tresse à dessouder (pour déplacer une goutte de cavalier).
+- Ciseaux ou cutter pour couper le ruban LED sur les repères de coupe.
+- Pince coupante, brucelles ; multimètre conseillé (vérifier qu'il n'y a pas de court-circuit
+  entre +5 V et GND avant la première mise sous tension).
+- Un ordinateur pour installer WLED sur l'ESP32 (voir [Configurer WLED](#configurer-wled)).
 
 ### Pourquoi D1 sur la master ?
 
