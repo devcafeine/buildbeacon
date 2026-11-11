@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (français). Version 1.1 (2026-11-11) — lancer le Hub, matériel pris en charge. -->
+<!-- BuildBeacon — README (français). Version 1.2 (2026-11-11) — lancer le Hub, matériel pris en charge ; matériel publié. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -55,7 +55,8 @@ Modes d'affichage : `overall` (couleur de l'état actuel), `history` (5 derniers
 points), `thresholds` (une mesure comparée à des seuils), `gauge` (barre de progression sur
 les points).
 
-Les modèles 3D et les cartes électroniques seront publiés plus tard sous CERN-OHL-P-2.0.
+Les modèles 3D (OpenSCAD) et les cartes électroniques (KiCad) sont dans
+[`hardware/`](hardware/README.fr.md), sous CERN-OHL-P-2.0.
 
 ## Démarrage rapide (développeurs)
 
@@ -176,6 +177,7 @@ hub/                 espace de travail Dart
   server/            le Hub (bin/hub.dart), sortie DDP, simulateur, mire
   tool/              new_plugin.dart (mise run new-plugin <nom>)
 docs/                guides
+hardware/            modèles 3D (cad/), cartes (pcb/), guide de montage
 config.example.json configuration d'exemple (dépôts publics)
 ```
 
@@ -186,4 +188,5 @@ Signalements de bugs, idées, plugins et traductions sont les bienvenus : voir
 
 ## Licence
 
-Logiciel : [MIT](LICENSE). Matériel (modèles 3D, cartes, publiés plus tard) : CERN-OHL-P-2.0.
+Logiciel : [MIT](LICENSE). Matériel (modèles 3D, cartes, dans `hardware/`) :
+[CERN-OHL-P-2.0](hardware/LICENSE).
