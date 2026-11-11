@@ -1,5 +1,5 @@
 // BuildBeacon Hub — API : photo de l'état du Hub (aperçu en direct) et description des plugins.
-// Version 1.0 (2026-11-11)
+// Version 1.1 (2026-11-11) — état des sources par SourceStateJson (partagé avec l'interface).
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
@@ -82,19 +82,7 @@ Map<String, Object?> sourceJson(SourceConfig source, SourceState state) => {
   'type': source.type,
   'settings': source.settings,
   'label': describeSource(source),
-  'status': state.status.json,
-  'history': [for (final status in state.history) status.json],
-  'metrics': {
-    for (final MapEntry(key: id, value: metric) in state.metrics.entries)
-      id: {
-        'value': metric.value,
-        'unit': ?metric.unit,
-        'min': ?metric.min,
-        'max': ?metric.max,
-      },
-  },
-  'error': state.error?.toJson(),
-  'updated_at': state.updatedAt?.toUtc().toIso8601String(),
+  ...SourceStateJson.encode(state),
 };
 
 /// Réglages de WLED et résultat de la dernière vérification.

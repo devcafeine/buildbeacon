@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.3 (2026-11-11) — REST API. -->
+<!-- BuildBeacon — README (English). Version 1.4 (2026-11-11) — web interface. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -15,8 +15,8 @@ its five dots show the last five runs. The master tile, which holds the ESP32, s
 state of the system.
 
 > **Status: early development.** The Hub runs from `config.json`: GitHub plugin, LED
-> rendering, output to WLED, hot reload of the configuration, REST API, plus a simulator
-> and a test pattern. The web interface and the Docker image are next.
+> rendering, output to WLED, hot reload of the configuration, REST API and web interface,
+> plus a simulator and a test pattern. The Docker image is next.
 
 ## How it works
 
@@ -27,7 +27,7 @@ GitHub API ──(polling, ETag)──┐
               │  source plugins → state cache       │
               │        ↓                            │
               │  LED frame (20 fps)                 │──DDP/UDP──▶ ESP32 + WLED ──▶ tiles
-              │  REST API · web interface (soon)    │
+              │  REST API · web interface           │
               └─────────────────────────────────────┘
 ```
 
@@ -86,9 +86,18 @@ itself (master tile), WLED and mise — and needs no token.
 
 ```sh
 mkdir -p data && cp config.example.json data/config.json
+mise run ui-build                                             # once: the web interface
 mise run simulator -- --open --config "$PWD/data/config.json" # terminal 1, without hardware
 mise run hub                                                  # terminal 2
 ```
+
+Then open **http://localhost:8080**: the wall drawn at its real place, with the live
+colors. Select a tile to choose the source and the display mode of each zone; add a tile
+with a **+**, move it by dragging it, set the chain order, WLED, the brightness and the
+colors. Your changes are previewed on the wall and checked by the Hub as you type; nothing
+reaches the LEDs before you **save**. Language: English or French (menu, or `?lang=fr`).
+
+![The web interface: the wall and the settings of a tile](docs/images/web-ui_en_v1.0.png)
 
 Without tiles, set `"host": "127.0.0.1"` in the `wled` section of `data/config.json`
 so the Hub sends to the simulator. The Hub reloads `data/config.json` as soon as you save
@@ -141,8 +150,8 @@ supported by Dart but not tested yet: reports are welcome.
 
 ## Configuration
 
-`config.json` (edited by hand or through the [REST API](docs/api.md); from the web
-interface, soon):
+`config.json` (edited from the web interface, by hand or through the
+[REST API](docs/api.md)):
 
 ```json
 {
@@ -170,8 +179,8 @@ see [`.env.example`](.env.example). The REST API never returns a secret.
 ## Languages
 
 The interfaces are available in English and French (`BB_LANG=en` or `BB_LANG=fr` for the
-command-line tools, browser language for the web pages). Plugins bring their own
-translations.
+command-line tools; for the web pages, the browser language or the language menu). Plugins
+bring their own translations.
 
 ## Repository
 
@@ -181,6 +190,7 @@ hub/                 Dart workspace
   core/              model, LED rendering, plugin registry
   plugins/github/    GitHub Actions plugin
   server/            the Hub (bin/hub.dart), REST API, DDP output, simulator, test pattern
+  ui/                web interface (Flutter Web), served by the Hub
   tool/              new_plugin.dart (mise run new-plugin <name>)
 docs/                guides, REST API
 hardware/            3D models (cad/), circuit boards (pcb/), build guide
@@ -195,4 +205,5 @@ Bug reports, ideas, plugins and translations are welcome: see
 ## License
 
 Software: [MIT](LICENSE). Hardware (3D models, boards, in `hardware/`):
-[CERN-OHL-P-2.0](hardware/LICENSE).
+[CERN-OHL-P-2.0](hardware/LICENSE). The web interface embeds the Roboto font
+([Apache License 2.0](hub/ui/assets/fonts/Roboto_LICENSE.txt)).

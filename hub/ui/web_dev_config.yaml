@@ -1,0 +1,11 @@
+# BuildBeacon UI — serveur de développement (flutter run) : relaie /api/ vers le Hub.
+# Version du fichier : 1.0 (2026-11-11)
+#
+# mise run ui-dev : l'interface avec rechargement à chaud, le Hub tournant à
+# côté (mise run hub, port 8080). Le navigateur ne parle qu'au serveur de
+# développement : pas de CORS à ouvrir sur le Hub.
+server:
+  port: 8081
+  proxy:
+    - target: "http://localhost:8080/"
+      prefix: "/api/"

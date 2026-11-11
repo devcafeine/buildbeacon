@@ -1,4 +1,4 @@
-<!-- BuildBeacon — guide de contribution (français). Version 1.2 (2026-11-11) — mise run hub ; matériel publié. -->
+<!-- BuildBeacon — guide de contribution (français). Version 1.3 (2026-11-11) — interface web : tâches, traductions ARB. -->
 # Participer à BuildBeacon
 
 [English version](CONTRIBUTING.md)
@@ -41,7 +41,9 @@ Tâches utiles (`mise tasks` les liste toutes) :
 | `mise run check` | format, analyse statique, tous les tests — comme la CI |
 | `mise run format` | formate le code |
 | `mise run test` | tests de chaque paquet |
-| `mise run hub` | lance le Hub avec `data/config.json` (copie de `config.example.json`) |
+| `mise run hub` | lance le Hub avec `data/config.json` (copie de `config.example.json`) et son interface web sur http://localhost:8080 |
+| `mise run ui-build` | compile l'interface web (Flutter Web), servie par `mise run hub` |
+| `mise run ui-dev` | interface web avec rechargement à chaud sur http://localhost:8081, à côté de `mise run hub` |
 | `mise run simulator -- --open` | faux WLED dans une page web, pour travailler sans matériel |
 | `mise run test-pattern -- --host 127.0.0.1` | mire vers le simulateur |
 | `mise run new-plugin <nom>` | crée un plugin à partir du modèle |
@@ -55,14 +57,16 @@ Tâches utiles (`mise tasks` les liste toutes) :
 - **Commentaires du code et messages de commit en français**, la langue de travail du
   projet. Si le français vous est difficile, écrivez en anglais : ce sera très bien.
 - **Les textes affichés à l'utilisateur sont traduits** (anglais et français) : en Dart, ce
-  sont des `LocalizedText` ; les pages web ont un dictionnaire par langue. L'anglais sert de
-  repli et il est obligatoire.
+  sont des `LocalizedText` ; l'interface web utilise des fichiers ARB
+  (`hub/ui/lib/l10n/app_<langue>.arb`, générés par `mise run get`) ; la page du simulateur a
+  un dictionnaire par langue. L'anglais sert de repli et il est obligatoire.
 - **Les messages pour les développeurs** (conformité d'un plugin, erreurs de programmation)
   sont en anglais.
 
 Ajouter une langue : ajouter son code à `supportedLanguages`
-(`hub/sdk/lib/src/localized_text.dart`), ajouter les traductions aux `LocalizedText` et aux
-dictionnaires des pages web, puis ouvrir une pull request — une traduction partielle
+(`hub/sdk/lib/src/localized_text.dart`), ajouter les traductions aux `LocalizedText`, un
+fichier `app_<langue>.arb` à l'interface web et au dictionnaire de la page du simulateur,
+puis ouvrir une pull request — une traduction partielle
 convient, l'anglais remplace ce qui manque.
 
 ### Une version sur chaque fichier

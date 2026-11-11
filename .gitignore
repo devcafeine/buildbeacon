@@ -1,5 +1,5 @@
 # BuildBeacon — fichiers à ne jamais versionner.
-# Version 1.2 (2026-11-11) — fichiers temporaires KiCad / OpenSCAD / Python.
+# Version 1.3 (2026-11-11) — traductions générées de l'interface web.
 
 # Secrets : le jeton GitHub vit uniquement dans .env (voir .env.example).
 .env
@@ -16,6 +16,9 @@ data/
 .dart_tool/
 build/
 *.g.dart.tmp
+.flutter-plugins-dependencies
+# Interface web : traductions générées depuis les fichiers ARB (flutter pub get).
+hub/ui/lib/l10n/app_localizations*.dart
 
 # Système / éditeurs
 .DS_Store

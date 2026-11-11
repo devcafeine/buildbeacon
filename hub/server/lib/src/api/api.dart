@@ -1,5 +1,5 @@
 // BuildBeacon Hub — API REST (shelf) : configuration, plugins, état en direct, actions.
-// Version 1.0 (2026-11-11)
+// Version 1.3 (2026-11-11) — événement SSE « config » ; validation sans jeton ; interface web revalidée (no-cache) ; accueil sans interface : comment la construire.
 
 import 'dart:async';
 import 'dart:convert';
@@ -26,7 +26,8 @@ const hubVersion = '0.1.0';
 /// JSON (`Content-Type: application/json`) : un site tiers ne peut donc pas
 /// les déclencher depuis le navigateur d'un utilisateur, car il lui faudrait
 /// une autorisation CORS que le Hub ne donne pas. Avec [apiToken], elles
-/// exigent en plus `Authorization: Bearer <apiToken>`.
+/// exigent en plus `Authorization: Bearer <apiToken>`, sauf la validation
+/// d'une configuration, qui ne change rien.
 ///
 /// Les messages destinés à l'utilisateur sont renvoyés dans chaque langue de
 /// l'interface : `{"en": "…", "fr": "…"}`.
@@ -56,7 +57,7 @@ Handler hubHandler(HubService service, {String? apiToken, String? webDir}) {
       .addMiddleware(_guardWrites(apiToken))
       .addHandler(router.call);
   final web = webDir != null && Directory(webDir).existsSync()
-      ? createStaticHandler(webDir, defaultDocument: 'index.html')
+      ? _revalidated(createStaticHandler(webDir, defaultDocument: 'index.html'))
       : _home;
   return (Request request) {
     final path = request.url.path;
@@ -123,20 +124,31 @@ Response _frame(HubService service) {
   return _json({'led_count': frame.length, 'leds': hex.toString()});
 }
 
-/// Flux Server-Sent Events : un événement `state` (même contenu que
-/// `/api/state`) tout de suite, puis à chaque changement, au plus 4 par
-/// seconde. Un commentaire toutes les 15 s garde la connexion ouverte.
+/// Flux Server-Sent Events : un événement `config` (même contenu que
+/// `GET /api/config`) puis un événement `state` (même contenu que
+/// `/api/state`) tout de suite ; ensuite, à chaque changement, au plus 4 par
+/// seconde, `config` si la configuration a changé (enregistrée par l'API ou
+/// modifiée à la main) puis `state`. Un commentaire toutes les 15 s garde la
+/// connexion ouverte.
 Response _events(HubService service) {
   late final StreamController<List<int>> controller;
   StreamSubscription<void>? changes;
   Timer? pending;
   Timer? ping;
+  String? lastConfig;
+
+  void event(String name, String data) =>
+      controller.add(utf8.encode('event: $name\ndata: $data\n\n'));
 
   void send() {
     pending = null;
     if (controller.isClosed) return;
-    final data = jsonEncode(hubSnapshot(service.hub));
-    controller.add(utf8.encode('event: state\ndata: $data\n\n'));
+    final config = jsonEncode(service.hub.config.toJson());
+    if (config != lastConfig) {
+      lastConfig = config;
+      event('config', config);
+    }
+    event('state', jsonEncode(hubSnapshot(service.hub)));
   }
 
   controller = StreamController<List<int>>(
@@ -201,12 +213,19 @@ Future<Response> _checkWled(HubService service) async {
   return _json(wledJson(service.hub.config, status));
 }
 
+/// L'interface change avec le Hub : le navigateur revalide chaque fichier
+/// (304 s'il n'a pas changé) au lieu de garder une ancienne version.
+Handler _revalidated(Handler inner) => (Request request) async {
+  final response = await inner(request);
+  return response.change(headers: {HttpHeaders.cacheControlHeader: 'no-cache'});
+};
+
 Response _home(Request request) {
   if (request.url.path.isNotEmpty) return _notFound(request);
   return _json({
     'name': 'BuildBeacon Hub',
     'api': '/api',
-    'web_ui': 'not built yet',
+    'web_ui': 'not built: mise run ui-build, then start the Hub with --web',
   });
 }
 
@@ -224,10 +243,13 @@ Response _notFound(Request request) => _error(
 // ---------------------------------------------------------------------------
 // Garde des écritures et outils
 
-/// Écritures en JSON seulement ; avec un jeton, `Authorization: Bearer …`.
+/// Écritures en JSON seulement ; avec un jeton, `Authorization: Bearer …`
+/// (sauf `POST /api/config/validate`, sans effet : l'interface valide au fil
+/// de la saisie).
 Middleware _guardWrites(String? apiToken) =>
     (Handler inner) => (Request request) {
       const reads = {'GET', 'HEAD'};
+      const sideEffectFree = {'api/config/validate'};
       if (reads.contains(request.method)) return inner(request);
       final type = request.headers[HttpHeaders.contentTypeHeader] ?? '';
       if (!type.toLowerCase().startsWith('application/json')) {
@@ -240,6 +262,7 @@ Middleware _guardWrites(String? apiToken) =>
         );
       }
       if (apiToken != null &&
+          !sideEffectFree.contains(request.url.path) &&
           !_sameSecret(
             request.headers[HttpHeaders.authorizationHeader] ?? '',
             'Bearer $apiToken',
