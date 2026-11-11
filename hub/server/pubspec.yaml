@@ -1,5 +1,5 @@
 # BuildBeacon Hub — serveur : exécution des plugins, sortie LED, API.
-# Version du fichier : 1.3 (2026-11-11) — repères en anglais pour `mise run new-plugin`.
+# Version du fichier : 1.4 (2026-11-11) — API REST (shelf, shelf_router, shelf_static).
 name: buildbeacon_hub
 description: BuildBeacon Hub — runs the source plugins and drives the LED tiles through WLED.
 version: 0.1.0
@@ -16,6 +16,9 @@ dependencies:
     path: ../plugins/github
   # new-plugin: dependencies are added above this line.
   http: ^1.2.0
+  shelf: ^1.4.0
+  shelf_router: ^1.1.0
+  shelf_static: ^1.1.0
 
 dev_dependencies:
   lints: ^6.0.0
