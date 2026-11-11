@@ -1,7 +1,8 @@
 // =====================================================================
 //  BuildBeacon - tuile hexagonale lumineuse (paramétrique)
-//  Version 1.0 (2026-11-11) - première version publique
-//  Cartes : buildbeacon_tuile_v1.0 / buildbeacon_master_v1.0
+//  Version 1.1 (2026-11-11) - référence aux cartes v1.2
+//  v1.0 : première version publique
+//  Cartes : buildbeacon_tuile_v1.2 / buildbeacon_master_v1.2
 //  Source : https://github.com/devcafeine/buildbeacon (hardware/cad)
 //  Licence matériel : CERN-OHL-P-2.0
 //
@@ -304,7 +305,7 @@ cable_clip_h = 3.5;
 part = "both"; // [tile, letters, back, both, stand, plugs, skadis_clips, skadis, links, link_test, led_bridge, base, cable_clips, knockout_test]
 
 /* [Hidden] */
-bb_version = "1.0";
+bb_version = "1.1";
 echo(str("BuildBeacon modèle v", bb_version));
 $fn = 48;
 eps = 0.01;

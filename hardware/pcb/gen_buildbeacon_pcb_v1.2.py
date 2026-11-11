@@ -1,10 +1,10 @@
 # BuildBeacon - générateur des circuits imprimés (KiCad 8/9, sans pcbnew)
-# Version 1.0 (2026-11-11) - produit buildbeacon_tuile_v1.0 et buildbeacon_master_v1.0
+# Version 1.2 (2026-11-11) - produit buildbeacon_tuile_v1.2 et buildbeacon_master_v1.2
 # Source : https://github.com/devcafeine/buildbeacon (hardware/pcb) - Licence : CERN-OHL-P-2.0
 #
 # Usage :
-#   python3 gen_buildbeacon_pcb_v1.0.py          -> buildbeacon_tuile_v<VERSION>.kicad_pcb  (tuile projet)
-#   python3 gen_buildbeacon_pcb_v1.0.py --logo   -> buildbeacon_master_v<VERSION>.kicad_pcb (tuile master)
+#   python3 gen_buildbeacon_pcb_v1.2.py          -> buildbeacon_tuile_v<VERSION>.kicad_pcb  (tuile projet)
+#   python3 gen_buildbeacon_pcb_v1.2.py --logo   -> buildbeacon_master_v<VERSION>.kicad_pcb (tuile master)
 # Ensuite dans KiCad : ouvrir, enregistrer (format récent), touche B (remplir les zones), DRC.
 # Repère : vue de face, x vers la droite, y vers le haut, en mm, origine au centre de la tuile.
 import uuid
@@ -142,7 +142,7 @@ def strip(ref, x1, x2, y, din, dout, reverse, vnet="+5V"):
 # pour choisir le cote d'entree (IN) et de sortie (OUT).
 import math, sys
 MASTER = "--logo" in sys.argv
-VERSION = "1.0"          # a incrementer a chaque modification de carte
+VERSION = "1.2"          # a incrementer a chaque modification de carte
 OUTFILE = ("buildbeacon_master_v%s.kicad_pcb" if MASTER else "buildbeacon_tuile_v%s.kicad_pcb") % VERSION
 NETS[:] = ["", "+5V", "GND", "DI", "DO", "S1_DIN", "S2_DIN", "S3_DIN"] + ["SIDE%d" % i for i in range(1, 7)] + ["GPIO4", "VLED"]
 NID.clear(); NID.update({n: i for i, n in enumerate(NETS)})
