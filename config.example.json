@@ -1,0 +1,46 @@
+{
+  "_comment": "BuildBeacon — example configuration: public repositories, no token needed. Copy to data/config.json. Version du fichier : 1.0 (2026-11-11)",
+  "version": 1,
+  "wled": { "host": "buildbeacon.local", "port": 80, "ddp_port": 4048, "brightness": 128 },
+  "poll_seconds": 180,
+  "tiles": [
+    {
+      "id": "master", "label": "BuildBeacon", "kind": "master", "chain_index": 0,
+      "pos": { "q": 0, "r": 1 },
+      "zones": {
+        "system": {
+          "source": { "type": "github", "repo": "devcafeine/buildbeacon", "workflow": "check.yml", "branch": "main" },
+          "mode": "overall"
+        }
+      }
+    },
+    {
+      "id": "wled", "label": "WLED", "kind": "project", "chain_index": 1,
+      "pos": { "q": 0, "r": 0 },
+      "zones": {
+        "ambient": {
+          "source": { "type": "github", "repo": "wled/WLED", "workflow": "wled-ci.yml", "branch": "main" },
+          "mode": "overall"
+        },
+        "dots": {
+          "source": { "type": "github", "repo": "wled/WLED", "workflow": "wled-ci.yml", "branch": "main" },
+          "mode": "history"
+        }
+      }
+    },
+    {
+      "id": "mise", "label": "mise", "kind": "project", "chain_index": 2,
+      "pos": { "q": 1, "r": 1 },
+      "zones": {
+        "ambient": {
+          "source": { "type": "github", "repo": "jdx/mise", "workflow": "test.yml", "branch": "main" },
+          "mode": "overall"
+        },
+        "dots": {
+          "source": { "type": "github", "repo": "jdx/mise", "workflow": "test.yml", "branch": "main" },
+          "mode": "history"
+        }
+      }
+    }
+  ]
+}

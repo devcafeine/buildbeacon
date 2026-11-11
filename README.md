@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.0 (2026-11-11) -->
+<!-- BuildBeacon — README (English). Version 1.1 (2026-11-11) — running the Hub, supported hardware. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -14,9 +14,9 @@ glow with the overall state (green, red, pulsing orange while a run is in progre
 its five dots show the last five runs. The master tile, which holds the ESP32, shows the
 state of the system.
 
-> **Status: early development.** The core works and is tested (tile model, LED rendering,
-> GitHub plugin, output to WLED, simulator, test pattern). The program that runs everything
-> from `config.json`, the REST API, the web interface and the Docker image are next.
+> **Status: early development.** The Hub runs from `config.json`: GitHub plugin, LED
+> rendering, output to WLED, hot reload of the configuration, plus a simulator and a test
+> pattern. The REST API, the web interface and the Docker image are next.
 
 ## How it works
 
@@ -78,6 +78,26 @@ mise run test-pattern -- --host 127.0.0.1       # terminal 2: sends a test patte
 Options: `mise run simulator -- --help`. Add `--config <config.json>` to see your real
 layout, `--terminal` to draw in the terminal.
 
+### Run the Hub with public repositories
+
+[`config.example.json`](config.example.json) follows three public projects — BuildBeacon
+itself (master tile), WLED and mise — and needs no token.
+
+```sh
+mkdir -p data && cp config.example.json data/config.json
+mise run simulator -- --open --config "$PWD/data/config.json" # terminal 1, without hardware
+mise run hub                                                  # terminal 2
+```
+
+Without tiles, set `"host": "127.0.0.1"` in the `wled` section of `data/config.json`
+so the Hub sends to the simulator. The Hub reloads `data/config.json` as soon as you save
+it, and refuses an invalid version (the previous one is kept).
+
+Without a token, GitHub allows 60 requests per hour: the example polls every 180 s for
+its 3 sources, and the Hub tells you if your configuration needs more. With a token
+(`cp .env.example .env`, then fill `BB_GITHUB_TOKEN`), you can go down to 30 s and follow
+private repositories.
+
 ### With the tiles
 
 1. Flash [WLED](https://install.wled.me/) on the ESP32-C3, then in its web interface:
@@ -87,6 +107,26 @@ layout, `--terminal` to draw in the terminal.
    - *Sync Interfaces*: "Receive UDP realtime" enabled (default).
 2. Check the wiring and find the chain order:
    `mise run test-pattern -- --host buildbeacon.local` (or the IP of WLED).
+3. Describe your tiles in `data/config.json` (`chain_index` = wiring order, `pos` = place
+   on the wall) and run `mise run hub`. At startup, the Hub checks WLED (LED count) and
+   sets its brightness.
+
+## Where can the Hub run?
+
+The Hub is a small native program: very little CPU, about 50 MB of RAM. It must be on the
+same network as WLED (UDP 4048, HTTP 80) and reach the Internet for the sources.
+
+| Hardware | Supported | Notes |
+|---|---|---|
+| Mini PC, server or NAS, Linux x86-64 | yes | recommended: always on (Docker image soon) |
+| Raspberry Pi 3, 4, 5, Zero 2 W with a 64-bit OS (arm64) | yes | a good choice without a server |
+| Raspberry Pi 2 or 3 with a 32-bit OS (ARMv7) | yes | |
+| macOS, Windows, Linux desktop | yes | to develop or try it out |
+| Raspberry Pi 1, Zero, Zero W (ARMv6) | no | Dart does not support ARMv6 |
+| ESP32 and other microcontrollers | no | the ESP32 runs WLED and only receives the colors |
+
+Tested so far: macOS (Apple Silicon) and Linux x86-64 (CI). The other platforms are
+supported by Dart but not tested yet: reports are welcome.
 
 ## Configuration
 
@@ -128,9 +168,10 @@ hub/                 Dart workspace
   sdk/               plugin SDK (the only dependency of a plugin)
   core/              model, LED rendering, plugin registry
   plugins/github/    GitHub Actions plugin
-  server/            plugin runner, DDP output, simulator, test pattern
+  server/            the Hub (bin/hub.dart), DDP output, simulator, test pattern
   tool/              new_plugin.dart (mise run new-plugin <name>)
 docs/                guides
+config.example.json example configuration (public repositories)
 ```
 
 ## Contributing

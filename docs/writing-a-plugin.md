@@ -1,4 +1,4 @@
-<!-- BuildBeacon — writing a plugin (English). Version 1.0 (2026-11-11) -->
+<!-- BuildBeacon — writing a plugin (English). Version 1.1 (2026-11-11) — trying a plugin with mise run hub. -->
 # Writing a plugin
 
 [Version française](writing-a-plugin.fr.md)
@@ -241,6 +241,11 @@ use real secrets or the real service in the tests.
 Both zones use the same source: the Hub opens a single connection. The `gauge` lights the
 five dots from left to right, the last one partially; `thresholds` would color the zone
 according to a measurement (`"thresholds": {"warning": 240, "failure": 260}`).
+
+To see it live: add the source to `data/config.json` (copied from `config.example.json`)
+and run `mise run hub` — with the simulator (`mise run simulator -- --open`) if you have
+no tiles. The Hub reloads the file when you save it and logs every change of state of
+your source, including its error messages.
 
 ## 6. Open a pull request
 
