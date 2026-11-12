@@ -1,5 +1,5 @@
 // BuildBeacon Hub — SDK tests: polling stream.
-// Version 1.2 (2026-11-12) — comments in English.
+// Version 1.3 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 import 'package:test/test.dart';
@@ -8,7 +8,7 @@ void main() {
   const tick = Duration(milliseconds: 1);
 
   test(
-    'lit tout de suite puis à chaque intervalle, avec l\'état précédent',
+    'reads immediately then at each interval, with the previous state',
     () async {
       final seen = <int>[];
       final states = await pollingStream(tick, (previous) async {
@@ -21,7 +21,7 @@ void main() {
     },
   );
 
-  test('une erreur garde les dernières valeurs connues', () async {
+  test('an error keeps the last known values', () async {
     var reads = 0;
     final states = await pollingStream(tick, (previous) async {
       reads++;
@@ -45,7 +45,7 @@ void main() {
     expect(states[3].error, isNull);
   });
 
-  test('plus aucune lecture après l\'annulation', () async {
+  test('no more reads after cancellation', () async {
     var reads = 0;
     await pollingStream(tick, (previous) async {
       reads++;

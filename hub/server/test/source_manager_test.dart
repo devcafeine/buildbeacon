@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: running plugins and the source cache.
-// Version 1.3 (2026-11-12) — comments in English.
+// Version 1.4 (2026-11-12) — test names in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -119,7 +119,7 @@ void main() {
   tearDown(() => manager.close());
 
   test(
-    'une connexion par source distincte, partagée entre zones et tuiles',
+    'one connection per distinct source, shared between zones and tiles',
     () async {
       final a = _manual('a');
       await manager.apply(_config([a, a, _manual('b')]));
@@ -131,23 +131,20 @@ void main() {
     },
   );
 
-  test(
-    'les états du plugin alimentent le cache et signalent un changement',
-    () async {
-      final a = _manual('a');
-      await manager.apply(_config([a]));
-      final changed = manager.changes.first;
+  test('plugin states feed the cache and signal a change', () async {
+    final a = _manual('a');
+    await manager.apply(_config([a]));
+    final changed = manager.changes.first;
 
-      plugin.connections.single.controller.add(
-        const SourceState(history: [Status.failure, Status.success]),
-      );
-      await changed;
+    plugin.connections.single.controller.add(
+      const SourceState(history: [Status.failure, Status.success]),
+    );
+    await changed;
 
-      expect(manager.states[a.key]!.status, Status.failure);
-    },
-  );
+    expect(manager.states[a.key]!.status, Status.failure);
+  });
 
-  test('une erreur du flux garde le dernier état', () async {
+  test('a stream error keeps the last state', () async {
     final a = _manual('a');
     await manager.apply(_config([a]));
     final controller = plugin.connections.single.controller;
@@ -160,22 +157,25 @@ void main() {
     expect(manager.states[a.key]!.error?.resolve('fr'), 'network down');
   });
 
-  test('une source qui ne sert plus est fermée et retirée du cache', () async {
-    final a = _manual('a');
-    final b = _manual('b');
-    await manager.apply(_config([a, b]));
-    plugin.connections[1].controller.add(const SourceState());
-    await pumpEventQueue();
+  test(
+    'a source no longer used is closed and removed from the cache',
+    () async {
+      final a = _manual('a');
+      final b = _manual('b');
+      await manager.apply(_config([a, b]));
+      plugin.connections[1].controller.add(const SourceState());
+      await pumpEventQueue();
 
-    await manager.apply(_config([a]));
+      await manager.apply(_config([a]));
 
-    expect(plugin.connections[0].controller.hasListener, isTrue);
-    expect(plugin.connections[1].controller.hasListener, isFalse);
-    expect(manager.states.containsKey(b.key), isFalse);
-  });
+      expect(plugin.connections[0].controller.hasListener, isTrue);
+      expect(plugin.connections[1].controller.hasListener, isFalse);
+      expect(manager.states.containsKey(b.key), isFalse);
+    },
+  );
 
   test(
-    'plugin absent ou réglages invalides : erreur traduite, sans connexion',
+    'missing plugin or invalid settings: translated error, no connection',
     () async {
       final gitlab = SourceConfig(
         type: 'gitlab',
@@ -200,7 +200,7 @@ void main() {
     },
   );
 
-  test('secret obligatoire absent : erreur, sans connexion', () async {
+  test('missing required secret: error, no connection', () async {
     final strict = _ManualPlugin(secretRequired: true);
     final m = SourceManager(
       plugins: PluginRegistry([strict]),
@@ -217,7 +217,7 @@ void main() {
     await m.close();
   });
 
-  test('un plugin ne reçoit que les secrets qu\'il déclare', () async {
+  test('a plugin only receives the secrets it declares', () async {
     await manager.apply(_config([_manual('a')]));
     final context = plugin.connections.single.context;
 
@@ -226,34 +226,31 @@ void main() {
     expect(context.pollInterval, const Duration(seconds: 30));
   });
 
-  test(
-    'nouvel intervalle : sources rouvertes, derniers états gardés',
-    () async {
-      final a = _manual('a');
-      await manager.apply(_config([a]));
-      plugin.connections.single.controller.add(
-        const SourceState(history: [Status.success]),
-      );
-      await pumpEventQueue();
+  test('new interval: sources reopened, last states kept', () async {
+    final a = _manual('a');
+    await manager.apply(_config([a]));
+    plugin.connections.single.controller.add(
+      const SourceState(history: [Status.success]),
+    );
+    await pumpEventQueue();
 
-      await manager.apply(_config([a], pollSeconds: 60));
+    await manager.apply(_config([a], pollSeconds: 60));
 
-      expect(plugin.connections, hasLength(2));
-      expect(plugin.connections[0].controller.hasListener, isFalse);
-      expect(
-        plugin.connections[1].context.pollInterval,
-        const Duration(seconds: 60),
-      );
-      expect(manager.states[a.key]!.history, [Status.success]);
-    },
-  );
+    expect(plugin.connections, hasLength(2));
+    expect(plugin.connections[0].controller.hasListener, isFalse);
+    expect(
+      plugin.connections[1].context.pollInterval,
+      const Duration(seconds: 60),
+    );
+    expect(manager.states[a.key]!.history, [Status.success]);
+  });
 
-  group('plugins intégrés', () {
-    test('GitHub fait partie du Hub', () {
+  group('built-in plugins', () {
+    test('GitHub is part of the Hub', () {
       expect(builtinPlugins()['github'], isA<GithubPlugin>());
     });
 
-    test('de bout en bout : config → plugin GitHub → cache', () async {
+    test('end to end: config → GitHub plugin → cache', () async {
       final requests = <http.Request>[];
       final github = MockClient((request) async {
         requests.add(request);

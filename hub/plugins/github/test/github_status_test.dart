@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: GitHub status/conclusion → display status.
-// Version 1.5 (2026-11-12) — comments in English.
+// Version 1.6 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_plugin_github/buildbeacon_plugin_github.dart';
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
@@ -35,7 +35,7 @@ void main() {
     });
   }
 
-  test('la conclusion est ignorée tant que le run n\'est pas terminé', () {
+  test('conclusion is ignored until the run is completed', () {
     expect(
       statusFromGithub(status: 'in_progress', conclusion: 'failure'),
       Status.running,

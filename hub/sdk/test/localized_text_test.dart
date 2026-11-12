@@ -1,5 +1,5 @@
 // BuildBeacon Hub — SDK tests: translated texts (i18n).
-// Version 1.1 (2026-11-12) — comments in English.
+// Version 1.2 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 import 'package:test/test.dart';
@@ -7,18 +7,18 @@ import 'package:test/test.dart';
 void main() {
   const repository = LocalizedText({'en': 'Repository', 'fr': 'Dépôt'});
 
-  test('libellé fixe : chaque langue, repli sur l\'anglais', () {
+  test('fixed label: each language, English fallback', () {
     expect(repository.resolve('fr'), 'Dépôt');
     expect(repository.resolve('en'), 'Repository');
     expect(repository.resolve('de'), 'Repository');
     expect(repository.languages, {'en', 'fr'});
   });
 
-  test('sans anglais : repli sur la première langue écrite', () {
+  test('no English: falls back to the first language given', () {
     expect(const LocalizedText({'fr': 'Dépôt'}).resolve('en'), 'Dépôt');
   });
 
-  test('message calculé dans la langue du lecteur', () {
+  test('computed message in the reader\'s language', () {
     final message = LocalizedText.build(
       (l) => tr(
         l,
@@ -31,7 +31,7 @@ void main() {
     expect(message.toString(), '"Repository" is required');
   });
 
-  test('même texte partout, et JSON pour l\'interface', () {
+  test('same text everywhere, and JSON for the UI', () {
     expect(const LocalizedText.same('GitHub').resolve('fr'), 'GitHub');
     expect(repository.toJson(), {'en': 'Repository', 'fr': 'Dépôt'});
     expect([repository, const LocalizedText.same('x')].resolveAll('fr'), [
@@ -40,7 +40,7 @@ void main() {
     ]);
   });
 
-  test('langue d\'après une locale système ou navigateur', () {
+  test('language from a system or browser locale', () {
     expect(languageOf('fr_FR.UTF-8'), 'fr');
     expect(languageOf('fr-CA'), 'fr');
     expect(languageOf('en_US'), 'en');
@@ -49,7 +49,7 @@ void main() {
     expect(languageOf(null), 'en');
   });
 
-  test('erreur de format traduite, qui reste une FormatException', () {
+  test('translated format error, still a FormatException', () {
     final error = LocalizedFormatException(
       const LocalizedText({'en': 'Missing field', 'fr': 'Champ manquant'}),
     );
@@ -58,7 +58,7 @@ void main() {
     expect(error.text.resolve('fr'), 'Champ manquant');
   });
 
-  test('libellés des états', () {
+  test('status labels', () {
     expect(Status.running.label.resolve('fr'), 'en cours');
     expect(Status.running.label.resolve('en'), 'running');
     expect(Status.values.map((s) => s.json), [

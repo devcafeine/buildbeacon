@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: web simulator (page, layout, SSE stream).
-// Version 1.3 (2026-11-12) — comments in English.
+// Version 1.4 (2026-11-12) — test names in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -82,7 +82,7 @@ void main() {
     throw StateError('stream ended without a frame');
   }
 
-  test('la page, bilingue', () async {
+  test('the page, bilingual', () async {
     final response = await get('/');
     expect(response.statusCode, 200);
     expect(response.headers.contentType?.mimeType, 'text/html');
@@ -95,27 +95,30 @@ void main() {
     );
   });
 
-  test('la disposition : tuiles de config.json à leur place au mur', () async {
-    final response = await get('/layout');
-    expect(response.headers.contentType?.mimeType, 'application/json');
-    final layout =
-        jsonDecode(await utf8.decodeStream(response)) as Map<String, Object?>;
+  test(
+    'the layout: tiles from config.json at their place on the wall',
+    () async {
+      final response = await get('/layout');
+      expect(response.headers.contentType?.mimeType, 'application/json');
+      final layout =
+          jsonDecode(await utf8.decodeStream(response)) as Map<String, Object?>;
 
-    expect(layout['ddp_port'], 4048);
-    expect(layout['timeout_ms'], 2500);
-    expect(layout['addresses'], ['127.0.0.1', '192.168.1.20']);
-    expect(layout['tiles'], [
-      {'rank': 0, 'kind': 'master', 'label': 'BuildBeacon', 'q': 0, 'r': 1},
-      {'rank': 1, 'kind': 'project', 'label': 'App', 'q': 0, 'r': 0},
-      {'rank': 2, 'kind': 'project', 'label': 'bambu', 'q': 1, 'r': 1},
-    ]);
-  });
+      expect(layout['ddp_port'], 4048);
+      expect(layout['timeout_ms'], 2500);
+      expect(layout['addresses'], ['127.0.0.1', '192.168.1.20']);
+      expect(layout['tiles'], [
+        {'rank': 0, 'kind': 'master', 'label': 'BuildBeacon', 'q': 0, 'r': 1},
+        {'rank': 1, 'kind': 'project', 'label': 'App', 'q': 0, 'r': 0},
+        {'rank': 2, 'kind': 'project', 'label': 'bambu', 'q': 1, 'r': 1},
+      ]);
+    },
+  );
 
-  test('sans config.json : pas de tuile imposée', () {
+  test('without config.json: no tiles imposed', () {
     expect(simulatorLayout(ddpPort: 4048)['tiles'], isEmpty);
   });
 
-  test('les images reçues partent vers la page (SSE)', () async {
+  test('received frames are sent to the page (SSE)', () async {
     final response = await get('/events');
     expect(response.headers.contentType?.mimeType, 'text/event-stream');
     final lines = response
@@ -131,7 +134,7 @@ void main() {
     expect(data, {'leds': 'ff5000000000', 'from': '127.0.0.1', 'age_ms': 0});
   });
 
-  test('une page qui arrive voit la dernière image, avec son âge', () async {
+  test('a newly opened page sees the last frame, with its age', () async {
     frames.add(_frame([0, 255, 0]));
     await Future<void>.delayed(const Duration(milliseconds: 150));
 
@@ -144,7 +147,7 @@ void main() {
     expect(data['age_ms'], greaterThanOrEqualTo(100));
   });
 
-  test('page fermée : elle n\'est plus servie', () async {
+  test('closed page: no longer served', () async {
     final response = await get('/events');
     final subscription = response.listen((_) {});
     await pumpEventQueue();
@@ -157,7 +160,7 @@ void main() {
     expect(web.viewers, 0);
   });
 
-  test('adresse inconnue : 404 ; autre méthode que GET : 405', () async {
+  test('unknown path: 404; method other than GET: 405', () async {
     expect((await get('/unknown')).statusCode, 404);
     final post = await (await client.postUrl(
       Uri.parse('http://127.0.0.1:${web.port}/'),

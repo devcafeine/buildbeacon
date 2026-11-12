@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: DDP encoding and decoding.
-// Version 1.1 (2026-11-12) — comments in English.
+// Version 1.2 (2026-11-12) — test names in English.
 
 import 'dart:typed_data';
 
@@ -7,8 +7,8 @@ import 'package:buildbeacon_hub/buildbeacon_hub.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('codage', () {
-    test('21 LED : un paquet, DDP v1 + PUSH, type RGB 8 bits, sortie 1', () {
+  group('encoding', () {
+    test('21 LEDs: one packet, DDP v1 + PUSH, 8-bit RGB type, output 1', () {
       final rgb = Uint8List.fromList(List.generate(63, (i) => i));
       final [packet] = encodeDdp(rgb, sequence: 3);
 
@@ -23,11 +23,11 @@ void main() {
       expect(packet.sublist(ddpHeaderLength), rgb);
     });
 
-    test('la séquence tient sur 4 bits', () {
+    test('the sequence number fits in 4 bits', () {
       expect(encodeDdp(Uint8List(3), sequence: 17).single[1], 1);
     });
 
-    test('600 LED : 480 + 120 LED, PUSH sur le dernier paquet seulement', () {
+    test('600 LEDs: 480 + 120 LEDs, PUSH on the last packet only', () {
       final rgb = Uint8List(1800)..fillRange(1440, 1800, 7);
       final [first, second] = [
         for (final p in encodeDdp(rgb, sequence: 1)) DdpPacket.tryParse(p)!,
@@ -41,15 +41,15 @@ void main() {
       expect(second.data, everyElement(7));
     });
 
-    test('image vide : un paquet PUSH sans données', () {
+    test('empty frame: one PUSH packet without data', () {
       final packet = DdpPacket.tryParse(encodeDdp(Uint8List(0)).single)!;
       expect(packet.data, isEmpty);
       expect(packet.push, isTrue);
     });
   });
 
-  group('décodage', () {
-    test('aller-retour', () {
+  group('decoding', () {
+    test('round trip', () {
       final rgb = Uint8List.fromList([255, 80, 0, 0, 255, 0]);
       final packet = DdpPacket.tryParse(encodeDdp(rgb, sequence: 9).single)!;
       expect(packet.sequence, 9);
@@ -59,7 +59,7 @@ void main() {
       expect(packet.data, rgb);
     });
 
-    test('paquet tronqué ou d\'une autre version : refusé', () {
+    test('truncated packet or other version: rejected', () {
       final packet = encodeDdp(Uint8List(6)).single;
       expect(DdpPacket.tryParse(packet.sublist(0, 9)), isNull);
       expect(DdpPacket.tryParse(packet.sublist(0, 12)), isNull);
@@ -69,7 +69,7 @@ void main() {
       );
     });
 
-    test('en-tête avec horodatage (14 octets)', () {
+    test('header with timestamp (14 bytes)', () {
       final packet = DdpPacket.tryParse(
         Uint8List.fromList([
           0x51, 1, 0x0B, 1, 0, 0, 0, 0, 0, 3, // header, T flag

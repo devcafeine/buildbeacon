@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: drawing the panel in the terminal (simulator).
-// Version 1.2 (2026-11-12) — comments in English.
+// Version 1.3 (2026-11-12) — test names in English.
 
 import 'dart:typed_data';
 
@@ -18,7 +18,7 @@ Uint8List _frame(Map<int, (int, int, int)> leds, {int ledCount = 21}) {
 }
 
 void main() {
-  test('master puis tuiles dans l\'ordre de la chaîne, avec leurs noms', () {
+  test('master then tiles in chain order, with their names', () {
     final lines = _plain(
       renderTerminalPanel(_frame({}), labels: {0: 'BuildBeacon', 1: 'App'}),
     ).split('\n');
@@ -32,12 +32,12 @@ void main() {
     expect(lines[2].trim().split(RegExp(r'\s+')), List.filled(13, '·'));
   });
 
-  test('noms par défaut en français', () {
+  test('default names in French', () {
     final text = _plain(renderTerminalPanel(_frame({}), language: 'fr'));
     expect(text, allOf(contains('Tuile 1'), contains('Tuile 2')));
   });
 
-  test('point n° 1 (LED 9) à gauche, point n° 5 (LED 5) à droite', () {
+  test('dot 1 (LED 9) on the left, dot 5 (LED 5) on the right', () {
     final line = renderTerminalPanel(
       _frame({9: (255, 0, 0), 5: (0, 0, 255)}),
       raw: true,
@@ -48,7 +48,7 @@ void main() {
     );
   });
 
-  test('ambiance : rubans du haut (LED 3, 4) et du bas (LED 10, 11)', () {
+  test('ambient: top strip (LEDs 3, 4) and bottom strip (LEDs 10, 11)', () {
     final lines = renderTerminalPanel(
       _frame({3: (1, 0, 0), 4: (2, 0, 0), 10: (3, 0, 0), 11: (4, 0, 0)}),
       raw: true,
@@ -57,13 +57,13 @@ void main() {
     expect(lines[3], allOf(contains('38;2;3;0;0m'), contains('38;2;4;0;0m')));
   });
 
-  test('correction pour l\'écran : une LED faible paraît plus claire', () {
+  test('screen correction: a dim LED looks brighter', () {
     final frame = _frame({0: (38, 12, 0)});
     expect(renderTerminalPanel(frame, raw: true), contains('38;2;38;12;0m'));
     expect(renderTerminalPanel(frame), contains('38;2;107;64;0m'));
   });
 
-  test('les tuiles passent à la ligne selon la largeur du terminal', () {
+  test('tiles wrap according to the terminal width', () {
     final lines = _plain(
       renderTerminalPanel(_frame({}), columns: 30),
     ).split('\n');
@@ -71,7 +71,7 @@ void main() {
     expect(lines[5], contains('Tile 2'));
   });
 
-  test('nom trop long : raccourci', () {
+  test('name too long: shortened', () {
     final text = _plain(
       renderTerminalPanel(
         _frame({}),

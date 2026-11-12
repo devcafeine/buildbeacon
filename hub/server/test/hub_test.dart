@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: the assembled Hub (config → plugins → frame → output, WLED).
-// Version 1.2 (2026-11-12) — comments in English.
+// Version 1.3 (2026-11-12) — test names in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -140,7 +140,7 @@ void main() {
     log: (message) => logs.add(message.resolve('fr')),
   );
 
-  test('les états des plugins arrivent jusqu\'aux LED', () async {
+  test('plugin states reach the LEDs', () async {
     final h = hub(_wled());
     await h.start(_config('a'));
     addTearDown(h.stop);
@@ -155,7 +155,7 @@ void main() {
     expect(logs, contains(startsWith('manual · a — échec')));
   });
 
-  test('WLED vérifié : nombre de LED, luminosité réglée', () async {
+  test('WLED checked: LED count, brightness set', () async {
     final brightness = <int>[];
     final h = hub(_wled(ledCount: 12, brightness: brightness));
     await h.start(_config('a', brightness: 90));
@@ -167,7 +167,7 @@ void main() {
     expect(brightness, [90]);
   });
 
-  test('WLED réglé sur un autre nombre de LED : signalé', () async {
+  test('WLED set to another LED count: reported', () async {
     final h = hub(_wled(ledCount: 30));
     await h.start(_config('a'));
     addTearDown(h.stop);
@@ -180,7 +180,7 @@ void main() {
   });
 
   test(
-    'API JSON injoignable (simulateur) : signalée, les images partent quand même',
+    'JSON API unreachable (simulator): reported, frames are sent anyway',
     () async {
       final h = hub(_wled(ledCount: null));
       await h.start(_config('a'));
@@ -193,13 +193,12 @@ void main() {
     },
   );
 
-  test('WLED lent à répondre : ni le démarrage ni l\'enregistrement ne '
-      'l\'attendent', () async {
+  test('slow WLED: neither start nor save waits for it', () async {
     final answer = Completer<http.Response>();
     final h = hub(MockClient((_) => answer.future));
     await h.start(_config('a')).timeout(const Duration(seconds: 1));
     addTearDown(h.stop);
-    expect(h.wled, isNull, reason: 'vérification encore en cours');
+    expect(h.wled, isNull, reason: 'check still running');
 
     await h
         .apply(_config('a', brightness: 60))
@@ -213,7 +212,7 @@ void main() {
     expect(h.wled, isNotNull);
   });
 
-  test('nouvelle config : nouvelle source ouverte, ancienne fermée', () async {
+  test('new config: new source opened, old one closed', () async {
     final h = hub(_wled());
     await h.start(_config('a'));
     addTearDown(h.stop);
@@ -226,7 +225,7 @@ void main() {
     expect(outputs.opened, ['127.0.0.1:4048']);
   });
 
-  test('nouvelle adresse WLED : sortie rouverte', () async {
+  test('new WLED address: output reopened', () async {
     final h = hub(_wled());
     await h.start(_config('a'));
     addTearDown(h.stop);
@@ -237,7 +236,7 @@ void main() {
     expect(outputs.closed, ['127.0.0.1:4048']);
   });
 
-  test('un état inchangé n\'est journalisé qu\'une fois', () async {
+  test('an unchanged state is logged only once', () async {
     final h = hub(_wled());
     await h.start(_config('a'));
     addTearDown(h.stop);
@@ -251,7 +250,7 @@ void main() {
     expect(logs.where((line) => line.startsWith('manual · a')), hasLength(1));
   });
 
-  test('arrêt : sources et sortie fermées', () async {
+  test('stop: sources and output closed', () async {
     final h = hub(_wled());
     await h.start(_config('a'));
     await h.stop();
@@ -260,7 +259,7 @@ void main() {
     expect(outputs.closed, ['127.0.0.1:4048']);
   });
 
-  group('quota GitHub sans jeton', () {
+  group('GitHub quota without a token', () {
     Config github(int sources, int pollSeconds) => Config(
       pollSeconds: pollSeconds,
       tiles: [
@@ -284,7 +283,7 @@ void main() {
       ],
     );
 
-    test('3 sources toutes les 30 s : 360 requêtes/h, 180 s au moins', () {
+    test('3 sources every 30 s: 360 requests/h, at least 180 s', () {
       final warning = githubQuotaWarning(github(3, 30), const {});
       expect(
         warning?.resolve('fr'),
@@ -292,7 +291,7 @@ void main() {
       );
     });
 
-    test('dans le quota, ou avec un jeton : rien à signaler', () {
+    test('within the quota, or with a token: nothing to report', () {
       expect(githubQuotaWarning(github(3, 180), const {}), isNull);
       expect(
         githubQuotaWarning(github(3, 30), const {'BB_GITHUB_TOKEN': 'x'}),
@@ -301,7 +300,7 @@ void main() {
     });
   });
 
-  test('résumés lisibles d\'une source et d\'un état', () {
+  test('readable summaries of a source and a state', () {
     expect(
       describeSource(
         SourceConfig(

@@ -1,5 +1,5 @@
 // BuildBeacon UI — Application tests: wall, panels, saving, languages.
-// Version 1.1 (2026-11-12) — comments in English.
+// Version 1.2 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_ui/src/app.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,7 @@ void main() {
   bool enabled(WidgetTester tester, Finder button) =>
       tester.widget<ButtonStyleButton>(button).onPressed != null;
 
-  testWidgets('le mur : une zone accessible par tuile, et des « + »', (
+  testWidgets('the wall: one accessible area per tile, and "+" slots', (
     tester,
   ) async {
     final semantics = tester.ensureSemantics();
@@ -54,7 +54,7 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('sélection d\'une tuile : son panneau, sa source, son état', (
+  testWidgets('selecting a tile: its panel, its source, its state', (
     tester,
   ) async {
     final semantics = tester.ensureSemantics();
@@ -76,7 +76,7 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('modifier puis enregistrer', (tester) async {
+  testWidgets('edit then save', (tester) async {
     final semantics = tester.ensureSemantics();
     await open(tester);
     tester.semantics.tap(find.semantics.byLabel('App'));
@@ -98,8 +98,9 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('ajouter une tuile, allumer une zone : le Hub signale le dépôt '
-      'manquant', (tester) async {
+  testWidgets('add a tile, turn on a zone: the Hub reports the missing repo', (
+    tester,
+  ) async {
     final semantics = tester.ensureSemantics();
     await open(tester);
     tester.semantics.tap(find.semantics.byLabel('Ajouter une tuile ici').first);
@@ -130,9 +131,7 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('chaîne : ordre de câblage et nombre de LED de WLED', (
-    tester,
-  ) async {
+  testWidgets('chain: wiring order and LED count of WLED', (tester) async {
     await open(tester);
     hub.sendState(stateJson());
     await tester.tap(find.text('Chaîne'));
@@ -143,7 +142,7 @@ void main() {
     expect(find.text('WLED est réglé sur 21 LED : correct.'), findsOneWidget);
   });
 
-  testWidgets('réglages : luminosité au-delà de 50 % signalée', (tester) async {
+  testWidgets('settings: brightness above 50% flagged', (tester) async {
     await open(tester);
     await tester.tap(find.text('Réglages'));
     await tester.pumpAndSettle();
@@ -156,9 +155,7 @@ void main() {
     expect(find.text('Annuler les modifications'), findsOneWidget);
   });
 
-  testWidgets('Hub protégé par jeton : demandé à l\'enregistrement', (
-    tester,
-  ) async {
+  testWidgets('Hub protected by a token: asked for on save', (tester) async {
     await open(tester, with_: FakeHub(apiToken: 'secret'));
     await tester.tap(find.text('Réglages'));
     await tester.pumpAndSettle();
@@ -174,7 +171,7 @@ void main() {
     expect(hub.config['poll_seconds'], 120);
   });
 
-  testWidgets('en anglais', (tester) async {
+  testWidgets('in English', (tester) async {
     await open(tester, language: 'en');
     expect(find.text('Tile'), findsOneWidget);
     expect(find.text('Chain'), findsOneWidget);
@@ -182,7 +179,7 @@ void main() {
     expect(find.textContaining('Select a tile on the wall'), findsOneWidget);
   });
 
-  testWidgets('Hub injoignable : message et « Réessayer »', (tester) async {
+  testWidgets('Hub unreachable: message and "Retry"', (tester) async {
     await open(tester, with_: FakeHub()..reachable = false);
     expect(
       find.text('Impossible de charger la configuration du Hub'),

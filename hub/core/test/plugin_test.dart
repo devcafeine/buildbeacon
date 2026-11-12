@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: plugin contract, registry and validation.
-// Version 1.3 (2026-11-12) — comments in English.
+// Version 1.4 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';
@@ -149,25 +149,25 @@ ZoneAction _action(SourceConfig source, DisplayMode mode, {String? metric}) =>
     );
 
 void main() {
-  group('registre', () {
-    test('retrouve un plugin par son type', () {
+  group('registry', () {
+    test('finds a plugin by its type', () {
       expect(_registry['ci'], same(_ci));
       expect(_registry['gitlab'], isNull);
       expect(_registry.all.map((p) => p.type), ['ci', 'printer', 'http_json']);
     });
 
-    test('refuse deux plugins du même type', () {
+    test('rejects two plugins of the same type', () {
       expect(() => PluginRegistry(const [_ci, _ci]), throwsArgumentError);
     });
 
-    test('refuse un identifiant de type invalide', () {
+    test('rejects an invalid type id', () {
       expect(
         () => PluginRegistry(const [_TestPlugin(type: 'Git-Hub')]),
         throwsArgumentError,
       );
     });
 
-    test('le réglage « type » est réservé', () {
+    test('the "type" setting is reserved', () {
       expect(
         () => PluginRegistry(const [
           _TestPlugin(
@@ -182,8 +182,8 @@ void main() {
     });
   });
 
-  group('réglages d\'une source', () {
-    test('réglages corrects', () {
+  group('source settings', () {
+    test('valid settings', () {
       expect(
         _registry.validateSource(
           _source('ci', {
@@ -196,19 +196,19 @@ void main() {
       );
     });
 
-    test('type inconnu : les types disponibles sont listés', () {
+    test('unknown type: available types are listed', () {
       expect(_registry.validateSource(_source('gitlab', {})).resolveAll('fr'), [
         allOf(contains('« gitlab »'), contains('ci, printer, http_json')),
       ]);
     });
 
-    test('réglage obligatoire absent', () {
+    test('missing required setting', () {
       expect(_registry.validateSource(_source('ci', {})).resolveAll('fr'), [
         '« Projet » est obligatoire',
       ]);
     });
 
-    test('format, choix et type de valeur', () {
+    test('format, choice and value type', () {
       expect(
         _registry
             .validateSource(
@@ -227,7 +227,7 @@ void main() {
       );
     });
 
-    test('réglage inconnu (faute de frappe)', () {
+    test('unknown setting (typo)', () {
       expect(
         _registry
             .validateSource(
@@ -238,7 +238,7 @@ void main() {
       );
     });
 
-    test('contrôle propre au plugin', () {
+    test('plugin-specific check', () {
       expect(
         _registry
             .validateSource(_source('printer', {'host': 'localhost'}))
@@ -248,8 +248,8 @@ void main() {
     });
   });
 
-  group('mode d\'affichage selon ce que fournit le plugin', () {
-    test('historique : seulement si le plugin en fournit un', () {
+  group('display mode depending on what the plugin provides', () {
+    test('history: only if the plugin provides one', () {
       expect(
         _registry.validateAction(_action(_okCi, DisplayMode.history)),
         isEmpty,
@@ -262,7 +262,7 @@ void main() {
       );
     });
 
-    test('seuils et jauge : seulement avec des mesures', () {
+    test('thresholds and gauge: only with metrics', () {
       expect(
         _registry.validateAction(
           _action(_okPrinter, DisplayMode.gauge, metric: 'progress'),
@@ -277,7 +277,7 @@ void main() {
       );
     });
 
-    test('mesure inconnue : les mesures disponibles sont listées', () {
+    test('unknown metric: available metrics are listed', () {
       expect(
         _registry
             .validateAction(
@@ -293,7 +293,7 @@ void main() {
       );
     });
 
-    test('plugin générique : toute mesure est acceptée', () {
+    test('generic plugin: any metric is accepted', () {
       final source = _source('http_json', {
         'url': 'http://workshop.local/state',
       });
@@ -306,7 +306,7 @@ void main() {
     });
   });
 
-  group('validation de la configuration', () {
+  group('config validation', () {
     final config = Config(
       tiles: [
         Tile(
@@ -332,7 +332,7 @@ void main() {
       ],
     );
 
-    test('avec le registre : problème rattaché à la tuile et à la zone', () {
+    test('with the registry: issue attached to the tile and zone', () {
       expect(config.validate(plugins: _registry).resolveAll('fr'), [
         'Tuile « Bambu » : points : Plugin printer ne fournit pas '
             'd\'historique : mode « historique » impossible',
@@ -343,12 +343,12 @@ void main() {
       ]);
     });
 
-    test('sans registre : sources non vérifiées', () {
+    test('without a registry: sources not checked', () {
       expect(config.validate(), isEmpty);
     });
   });
 
-  test('description pour l\'interface, textes dans chaque langue', () {
+  test('description for the UI, texts in each language', () {
     final json = _printer.describe();
     expect(json['type'], 'printer');
     expect(json['provides_history'], isFalse);

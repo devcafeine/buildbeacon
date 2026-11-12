@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: sending and receiving DDP over UDP on loopback.
-// Version 1.3 (2026-11-12) — comments in English.
+// Version 1.4 (2026-11-12) — test names in English.
 
 import 'dart:async';
 import 'dart:io';
@@ -32,19 +32,19 @@ void main() {
     }
   }
 
-  test('émetteur → faux WLED : image reçue à l\'identique', () async {
+  test('sender → fake WLED: frame received unchanged', () async {
     final rgb = Uint8List.fromList(List.generate(63, (i) => i * 4));
     final frame = await roundTrip(rgb);
     expect(frame.rgb, rgb);
     expect(frame.from.address, '127.0.0.1');
   });
 
-  test('600 LED : plusieurs paquets, image reconstituée', () async {
+  test('600 LEDs: several packets, frame reassembled', () async {
     final rgb = Uint8List.fromList(List.generate(1800, (i) => i % 251));
     expect((await roundTrip(rgb)).rgb, rgb);
   });
 
-  test('paquet qui n\'est pas du DDP : ignoré et compté', () async {
+  test('non-DDP packet: ignored and counted', () async {
     final socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
     socket.send([1, 2, 3], InternetAddress.loopbackIPv4, receiver.port);
     await Future<void>.delayed(const Duration(milliseconds: 100));
@@ -52,15 +52,15 @@ void main() {
     expect(receiver.invalidPackets, 1);
   });
 
-  group('adresse de WLED', () {
-    test('IP, nom local, IPv6 refusée', () async {
+  group('WLED address', () {
+    test('IP, local name, IPv6 rejected', () async {
       expect((await resolveIPv4('192.168.1.50'))?.address, '192.168.1.50');
       expect((await resolveIPv4('localhost'))?.address, '127.0.0.1');
       expect(await resolveIPv4('::1'), isNull);
     });
 
-    test('ouverture immédiate : une IP sert tout de suite, un nom se résout '
-        'en arrière-plan', () async {
+    test('immediate open: an IP is used right away, a name is resolved '
+        'in the background', () async {
       final resolved = Completer<InternetAddress?>();
       final byName = await DdpSender.open(
         host: 'buildbeacon.local',
@@ -81,7 +81,7 @@ void main() {
     });
 
     test(
-      'nom introuvable : rien n\'est envoyé, un seul avertissement traduit',
+      'name not found: nothing is sent, a single translated warning',
       () async {
         final logs = <LocalizedText>[];
         final sender = await DdpSender.open(

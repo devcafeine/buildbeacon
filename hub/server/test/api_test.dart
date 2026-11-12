@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: REST API (configuration, plugins, state, actions, security).
-// Version 1.2 (2026-11-12) — comments in English.
+// Version 1.3 (2026-11-12) — test names in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -153,7 +153,7 @@ void main() {
     return (response.statusCode, text.isEmpty ? null : jsonDecode(text));
   }
 
-  test('santé : nom, versions, langues', () async {
+  test('health: name, versions, languages', () async {
     final handler = await start();
     final (status, json) = await call(handler, request('GET', '/api/health'));
     expect(status, 200);
@@ -162,7 +162,7 @@ void main() {
   });
 
   group('configuration', () {
-    test('lire', () async {
+    test('read', () async {
       final handler = await start();
       final (status, json) = await call(handler, request('GET', '/api/config'));
       expect(status, 200);
@@ -172,7 +172,7 @@ void main() {
       );
     });
 
-    test('remplacer : validée, appliquée à chaud, enregistrée', () async {
+    test('replace: validated, hot-applied, saved', () async {
       final handler = await start();
       final (status, json) = await call(
         handler,
@@ -193,7 +193,7 @@ void main() {
     });
 
     test(
-      'identique à celle en cours : ni réenregistrée ni réappliquée',
+      'identical to the current one: neither saved nor applied again',
       () async {
         final handler = await start();
         final (status, json) = await call(
@@ -207,7 +207,7 @@ void main() {
     );
 
     test(
-      'incohérente : 422, problèmes dans chaque langue, rien ne change',
+      'inconsistent: 422, issues in each language, nothing changes',
       () async {
         final handler = await start();
         final before = File(configPath).readAsStringSync();
@@ -228,7 +228,7 @@ void main() {
       },
     );
 
-    test('illisible : 400, message dans chaque langue', () async {
+    test('unreadable: 400, message in each language', () async {
       final handler = await start();
       final (status, json) = await call(
         handler,
@@ -248,7 +248,7 @@ void main() {
       expect(status2, 400);
     });
 
-    test('valider sans appliquer', () async {
+    test('validate without applying', () async {
       final handler = await start();
       final (_, valid) = await call(
         handler,
@@ -265,55 +265,61 @@ void main() {
     });
   });
 
-  group('sécurité des écritures', () {
-    test('JSON obligatoire : 415 sinon (protège des sites tiers)', () async {
-      final handler = await start();
-      final (status, _) = await call(
-        handler,
-        request(
-          'PUT',
-          '/api/config',
-          body: jsonEncode(_configJson(source: 'b')),
-          contentType: 'text/plain',
-        ),
-      );
-      expect(status, 415);
-      expect(plugin.controllers.containsKey('b'), isFalse);
-    });
+  group('write security', () {
+    test(
+      'JSON required: 415 otherwise (protects against third-party sites)',
+      () async {
+        final handler = await start();
+        final (status, _) = await call(
+          handler,
+          request(
+            'PUT',
+            '/api/config',
+            body: jsonEncode(_configJson(source: 'b')),
+            contentType: 'text/plain',
+          ),
+        );
+        expect(status, 415);
+        expect(plugin.controllers.containsKey('b'), isFalse);
+      },
+    );
 
-    test('avec BB_API_TOKEN : 401 sans le jeton, accepté avec', () async {
-      final handler = await start(apiToken: 's3cret');
-      final body = _configJson(source: 'b');
+    test(
+      'with BB_API_TOKEN: 401 without the token, accepted with it',
+      () async {
+        final handler = await start(apiToken: 's3cret');
+        final body = _configJson(source: 'b');
 
-      final (refused, _) = await call(
-        handler,
-        request('PUT', '/api/config', body: body),
-      );
-      final (wrong, _) = await call(
-        handler,
-        request(
-          'PUT',
-          '/api/config',
-          body: body,
-          headers: {'authorization': 'Bearer nope'},
-        ),
-      );
-      final (accepted, _) = await call(
-        handler,
-        request(
-          'PUT',
-          '/api/config',
-          body: body,
-          headers: {'authorization': 'Bearer s3cret'},
-        ),
-      );
-      final (read, _) = await call(handler, request('GET', '/api/config'));
+        final (refused, _) = await call(
+          handler,
+          request('PUT', '/api/config', body: body),
+        );
+        final (wrong, _) = await call(
+          handler,
+          request(
+            'PUT',
+            '/api/config',
+            body: body,
+            headers: {'authorization': 'Bearer nope'},
+          ),
+        );
+        final (accepted, _) = await call(
+          handler,
+          request(
+            'PUT',
+            '/api/config',
+            body: body,
+            headers: {'authorization': 'Bearer s3cret'},
+          ),
+        );
+        final (read, _) = await call(handler, request('GET', '/api/config'));
 
-      expect([refused, wrong, accepted, read], [401, 401, 200, 200]);
-    });
+        expect([refused, wrong, accepted, read], [401, 401, 200, 200]);
+      },
+    );
 
-    test('avec BB_API_TOKEN : valider sans jeton reste possible (sans effet), '
-        'mais en JSON', () async {
+    test('with BB_API_TOKEN: validating without the token still works '
+        '(no effect), but JSON only', () async {
       final handler = await start(apiToken: 's3cret');
       final (status, json) = await call(
         handler,
@@ -335,7 +341,7 @@ void main() {
   });
 
   test(
-    'plugins : description, secret renseigné ou non, jamais sa valeur',
+    'plugins: description, whether a secret is set, never its value',
     () async {
       final handler = await start(environment: {'BB_MANUAL_KEY': 'top-secret'});
       final response = await handler(request('GET', '/api/plugins'));
@@ -358,7 +364,7 @@ void main() {
     },
   );
 
-  test('état en direct : zones, couleurs, sources, WLED', () async {
+  test('live state: zones, colors, sources, WLED', () async {
     final handler = await start();
     plugin.controllers['a']!.add(
       const SourceState(history: [Status.failure, Status.success]),
@@ -398,7 +404,7 @@ void main() {
     expect(wled['error'], contains('no WLED'));
   });
 
-  test('image envoyée aux LED', () async {
+  test('frame sent to the LEDs', () async {
     final handler = await start();
     final (status, json) = await call(handler, request('GET', '/api/frame'));
     expect(status, 200);
@@ -406,8 +412,8 @@ void main() {
     expect((json! as Map<String, Object?>)['leds'], hasLength(12 * 6));
   });
 
-  group('identifier une tuile', () {
-    test('la tuile clignote', () async {
+  group('identify a tile', () {
+    test('the tile blinks', () async {
       final handler = await start();
       final (status, json) = await call(
         handler,
@@ -418,7 +424,7 @@ void main() {
       expect(hub.identifying, {'app'});
     });
 
-    test('tuile inconnue : 404 ; durée hors limites : 400', () async {
+    test('unknown tile: 404; out-of-range duration: 400', () async {
       final handler = await start();
       final (unknown, _) = await call(
         handler,
@@ -432,7 +438,7 @@ void main() {
     });
   });
 
-  test('revérifier WLED', () async {
+  test('recheck WLED', () async {
     final handler = await start();
     final (status, json) = await call(
       handler,
@@ -442,7 +448,7 @@ void main() {
     expect(json, containsPair('error', contains('no WLED')));
   });
 
-  group('flux en direct (SSE)', () {
+  group('live stream (SSE)', () {
     /// Received events (name, decoded data), as they arrive.
     Future<StreamIterator<(String, Object?)>> open(Handler handler) async {
       final response = await handler(request('GET', '/api/events'));
@@ -466,7 +472,7 @@ void main() {
       return it.current;
     }
 
-    test('la configuration puis l\'état, tout de suite', () async {
+    test('the configuration then the state, right away', () async {
       final events = await open(await start());
       final (first, config) = await next(events);
       expect(first, 'config');
@@ -477,7 +483,7 @@ void main() {
       await events.cancel();
     });
 
-    test('config renvoyée seulement quand elle change', () async {
+    test('config sent again only when it changes', () async {
       final handler = await start();
       final events = await open(handler);
       await next(events); // config
@@ -500,8 +506,8 @@ void main() {
     });
   });
 
-  group('hors de l\'API', () {
-    test('route inconnue : 404 JSON traduit', () async {
+  group('outside the API', () {
+    test('unknown route: translated JSON 404', () async {
       final handler = await start();
       final (status, json) = await call(handler, request('GET', '/api/nope'));
       expect(status, 404);
@@ -513,14 +519,14 @@ void main() {
       });
     });
 
-    test('sans interface web : la racine présente l\'API', () async {
+    test('without a web interface: the root describes the API', () async {
       final handler = await start();
       final (status, json) = await call(handler, request('GET', '/'));
       expect(status, 200);
       expect(json, containsPair('api', '/api'));
     });
 
-    test('avec une interface web : ses fichiers sont servis', () async {
+    test('with a web interface: its files are served', () async {
       final web = await Directory.systemTemp.createTemp('bb-web');
       addTearDown(() => web.delete(recursive: true));
       File('${web.path}/index.html').writeAsStringSync('<h1>BuildBeacon</h1>');

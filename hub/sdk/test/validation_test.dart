@@ -1,5 +1,5 @@
 // BuildBeacon Hub — SDK tests: settings validation and conformance.
-// Version 1.2 (2026-11-12) — comments in English.
+// Version 1.3 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 import 'package:test/test.dart';
@@ -127,8 +127,8 @@ final class _BadPlugin extends SourcePlugin {
 void main() {
   const good = _GoodPlugin();
 
-  group('réglages d\'une source', () {
-    test('réglages corrects', () {
+  group('source settings', () {
+    test('valid settings', () {
       expect(
         settingsIssues(good, {
           'host': 'bambu.local',
@@ -139,7 +139,7 @@ void main() {
       );
     });
 
-    test('obligatoire, format, type, choix et faute de frappe', () {
+    test('required, format, type, choice and typo', () {
       expect(settingsIssues(good, {}).resolveAll('fr'), [
         '« Adresse » est obligatoire',
       ]);
@@ -159,7 +159,7 @@ void main() {
       );
     });
 
-    test('les mêmes messages en anglais', () {
+    test('the same messages in English', () {
       expect(settingsIssues(good, {}).resolveAll('en'), [
         '"Address" is required',
       ]);
@@ -168,7 +168,7 @@ void main() {
       ]);
     });
 
-    test('contrôle du plugin, seulement si les champs sont valides', () {
+    test('plugin check, only if the fields are valid', () {
       expect(settingsIssues(good, {'host': 'localhost'}).resolveAll('fr'), [
         'l\'imprimante ne peut pas être le Hub lui-même',
       ]);
@@ -182,12 +182,12 @@ void main() {
     });
   });
 
-  group('conformité', () {
-    test('plugin bien écrit : rien à redire', () {
+  group('conformance', () {
+    test('well-written plugin: nothing to report', () {
       expect(conformanceIssues(good), isEmpty);
     });
 
-    test('chaque règle enfreinte est signalée (en anglais)', () {
+    test('each broken rule is reported (in English)', () {
       expect(conformanceIssues(const _BadPlugin()), [
         'type "Bad-Type": lowercase letters, digits and _, '
             'starting with a letter',
@@ -202,7 +202,7 @@ void main() {
       ]);
     });
 
-    test('description JSON complète, textes dans chaque langue', () {
+    test('full JSON description, texts in each language', () {
       final json = good.describe();
       expect(json['type'], 'printer_3d');
       expect(json['label'], {'en': '3D printer', 'fr': 'Imprimante 3D'});

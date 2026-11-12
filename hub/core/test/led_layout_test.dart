@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: LED indices in the chain.
-// Version 1.3 (2026-11-12) — comments in English.
+// Version 1.4 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';
@@ -22,7 +22,7 @@ final _master = Tile(
 
 void main() {
   group('master', () {
-    test('zone système = LED 0, 1, 2 de gauche à droite', () {
+    test('system zone = LEDs 0, 1, 2 from left to right', () {
       expect(LedLayout.zoneIndices(TileKind.master, 0, ZoneName.system), [
         0,
         1,
@@ -30,38 +30,41 @@ void main() {
       ]);
     });
 
-    test('la tuile entière = ses 3 LED', () {
+    test('whole tile = its 3 LEDs', () {
       expect(LedLayout.tileIndices(TileKind.master, 0), [0, 1, 2]);
     });
   });
 
-  group('tuile projet', () {
-    test('la tuile n° k commence à 3 + 9·(k − 1)', () {
+  group('project tile', () {
+    test('tile no. k starts at 3 + 9·(k − 1)', () {
       expect([1, 2, 3, 10].map(LedLayout.projectBase), [3, 12, 21, 84]);
     });
 
-    test('la tuile n° 1 occupe les LED 3 à 11', () {
+    test('tile no. 1 uses LEDs 3 to 11', () {
       expect(LedLayout.tileIndices(TileKind.project, 1), [
         for (var i = 3; i <= 11; i++) i,
       ]);
     });
 
-    test('ambiance non contiguë : haut (local 0, 1) puis bas (local 7, 8)', () {
-      expect(LedLayout.zoneIndices(TileKind.project, 1, ZoneName.ambient), [
-        3,
-        4,
-        10,
-        11,
-      ]);
-      expect(LedLayout.zoneIndices(TileKind.project, 2, ZoneName.ambient), [
-        12,
-        13,
-        19,
-        20,
-      ]);
-    });
+    test(
+      'non-contiguous ambient: top (local 0, 1) then bottom (local 7, 8)',
+      () {
+        expect(LedLayout.zoneIndices(TileKind.project, 1, ZoneName.ambient), [
+          3,
+          4,
+          10,
+          11,
+        ]);
+        expect(LedLayout.zoneIndices(TileKind.project, 2, ZoneName.ambient), [
+          12,
+          13,
+          19,
+          20,
+        ]);
+      },
+    );
 
-    test('points câblés de droite à gauche : point n° 1 = local 6', () {
+    test('dots wired right to left: dot no. 1 = local 6', () {
       expect(LedLayout.zoneIndices(TileKind.project, 1, ZoneName.dots), [
         9,
         8,
@@ -78,7 +81,7 @@ void main() {
       ]);
     });
 
-    test('ambiance + points couvrent les 9 LED, sans recouvrement', () {
+    test('ambient + dots cover the 9 LEDs, without overlap', () {
       for (var rank = 1; rank <= 5; rank++) {
         final zones = [
           ...LedLayout.zoneIndices(TileKind.project, rank, ZoneName.ambient),
@@ -88,12 +91,12 @@ void main() {
       }
     });
 
-    test('un rang < 1 est refusé', () {
+    test('chain position < 1 is rejected', () {
       expect(() => LedLayout.projectBase(0), throwsRangeError);
     });
   });
 
-  test('zone absente du type de tuile', () {
+  test('zone not available on the tile kind', () {
     expect(
       () => LedLayout.zoneIndices(TileKind.master, 0, ZoneName.dots),
       throwsArgumentError,
@@ -104,23 +107,23 @@ void main() {
     );
   });
 
-  group('longueur de la chaîne', () {
-    test('master seule : 3 LED', () {
+  group('chain length', () {
+    test('master tile only: 3 LEDs', () {
       expect(LedLayout.ledCount([_master]), 3);
     });
 
-    test('master + 3 tuiles : 3 + 9·3 = 30 LED', () {
+    test('master + 3 tiles: 3 + 9·3 = 30 LEDs', () {
       expect(
         LedLayout.ledCount([_master, _project(1), _project(2), _project(3)]),
         30,
       );
     });
 
-    test('un rang non configuré compte quand même (LED éteintes)', () {
+    test('an unconfigured chain position still counts (LEDs off)', () {
       expect(LedLayout.ledCount([_master, _project(1), _project(3)]), 30);
     });
 
-    test('la master compte même absente de la config', () {
+    test('master tile counts even when missing from the config', () {
       expect(LedLayout.ledCount([_project(1)]), 12);
     });
   });

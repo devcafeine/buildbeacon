@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: reading GitHub runs (URL, ETag, quota, errors).
-// Version 1.3 (2026-11-12) — comments in English.
+// Version 1.4 (2026-11-12) — test names in English.
 
 import 'dart:convert';
 
@@ -57,14 +57,14 @@ void main() {
   final noNetwork = MockClient((_) async => throw StateError('no network'));
 
   group('URL', () {
-    test('tous les workflows, toutes les branches', () {
+    test('all workflows, all branches', () {
       expect(
         reader(noNetwork).uri.toString(),
         'https://api.github.com/repos/acme/app/actions/runs?per_page=5',
       );
     });
 
-    test('un workflow et une branche', () {
+    test('one workflow and one branch', () {
       expect(
         reader(noNetwork, workflow: 'ci.yml', branch: 'main').uri.toString(),
         'https://api.github.com/repos/acme/app/actions/workflows/ci.yml/runs'
@@ -73,8 +73,8 @@ void main() {
     });
   });
 
-  group('lecture', () {
-    test('runs du plus récent au plus ancien', () async {
+  group('reading', () {
+    test('runs from newest to oldest', () async {
       final github = _FakeGithub([
         http.Response(
           _runs([
@@ -92,7 +92,7 @@ void main() {
       expect(state.error, isNull);
     });
 
-    test('5 runs au plus', () async {
+    test('at most 5 runs', () async {
       final github = _FakeGithub([
         http.Response(_runs(List.filled(8, ('completed', 'success'))), 200),
       ]);
@@ -100,7 +100,7 @@ void main() {
       expect(state.history, hasLength(5));
     });
 
-    test('en-têtes : API versionnée, User-Agent, jeton s\'il existe', () async {
+    test('headers: versioned API, User-Agent, token if any', () async {
       final github = _FakeGithub([http.Response(_runs([]), 200)]);
       await reader(github.client, token: 'jeton').read(SourceState.unknown);
       await reader(github.client).read(SourceState.unknown);
@@ -115,7 +115,7 @@ void main() {
       expect(withoutToken.headers.containsKey('Authorization'), isFalse);
     });
 
-    test('ETag : requête conditionnelle, 304 garde l\'historique', () async {
+    test('ETag: conditional request, 304 keeps the history', () async {
       final github = _FakeGithub([
         http.Response(
           _runs([('completed', 'failure')]),
@@ -142,42 +142,42 @@ void main() {
     });
   });
 
-  group('erreurs (messages traduits)', () {
+  group('errors (translated messages)', () {
     Future<SourceState> readWith(http.Response response, {String? workflow}) =>
         reader(
           _FakeGithub([response]).client,
           workflow: workflow,
         ).read(SourceState.unknown);
 
-    test('401 : jeton refusé', () {
+    test('401: token rejected', () {
       expect(
         readWith(http.Response('', 401)),
         _sourceError(contains('BB_GITHUB_TOKEN')),
       );
     });
 
-    test('403 sans limite de quota : droits insuffisants', () {
+    test('403 not rate-limited: insufficient permissions', () {
       expect(
         readWith(http.Response('', 403)),
         _sourceError(contains('Actions: read')),
       );
     });
 
-    test('404 : dépôt ou workflow introuvable', () {
+    test('404: repository or workflow not found', () {
       expect(
         readWith(http.Response('', 404), workflow: 'ci.yml'),
         _sourceError(startsWith('acme/app / ci.yml introuvable (404)')),
       );
     });
 
-    test('autre code HTTP', () {
+    test('other HTTP status code', () {
       expect(
         readWith(http.Response('', 502)),
         _sourceError('GitHub a répondu 502 pour acme/app'),
       );
     });
 
-    test('réponse sans workflow_runs', () {
+    test('response without workflow_runs', () {
       expect(
         readWith(http.Response('{"message": "?"}', 200)),
         _sourceError(contains('inattendue')),
@@ -186,7 +186,7 @@ void main() {
   });
 
   group('quota', () {
-    test('quota épuisé : aucune requête jusqu\'à la remise à zéro', () async {
+    test('quota exhausted: no request until the reset', () async {
       final reset = now.add(const Duration(minutes: 15));
       final github = _FakeGithub([
         http.Response(
@@ -230,7 +230,7 @@ void main() {
       expect(github.requests, hasLength(2));
     });
 
-    test('limite secondaire (429 + retry-after)', () async {
+    test('secondary rate limit (429 + retry-after)', () async {
       final github = _FakeGithub([
         http.Response('', 429, headers: {'retry-after': '60'}),
       ]);
