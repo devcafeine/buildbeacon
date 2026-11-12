@@ -1,5 +1,5 @@
 // BuildBeacon UI — Application tests: wall, panels, saving, languages.
-// Version 1.7 (2026-11-12) — OpenSCAD model v1.5.
+// Version 1.8 (2026-11-12) — OpenSCAD model v1.6.
 
 import 'package:buildbeacon_ui/src/app.dart';
 import 'package:flutter/material.dart';
@@ -183,7 +183,7 @@ void main() {
       findsOneWidget,
     );
     // Outside a browser (tests), no download: a clear message.
-    final download = find.text('Télécharger buildbeacon_tile_v1.5.json');
+    final download = find.text('Télécharger buildbeacon_tile_v1.6.json');
     await tester.ensureVisible(download);
     await tester.pumpAndSettle();
     await tester.tap(download);

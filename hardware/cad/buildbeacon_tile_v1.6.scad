@@ -1,6 +1,8 @@
 // =====================================================================
 //  BuildBeacon - hexagonal light-up tile (parametric)
-//  Version 1.5 (2026-11-12) - notches: connectors centered on each side (comment)
+//  Version 1.6 (2026-11-12) - master board: why its bottom-left hole is 2 mm higher
+//                              (comment)
+//  v1.5: notches: connectors centered on each side (comment)
 //  v1.4: stand: straight USB slot that follows the USB window; shell closing
 //        comment (3 points on every tile)
 //  v1.3: PCB: 4 spacers and 4 screws (comment and message)
@@ -316,7 +318,7 @@ cable_clip_h = 3.5;
 part = "both"; // [tile, letters, back, both, stand, plugs, skadis_clips, skadis, links, link_test, led_bridge, base, cable_clips, knockout_test]
 
 /* [Hidden] */
-bb_version = "1.5";
+bb_version = "1.6";
 echo(str("BuildBeacon model v", bb_version));
 $fn = 48;
 eps = 0.01;
@@ -399,6 +401,10 @@ pcb_on = (led_mount == "pcb") && pointy && !d1;
 lift = pcb_on ? pcb_standoff + pcb_t : 0;
 // Board holes and outline, in FRONT VIEW (mm, y up).
 // The plate is flipped inside the shell: front view (x, y) = plate (-x, -y).
+// Master board: its bottom-left hole is 2 mm higher than on the project
+// boards, (-20, -10) instead of (-20, -12), so that the screw head clears the
+// ESP32 module (1.1 mm instead of 0.07 mm). Its 4th hole is under the module,
+// in the gap left by the plastic spacer of the pin headers (esp_spacer).
 pcb_holes_front = master
     ? [[0, 23], [20, -12], [-15.5, -26.85], [-20, -10]]
     : [[0, 23], [-20, -12], [20, -12], [0, -27]];
