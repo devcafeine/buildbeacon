@@ -1,17 +1,17 @@
-// BuildBeacon Hub — SDK des plugins : accès typé aux réglages d'une source.
-// Version 1.1 (2026-11-11) — messages d'erreur de programmation en anglais.
+// BuildBeacon Hub — Plugin SDK: typed access to the settings of a source.
+// Version 1.2 (2026-11-12) — comments in English.
 
-/// Réglages d'une source, avec un accès typé.
+/// Settings of a source, with typed access.
 ///
-/// Le Hub les a validés selon `SourcePlugin.settings` avant de les donner au
-/// plugin : un réglage `required` est présent et du bon type. Lire un
-/// réglage absent ou du mauvais type est donc une erreur du plugin
-/// ([StateError], message en anglais pour les développeurs).
+/// The Hub has validated them against `SourcePlugin.settings` before handing
+/// them to the plugin: a `required` setting is present and of the right type.
+/// Reading a missing setting, or one of the wrong type, is therefore a bug in
+/// the plugin ([StateError], with a message in English for developers).
 final class SourceSettings {
   SourceSettings(Map<String, Object?> values)
     : values = Map.unmodifiable(values);
 
-  /// Valeurs brutes, telles que dans config.json.
+  /// Raw values, as in config.json.
   final Map<String, Object?> values;
 
   String text(String id) => _required<String>(id, 'text');
@@ -27,7 +27,7 @@ final class SourceSettings {
   double? optionalNumber(String id) =>
       _optional<num>(id, 'a number')?.toDouble();
 
-  /// Réglage oui/non ; [orElse] s'il est absent.
+  /// Yes/no setting; [orElse] if it is missing.
   bool flag(String id, {bool orElse = false}) =>
       _optional<bool>(id, 'a boolean') ?? orElse;
 

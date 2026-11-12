@@ -1,5 +1,5 @@
-// BuildBeacon UI — Flux d'événements hors navigateur (tests, bureau) : HTTP en continu.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Event stream outside the browser (tests, desktop): streaming HTTP.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -8,8 +8,8 @@ import 'package:http/http.dart' as http;
 
 import 'hub_events.dart';
 
-/// Lit `text/event-stream` par une requête HTTP ; en cas de coupure,
-/// signale la perte de connexion et réessaie toutes les 3 s.
+/// Reads `text/event-stream` through an HTTP request; when the connection
+/// drops, reports the lost connection and retries every 3 s.
 Stream<HubEvent> openHubEvents(Uri url) {
   late final StreamController<HubEvent> controller;
   var closed = false;
@@ -33,7 +33,7 @@ Stream<HubEvent> openHubEvents(Uri url) {
           }
         }
       } on Object {
-        // Hub injoignable : nouvel essai plus bas.
+        // Hub unreachable: retried below.
       } finally {
         current.close();
       }

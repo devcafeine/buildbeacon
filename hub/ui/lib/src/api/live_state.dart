@@ -1,9 +1,9 @@
-// BuildBeacon UI — Ce que montre le Hub en ce moment (événement « state »).
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — What the Hub is showing right now ("state" event).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
-/// Connexion à WLED, d'après la dernière vérification du Hub.
+/// Connection to WLED, according to the Hub's last check.
 final class WledLive {
   const WledLive({
     this.checkedAt,
@@ -25,24 +25,23 @@ final class WledLive {
     );
   }
 
-  /// `null` avant la première vérification.
+  /// `null` before the first check.
   final DateTime? checkedAt;
   final String? version;
   final String? name;
 
-  /// Nombre de LED réglé dans WLED.
+  /// LED count set in WLED.
   final int? ledCount;
 
-  /// Raison courte (« Connection refused », « timeout ») si l'API JSON de
-  /// WLED est injoignable : normal avec le simulateur.
+  /// Short reason ("Connection refused", "timeout") if the WLED JSON API
+  /// is unreachable: expected with the simulator.
   final String? error;
 
   bool get reachable => ledCount != null;
 }
 
-/// État en direct du Hub : états des sources (pour recalculer l'aperçu,
-/// même d'une configuration pas encore enregistrée), tuiles en train
-/// d'être identifiées, WLED.
+/// Live state of the Hub: source states (to recompute the preview, even
+/// for a configuration not saved yet), tiles being identified, WLED.
 final class LiveState {
   const LiveState({
     this.sources = const {},
@@ -74,13 +73,13 @@ final class LiveState {
 
   static const empty = LiveState();
 
-  /// États des sources, par clé de source (`SourceConfig.key`).
+  /// Source states, by source key (`SourceConfig.key`).
   final Map<String, SourceState> sources;
 
   final Set<String> identifying;
   final WledLive wled;
 
-  /// Une LED de l'aperçu doit-elle bouger (pulsation, clignotement) ?
+  /// Does any LED of the preview need to move (pulse, blink)?
   bool get animated =>
       identifying.isNotEmpty ||
       sources.values.any(

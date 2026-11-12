@@ -1,18 +1,18 @@
-// BuildBeacon Hub — Couleur associée à chaque état.
-// Version 1.3 (2026-11-11) — clés en anglais (success, failure…), erreur traduite.
+// BuildBeacon Hub — Color associated with each status.
+// Version 1.4 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
 import 'rgb.dart';
 
-/// Couleur de chaque [Status], réglable ; les états non fournis prennent
-/// la couleur par défaut.
+/// Color of each [Status], configurable; statuses not provided get the
+/// default color.
 final class Palette {
   Palette([Map<Status, Rgb> overrides = const {}])
     : _colors = Map.unmodifiable({...defaults, ...overrides});
 
-  /// Lit `{"success": "#00FF00", …}`. Les clés inconnues sont ignorées
-  /// (config écrite par une version plus récente du Hub).
+  /// Reads `{"success": "#00FF00", …}`. Unknown keys are ignored (config
+  /// written by a newer version of the Hub).
   factory Palette.fromJson(Map<String, Object?> json) {
     final overrides = <Status, Rgb>{};
     for (final MapEntry(:key, :value) in json.entries) {
@@ -34,8 +34,8 @@ final class Palette {
     return Palette(overrides);
   }
 
-  /// Couleurs par défaut, choisies saturées : la luminosité globale est
-  /// réglée dans WLED (50 % par défaut).
+  /// Default colors, deliberately saturated: the global brightness is set
+  /// in WLED (50 % by default).
   static const defaults = <Status, Rgb>{
     Status.success: Rgb(0, 255, 0),
     Status.warning: Rgb(255, 170, 0),

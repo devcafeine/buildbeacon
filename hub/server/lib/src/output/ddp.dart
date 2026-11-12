@@ -1,16 +1,16 @@
-// BuildBeacon Hub — Protocole DDP (Distributed Display Protocol) : codage et décodage.
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — DDP (Distributed Display Protocol): encoding and decoding.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:math';
 import 'dart:typed_data';
 
-/// Port UDP de DDP chez WLED.
+/// WLED's UDP port for DDP.
 const ddpDefaultPort = 4048;
 
-/// Longueur de l'en-tête sans horodatage.
+/// Header length without timecode.
 const ddpHeaderLength = 10;
 
-/// Octets de données par paquet : 480 LED RGB, comme WLED.
+/// Data bytes per packet: 480 RGB LEDs, like WLED.
 const ddpMaxDataLength = 1440;
 
 const _version1 = 0x40;
@@ -18,17 +18,17 @@ const _versionMask = 0xC0;
 const _flagPush = 0x01;
 const _flagTimecode = 0x10;
 
-/// RGB, 8 bits par canal, 3 canaux (`DDP_TYPE_RGB24` chez WLED).
+/// RGB, 8 bits per channel, 3 channels (`DDP_TYPE_RGB24` in WLED).
 const _typeRgb24 = 0x0B;
 
-/// Sortie par défaut du récepteur.
+/// Default output of the receiver.
 const _destinationDisplay = 0x01;
 
-/// Découpe une image RGB en paquets DDP, 480 LED au plus par paquet.
+/// Splits an RGB frame into DDP packets, at most 480 LEDs per packet.
 ///
-/// Seul le dernier paquet porte le drapeau PUSH : WLED n'affiche l'image qu'à
-/// sa réception. [sequence] (1 – 15, 0 = non utilisé) permet au récepteur
-/// d'écarter des paquets arrivés en retard.
+/// Only the last packet carries the PUSH flag: WLED shows the frame only when
+/// it receives it. [sequence] (1 – 15, 0 = unused) lets the receiver discard
+/// packets that arrive late.
 List<Uint8List> encodeDdp(Uint8List rgb, {int sequence = 0}) {
   final packets = <Uint8List>[];
   var offset = 0;
@@ -50,7 +50,7 @@ List<Uint8List> encodeDdp(Uint8List rgb, {int sequence = 0}) {
   return packets;
 }
 
-/// Paquet DDP de données décodé (côté récepteur : simulateur, tests).
+/// Decoded DDP data packet (receiver side: simulator, tests).
 final class DdpPacket {
   const DdpPacket({
     required this.flags,
@@ -61,7 +61,7 @@ final class DdpPacket {
     required this.data,
   });
 
-  /// Décode [bytes] ; `null` si ce n'est pas un paquet DDP v1 complet.
+  /// Decodes [bytes]; `null` if it is not a complete DDP v1 packet.
   static DdpPacket? tryParse(Uint8List bytes) {
     if (bytes.length < ddpHeaderLength) return null;
     final flags = bytes[0];
@@ -88,10 +88,10 @@ final class DdpPacket {
   final int dataType;
   final int destination;
 
-  /// Position des données dans l'image, en octets.
+  /// Position of the data in the frame, in bytes.
   final int offset;
   final Uint8List data;
 
-  /// Dernier paquet de l'image : le récepteur l'affiche.
+  /// Last packet of the frame: the receiver displays it.
   bool get push => (flags & _flagPush) != 0;
 }

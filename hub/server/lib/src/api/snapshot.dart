@@ -1,16 +1,16 @@
-// BuildBeacon Hub — API : photo de l'état du Hub (aperçu en direct) et description des plugins.
-// Version 1.1 (2026-11-11) — état des sources par SourceStateJson (partagé avec l'interface).
+// BuildBeacon Hub — API: snapshot of the Hub state (live preview) and plugin descriptions.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
 import '../hub.dart';
 
-/// Ce que montre le Hub en ce moment, pour l'aperçu de l'interface : chaque
-/// tuile et chaque zone (état et couleur de chaque LED), l'état de chaque
-/// source, la connexion à WLED.
+/// What the Hub is showing right now, for the interface preview: each tile
+/// and each zone (status and color of each LED), the state of each source,
+/// the connection to WLED.
 ///
-/// Les couleurs sont celles de la palette, à l'intensité de la LED, sans la
-/// pulsation : l'interface anime elle-même les états listés dans `pulsing`.
+/// The colors are the palette's, at the LED's intensity, without the
+/// pulsing: the interface itself animates the statuses listed in `pulsing`.
 Map<String, Object?> hubSnapshot(Hub hub) {
   final config = hub.config;
   final states = hub.states;
@@ -76,8 +76,8 @@ Map<String, Object?> hubSnapshot(Hub hub) {
   };
 }
 
-/// Une source et son dernier état. Les réglages viennent de config.json :
-/// aucun secret n'y figure.
+/// A source and its latest state. The settings come from config.json: no
+/// secret appears in them.
 Map<String, Object?> sourceJson(SourceConfig source, SourceState state) => {
   'type': source.type,
   'settings': source.settings,
@@ -85,7 +85,7 @@ Map<String, Object?> sourceJson(SourceConfig source, SourceState state) => {
   ...SourceStateJson.encode(state),
 };
 
-/// Réglages de WLED et résultat de la dernière vérification.
+/// WLED settings and result of the last check.
 Map<String, Object?> wledJson(Config config, WledStatus? status) {
   final info = status?.info;
   return {
@@ -103,8 +103,8 @@ Map<String, Object?> wledJson(Config config, WledStatus? status) {
   };
 }
 
-/// Description d'un plugin pour l'interface, avec pour chaque secret le
-/// seul fait qu'il soit renseigné dans l'environnement (jamais sa valeur).
+/// Description of a plugin for the interface, with, for each secret, only
+/// whether it is set in the environment (never its value).
 Map<String, Object?> pluginJson(
   SourcePlugin plugin,
   Map<String, String> environment,

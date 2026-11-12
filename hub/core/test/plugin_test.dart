@@ -1,10 +1,10 @@
-// BuildBeacon Hub — Tests : contrat des plugins, registre et validation.
-// Version 1.2 (2026-11-11) — textes traduits (LocalizedText), identifiants en anglais.
+// BuildBeacon Hub — Tests: plugin contract, registry and validation.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';
 
-/// Plugin de test, entièrement décrit par son constructeur.
+/// Test plugin, fully described by its constructor.
 final class _TestPlugin extends SourcePlugin {
   const _TestPlugin({
     required this.type,
@@ -59,7 +59,7 @@ List<LocalizedText> _notTheHub(SourceSettings settings) => [
     }),
 ];
 
-/// Comme un plugin de CI : un historique, pas de mesure.
+/// Like a CI plugin: a history, no measurement.
 const _ci = _TestPlugin(
   type: 'ci',
   providesHistory: true,
@@ -88,7 +88,7 @@ const _ci = _TestPlugin(
   ],
 );
 
-/// Comme une imprimante 3D : des mesures, pas d'historique.
+/// Like a 3D printer: measurements, no history.
 const _printer = _TestPlugin(
   type: 'printer',
   settings: [
@@ -122,7 +122,7 @@ const _printer = _TestPlugin(
   check: _notTheHub,
 );
 
-/// Comme un plugin générique (JSON) : mesures nommées par l'utilisateur.
+/// Like a generic (JSON) plugin: measurements named by the user.
 const _generic = _TestPlugin(
   type: 'http_json',
   providesHistory: true,

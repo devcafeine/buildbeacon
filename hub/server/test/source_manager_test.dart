@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : exécution des plugins et cache des sources.
-// Version 1.2 (2026-11-11) — identifiants en anglais, erreurs traduites.
+// BuildBeacon Hub — Tests: running plugins and the source cache.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -17,8 +17,8 @@ typedef _Connection = ({
   StreamController<SourceState> controller,
 });
 
-/// Plugin défini hors du cœur, comme le serait un plugin de la communauté.
-/// Chaque connexion est un flux que le test alimente à la main.
+/// Plugin defined outside the core, as a community plugin would be.
+/// Each connection is a stream that the test feeds by hand.
 final class _ManualPlugin extends SourcePlugin {
   _ManualPlugin({this.secretRequired = false});
 
@@ -72,7 +72,7 @@ final class _ManualPlugin extends SourcePlugin {
 SourceConfig _manual(String name) =>
     SourceConfig(type: 'manual', settings: {'name': name});
 
-/// Une tuile par source ; ses deux zones suivent la même source.
+/// One tile per source; both of its zones follow the same source.
 Config _config(List<SourceConfig> sources, {int pollSeconds = 30}) => Config(
   pollSeconds: pollSeconds,
   tiles: [

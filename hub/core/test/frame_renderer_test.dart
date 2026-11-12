@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : calcul de l'image des LED.
-// Version 1.3 (2026-11-11) — identifiants en anglais (modes, zones, états).
+// BuildBeacon Hub — Tests: LED frame computation.
+// Version 1.4 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';
@@ -13,7 +13,7 @@ final _site = SourceConfig(
   settings: {'repo': 'acme/site', 'branch': 'main'},
 );
 
-/// Disposition de l'utilisateur : master en (0, 1), tuiles en (0, 0) et (1, 1).
+/// The user's layout: master tile at (0, 1), tiles at (0, 0) and (1, 1).
 Config _config() => Config(
   tiles: [
     Tile(

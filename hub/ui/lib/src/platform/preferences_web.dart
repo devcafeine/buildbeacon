@@ -1,5 +1,5 @@
-// BuildBeacon UI — Préférences du navigateur : localStorage.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Browser preferences: localStorage.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:web/web.dart' as web;
 
@@ -24,7 +24,7 @@ final class PlatformPreferences implements Preferences {
           ? web.window.localStorage.removeItem('$_prefix$key')
           : web.window.localStorage.setItem('$_prefix$key', value);
     } on Object {
-      // Stockage bloqué : le choix ne sera pas retenu, rien de grave.
+      // Storage blocked: the choice will not be remembered, no big deal.
     }
   }
 }

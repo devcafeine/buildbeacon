@@ -1,5 +1,5 @@
-// BuildBeacon UI — Le mur : tuiles à leur place, LED en direct, ajout et déplacement.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — The wall: tiles in place, live LEDs, adding and moving.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:math';
 
@@ -13,7 +13,7 @@ import '../editor/model_edit.dart';
 import '../editor/wall_geometry.dart';
 import 'l10n.dart';
 
-/// Couleurs du mur (toujours sombre : les LED ressortent comme au vrai mur).
+/// Wall colors (always dark: the LEDs stand out as on the real wall).
 final class WallColors {
   const WallColors({
     required this.wall,
@@ -37,11 +37,11 @@ final class WallColors {
   final Color accent;
 }
 
-/// Le mur, dessiné d'après le brouillon et animé (pulsation des runs en
-/// cours, clignotement « identifier »).
+/// The wall, drawn from the draft and animated (pulse of the runs in
+/// progress, "identify" blinking).
 ///
-/// Toucher une tuile la sélectionne, toucher un « + » ajoute une tuile,
-/// glisser une tuile la déplace (sur une autre : échange de places).
+/// Tapping a tile selects it, tapping a "+" adds a tile, dragging a tile
+/// moves it (onto another one: they swap places).
 class WallView extends StatefulWidget {
   const WallView({
     super.key,
@@ -82,7 +82,7 @@ class _WallViewState extends State<WallView>
     _syncTicker();
   }
 
-  /// L'animation ne tourne que si une LED bouge.
+  /// The animation only runs while an LED moves.
   void _syncTicker() {
     final animated = widget.editor.live.animated;
     if (animated && !_ticker.isActive) {
@@ -221,7 +221,7 @@ class _WallViewState extends State<WallView>
   }
 }
 
-/// Dessin du mur, en millimètres (mis à l'échelle de la place disponible).
+/// Painting of the wall, in millimeters (scaled to the available space).
 class WallPainter extends CustomPainter {
   WallPainter({
     required this.config,
@@ -307,7 +307,7 @@ class WallPainter extends CustomPainter {
         ..strokeWidth = 0.6
         ..color = colors.edge.withValues(alpha: hovered ? 1 : 0.35),
     );
-    // Discret tant que la souris n'est pas dessus : le mur reste lisible.
+    // Subtle until the mouse hovers over it: the wall stays readable.
     final plus = Paint()
       ..strokeWidth = 1.4
       ..strokeCap = StrokeCap.round
@@ -345,7 +345,7 @@ class WallPainter extends CustomPainter {
         ..color = fade(selected ? colors.accent : colors.edge),
     );
 
-    // LED : halo flou, limité à la tuile, comme derrière le plastique.
+    // LEDs: blurred halo, clipped to the tile, as behind the plastic.
     final positions = master
         ? WallGeometry.masterLeds
         : WallGeometry.projectLeds;
@@ -434,7 +434,7 @@ class WallPainter extends CustomPainter {
     painter.dispose();
   }
 
-  /// Zones accessibles (lecteurs d'écran, tests) : une par tuile et par « + ».
+  /// Accessible areas (screen readers, tests): one per tile and per "+".
   @override
   SemanticsBuilderCallback get semanticsBuilder => (size) {
     Rect rect(HexPos pos) {

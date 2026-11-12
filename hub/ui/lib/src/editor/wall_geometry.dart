@@ -1,48 +1,48 @@
-// BuildBeacon UI — Géométrie du mur : hexagones « pointe en haut », coordonnées axiales.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Wall geometry: pointy-top hexagons, axial coordinates.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
-/// Dimensions réelles en millimètres, comme le simulateur et le modèle
-/// OpenSCAD : 80 mm entre côtés plats.
+/// Real dimensions in millimeters, like the simulator and the OpenSCAD
+/// model: 80 mm between flat sides.
 abstract final class WallGeometry {
-  /// Distance entre deux côtés plats.
+  /// Distance between two flat sides.
   static const flat = 80.0;
 
-  /// Rayon du cercle circonscrit (centre → pointe).
+  /// Radius of the circumscribed circle (center → tip).
   static final radius = flat / sqrt(3);
 
-  /// Écart vertical entre deux rangées.
+  /// Vertical distance between two rows.
   static final rowStep = flat * sqrt(3) / 2;
 
-  /// Les 6 voisines d'une case, en (dq, dr).
+  /// The 6 neighbors of a cell, as (dq, dr).
   static const neighbors = [(1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1), (0, 1)];
 
-  /// Position des LED d'une tuile projet depuis son centre, par index local
-  /// 0 – 8 (ambiance 0, 1, points 2 – 6 de droite à gauche, ambiance 7, 8).
+  /// Position of a project tile's LEDs from its center, by local index
+  /// 0 – 8 (ambient 0, 1, dots 2 – 6 from right to left, ambient 7, 8).
   static const projectLeds = [
     Offset(-9, -21), Offset(9, -21), //
     Offset(24, 2), Offset(12, 2), Offset(0, 2), Offset(-12, 2), Offset(-24, 2),
     Offset(-9, 25), Offset(9, 25),
   ];
 
-  /// LED de la master, de gauche à droite.
+  /// LEDs of the master tile, from left to right.
   static const masterLeds = [Offset(-15, 7), Offset(0, 7), Offset(15, 7)];
 
   static Offset center(HexPos pos) =>
       Offset(flat * (pos.q + pos.r / 2), rowStep * pos.r);
 
-  /// Case qui contient [point] (millimètres).
+  /// Cell that contains [point] (millimeters).
   static HexPos hexAt(Offset point) {
     final r = point.dy / rowStep;
     final q = point.dx / flat - r / 2;
     return _round(q, r);
   }
 
-  /// Contour d'un hexagone de centre [center], à [scale] × la taille réelle.
+  /// Outline of a hexagon centered on [center], at [scale] × the real size.
   static Path hexagon(Offset center, {double scale = 1}) {
     final path = Path();
     for (var i = 0; i < 6; i++) {
@@ -55,7 +55,7 @@ abstract final class WallGeometry {
     return path..close();
   }
 
-  /// Cases libres voisines des tuiles : là où l'on peut en ajouter une.
+  /// Free cells next to the tiles: where one can be added.
   static Set<HexPos> freeNeighbors(Iterable<HexPos> occupied) {
     final taken = occupied.toSet();
     return {
@@ -66,7 +66,7 @@ abstract final class WallGeometry {
     };
   }
 
-  /// Rectangle qui contient les cases [cells], avec une marge [padding].
+  /// Rectangle that contains the cells [cells], with a [padding] margin.
   static Rect bounds(Iterable<HexPos> cells, {double padding = 6}) {
     final centers = cells.map(center).toList();
     if (centers.isEmpty) {
@@ -82,8 +82,8 @@ abstract final class WallGeometry {
     );
   }
 
-  /// Arrondi d'une position fractionnaire à la case la plus proche
-  /// (coordonnées cubiques).
+  /// Rounds a fractional position to the nearest cell (cube
+  /// coordinates).
   static HexPos _round(double q, double r) {
     final s = -q - r;
     var rq = q.round();

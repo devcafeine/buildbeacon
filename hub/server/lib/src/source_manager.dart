@@ -1,14 +1,14 @@
-// BuildBeacon Hub — Exécution des plugins et cache de l'état des sources.
-// Version 1.2 (2026-11-11) — erreurs des sources traduites.
+// BuildBeacon Hub — Plugin execution and cache of the source states.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:async';
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:http/http.dart' as http;
 
-/// Fait tourner les plugins : une connexion par source distincte de la
-/// configuration (deux zones qui suivent le même dépôt partagent la même),
-/// et le dernier état de chacune dans [states], prêt pour le rendu.
+/// Runs the plugins: one connection per distinct source of the
+/// configuration (two zones that follow the same repository share it), and
+/// the latest state of each in [states], ready for rendering.
 final class SourceManager {
   SourceManager({
     required this.plugins,
@@ -23,29 +23,29 @@ final class SourceManager {
   final http.Client _http;
   final Map<String, String> _environment;
 
-  /// Journal technique (en anglais).
+  /// Technical log (in English).
   final void Function(String message) _log;
 
   final _states = <String, SourceState>{};
   final _subscriptions = <String, StreamSubscription<SourceState>>{};
 
-  /// Sources qui n'ont pas pu s'ouvrir (plugin absent, réglages invalides) :
-  /// leur état porte l'erreur ; nouvel essai au prochain changement
-  /// d'intervalle ou si elles disparaissent puis reviennent.
+  /// Sources that could not be opened (missing plugin, invalid settings):
+  /// their state carries the error; retried on the next interval change or
+  /// if they disappear and come back.
   final _failed = <String>{};
   final _changes = StreamController<void>.broadcast();
   int? _pollSeconds;
 
-  /// Dernier état de chaque source, par clé de source.
+  /// Latest state of each source, by source key.
   Map<String, SourceState> get states => Map.unmodifiable(_states);
 
-  /// Émet à chaque nouvel état d'une source : signal pour recalculer
-  /// l'image et prévenir l'interface.
+  /// Emits on every new state of a source: the signal to recompute the frame
+  /// and notify the interface.
   Stream<void> get changes => _changes.stream;
 
-  /// Aligne les connexions sur [config] : ouvre les sources nouvelles, ferme
-  /// celles qui ne servent plus. Un changement d'intervalle de scrutation
-  /// rouvre toutes les sources, en gardant les derniers états affichés.
+  /// Aligns the connections with [config]: opens the new sources, closes the
+  /// ones no longer used. A change of the polling interval reopens all the
+  /// sources, keeping the last displayed states.
   Future<void> apply(Config config) async {
     if (_pollSeconds != config.pollSeconds) {
       await _cancelAll();
@@ -72,7 +72,7 @@ final class SourceManager {
     }
   }
 
-  /// Ferme toutes les connexions.
+  /// Closes all the connections.
   Future<void> close() async {
     await _cancelAll();
     _states.clear();

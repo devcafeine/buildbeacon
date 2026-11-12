@@ -1,13 +1,13 @@
-// BuildBeacon Hub — SDK des plugins : réglages, secrets et mesures d'un plugin.
-// Version 1.2 (2026-11-11) — libellés, aides et messages traduits (LocalizedText).
+// BuildBeacon Hub — Plugin SDK: settings, secrets and measurements of a plugin.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'localized_text.dart';
 
-/// Type d'un réglage : sert à la validation et au choix du champ dans
-/// le formulaire de l'interface.
+/// Kind of a setting: used for validation and to pick the field shown in
+/// the interface form.
 enum SettingKind { text, integer, number, boolean, choice }
 
-/// Réglage d'une source, saisi dans l'interface et stocké dans config.json.
+/// Setting of a source, entered in the interface and stored in config.json.
 final class SettingField {
   const SettingField({
     required this.id,
@@ -21,31 +21,31 @@ final class SettingField {
     this.choices = const [],
   });
 
-  /// Clé dans config.json (`"repo"`), en anglais. `type` est réservé.
+  /// Key in config.json (`"repo"`), in English. `type` is reserved.
   final String id;
 
-  /// Libellé du champ dans l'interface.
+  /// Label of the field in the interface.
   final LocalizedText label;
 
   final SettingKind kind;
   final bool required;
 
-  /// Aide affichée sous le champ.
+  /// Help text shown below the field.
   final LocalizedText? help;
 
-  /// Exemple affiché dans le champ vide (`owner/repo`).
+  /// Example shown in the empty field (`owner/repo`).
   final String? placeholder;
 
-  /// Expression régulière que doit respecter un texte, en entier.
+  /// Regular expression that a text value must match in full.
   final String? pattern;
 
-  /// Format attendu, en clair, affiché quand [pattern] n'est pas respecté.
+  /// Expected format, in plain words, shown when [pattern] does not match.
   final LocalizedText? patternHint;
 
-  /// Valeurs permises quand [kind] vaut [SettingKind.choice].
+  /// Allowed values when [kind] is [SettingKind.choice].
   final List<String> choices;
 
-  /// Problèmes de [value] ; `null` = réglage absent.
+  /// Problems with [value]; `null` = setting missing.
   List<LocalizedText> validate(Object? value) {
     if (value == null) {
       return [
@@ -126,9 +126,8 @@ final class SettingField {
   };
 }
 
-/// Secret dont le plugin a besoin (jeton, code d'accès). Fourni par une
-/// variable d'environnement : jamais écrit dans config.json ni renvoyé par
-/// l'API.
+/// Secret the plugin needs (token, access code). Provided by an environment
+/// variable: never written to config.json nor returned by the API.
 final class SecretField {
   const SecretField({
     required this.env,
@@ -137,11 +136,11 @@ final class SecretField {
     this.help,
   });
 
-  /// Nom de la variable d'environnement, préfixé `BB_` (`BB_GITHUB_TOKEN`).
+  /// Environment variable name, prefixed with `BB_` (`BB_GITHUB_TOKEN`).
   final String env;
   final LocalizedText label;
 
-  /// Sans ce secret, le Hub n'ouvre pas la source.
+  /// Without this secret, the Hub does not open the source.
   final bool required;
   final LocalizedText? help;
 
@@ -153,7 +152,7 @@ final class SecretField {
   };
 }
 
-/// Mesure chiffrée qu'un plugin peut fournir (modes seuils et jauge).
+/// Numeric measurement a plugin can provide (thresholds and gauge modes).
 final class MetricInfo {
   const MetricInfo({
     required this.id,
@@ -163,12 +162,12 @@ final class MetricInfo {
     this.max,
   });
 
-  /// Identifiant en anglais, utilisé dans l'option `metric` d'une action.
+  /// Identifier, in English, used in the `metric` option of an action.
   final String id;
   final LocalizedText label;
   final String? unit;
 
-  /// Bornes naturelles (0 – 100 pour un pourcentage).
+  /// Natural bounds (0 – 100 for a percentage).
   final double? min;
   final double? max;
 

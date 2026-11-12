@@ -1,4 +1,4 @@
-<!-- BuildBeacon — écrire un plugin (français). Version 1.1 (2026-11-11) — essayer un plugin avec mise run hub. -->
+<!-- BuildBeacon — écrire un plugin (français). Version 1.2 (2026-11-12) — commentaires des exemples en anglais. -->
 # Écrire un plugin
 
 [English version](writing-a-plugin.md)
@@ -54,7 +54,7 @@ final class OctoprintPlugin extends SourcePlugin {
   const OctoprintPlugin();
 
   @override
-  String get type => 'octoprint';            // « type » dans config.json : minuscules, chiffres, _
+  String get type => 'octoprint';            // "type" in config.json: lowercase, digits, _
 
   @override
   LocalizedText get label => const LocalizedText.same('OctoPrint');
@@ -121,7 +121,7 @@ List<SecretField> get secrets => const [
   SecretField(
     env: 'BB_OCTOPRINT_API_KEY',
     label: LocalizedText({'en': 'API key', 'fr': 'Clé d\'API'}),
-    required: true,       // le Hub n'ouvre pas la source sans lui
+    required: true,       // the Hub does not open the source without it
   ),
 ];
 ```
@@ -130,7 +130,7 @@ List<SecretField> get secrets => const [
 
 ```dart
 @override
-bool get providesHistory => false;     // true si vous remplissez `history`
+bool get providesHistory => false;     // true if you fill `history`
 
 @override
 List<MetricInfo> get metrics => const [
@@ -154,10 +154,10 @@ n'a plus besoin de la source :
 @override
 Stream<SourceState> connect(SourceSettings settings, PluginContext context) {
   final url = Uri.parse(settings.text('url')).resolve('/api/job');
-  final apiKey = context.secret(apiKeyEnv)!; // obligatoire : vérifié par le Hub
+  final apiKey = context.secret(apiKeyEnv)!; // required: checked by the Hub
   return pollingStream(context.pollInterval, (previous) async {
     final response = await context.httpClient.get(url, headers: {'X-Api-Key': apiKey});
-    // … lire la réponse, renvoyer un SourceState
+    // … read the response, return a SourceState
   });
 }
 ```

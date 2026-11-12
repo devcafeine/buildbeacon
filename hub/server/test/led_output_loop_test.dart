@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : boucle de sortie (envoi sur changement, maintien).
-// Version 1.1 (2026-11-11) — message d'erreur traduit.
+// BuildBeacon Hub — Tests: output loop (send on change, keep-alive).
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:typed_data';
 

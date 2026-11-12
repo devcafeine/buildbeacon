@@ -1,7 +1,7 @@
-// BuildBeacon Hub — Plugin GitHub Actions : API publique du paquet.
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — GitHub Actions plugin: public API of the package.
+// Version 1.1 (2026-11-12) — comments in English.
 
-/// Plugin BuildBeacon pour GitHub Actions.
+/// BuildBeacon plugin for GitHub Actions.
 library;
 
 export 'src/github_plugin.dart';

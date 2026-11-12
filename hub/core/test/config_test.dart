@@ -1,12 +1,12 @@
-// BuildBeacon Hub — Tests : lecture, écriture et validation de config.json.
-// Version 1.3 (2026-11-11) — valeurs en anglais (project, overall, history…), messages traduits.
+// BuildBeacon Hub — Tests: reading, writing and validating config.json.
+// Version 1.4 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';
 
-/// Disposition de l'utilisateur ([[0,0],[0,1],[1,1]], master en [0,1]).
+/// The user's layout ([[0,0],[0,1],[1,1]], master tile at [0,1]).
 const _example = '''
 {
   "version": 1,
@@ -44,7 +44,7 @@ Map<String, Object?> _tileJson(Map<String, Object?> overrides) => {
   ...overrides,
 };
 
-/// Message traduit d'une erreur de format ([fr], [en] : texte ou matcher).
+/// Translated message of a format error ([fr], [en]: text or matcher).
 Matcher _formatError(Object fr, [Object? en]) => throwsA(
   isA<LocalizedFormatException>()
       .having((e) => e.text.resolve('fr'), 'fr', fr)

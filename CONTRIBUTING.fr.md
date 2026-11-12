@@ -1,4 +1,4 @@
-<!-- BuildBeacon — guide de contribution (français). Version 1.5 (2026-11-12) — mise run docker-test. -->
+<!-- BuildBeacon — guide de contribution (français). Version 1.6 (2026-11-12) — commentaires et commits en anglais. -->
 # Participer à BuildBeacon
 
 [English version](CONTRIBUTING.md)
@@ -55,8 +55,8 @@ Tâches utiles (`mise tasks` les liste toutes) :
 
 - **Identifiants en anglais** : code, valeurs de `config.json`, options en ligne de commande,
   noms de fichiers.
-- **Commentaires du code et messages de commit en français**, la langue de travail du
-  projet. Si le français vous est difficile, écrivez en anglais : ce sera très bien.
+- **Commentaires du code et messages de commit en anglais**, pour que tout le monde puisse
+  lire le code.
 - **Les textes affichés à l'utilisateur sont traduits** (anglais et français) : en Dart, ce
   sont des `LocalizedText` ; l'interface web utilise des fichiers ARB
   (`hub/ui/lib/l10n/app_<langue>.arb`, générés par `mise run get`) ; la page du simulateur a
@@ -76,11 +76,11 @@ Chaque fichier commence par une ligne de version, incrémentée à chaque modifi
 la date et une courte note. Par exemple :
 
 ```dart
-// BuildBeacon Hub — Plugin GitHub Actions.
-// Version 1.2 (2026-11-11) — libellés et aides traduits.
+// BuildBeacon Hub — GitHub Actions plugin.
+// Version 1.4 (2026-11-12) — comments in English.
 ```
 
-Dans les fichiers YAML ou TOML : `# Version du fichier : 1.3 (…)` ; en Markdown : un
+Dans les fichiers YAML, TOML ou shell : `# File version: 1.3 (…)` ; en Markdown : un
 commentaire HTML en première ligne. Exception : `LICENSE`, gardé mot pour mot pour que
 GitHub le reconnaisse.
 

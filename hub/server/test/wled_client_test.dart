@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : API JSON de WLED (informations, luminosité).
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Tests: WLED JSON API (info, brightness).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 
@@ -11,7 +11,7 @@ import 'package:test/test.dart';
 void main() {
   test('informations : version, nom, nombre de LED', () async {
     final client = MockClient((request) async {
-      // Port 80 par défaut : absent de l'URL.
+      // Default port 80: left out of the URL.
       expect(request.url.toString(), 'http://buildbeacon.local/json/info');
       return http.Response(
         jsonEncode({

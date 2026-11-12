@@ -1,7 +1,7 @@
-# BuildBeacon Hub — plugin GitHub Actions.
-# Version du fichier : 1.1 (2026-11-11) — ne dépend plus que du SDK des plugins.
+# BuildBeacon Hub — GitHub Actions plugin.
+# File version: 1.2 (2026-11-12) — comments in English.
 name: buildbeacon_plugin_github
-description: Plugin BuildBeacon — état et historique des runs GitHub Actions.
+description: BuildBeacon plugin — state and history of GitHub Actions runs.
 version: 0.1.0
 publish_to: none
 resolution: workspace

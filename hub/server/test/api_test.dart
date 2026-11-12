@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : API REST (configuration, plugins, état, actions, sécurité).
-// Version 1.1 (2026-11-11) — événement SSE config.
+// BuildBeacon Hub — Tests: REST API (configuration, plugins, state, actions, security).
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -13,7 +13,7 @@ import 'package:http/testing.dart';
 import 'package:shelf/shelf.dart';
 import 'package:test/test.dart';
 
-/// Plugin alimenté à la main par le test, avec un secret facultatif.
+/// Plugin fed by hand by the test, with an optional secret.
 final class _ManualPlugin extends SourcePlugin {
   final controllers = <String, StreamController<SourceState>>{};
 
@@ -443,7 +443,7 @@ void main() {
   });
 
   group('flux en direct (SSE)', () {
-    /// Événements reçus (nom, données décodées), au fil de l'eau.
+    /// Received events (name, decoded data), as they arrive.
     Future<StreamIterator<(String, Object?)>> open(Handler handler) async {
       final response = await handler(request('GET', '/api/events'));
       expect(response.headers['content-type'], startsWith('text/event-stream'));
@@ -483,7 +483,7 @@ void main() {
       await next(events); // config
       await next(events); // state
 
-      // Un changement d'état seul : pas de nouvelle config.
+      // A state change alone: no new config.
       await Future<void>.delayed(Duration.zero);
       plugin.controllers['a']!.add(const SourceState(status: Status.success));
       expect((await next(events)).$1, 'state');
@@ -529,7 +529,7 @@ void main() {
       final response = await handler(request('GET', '/'));
       expect(response.statusCode, 200);
       expect(await response.readAsString(), '<h1>BuildBeacon</h1>');
-      // Revalidé à chaque fois : jamais d'ancienne interface après une mise à jour.
+      // Revalidated every time: never a stale UI after an update.
       expect(response.headers['cache-control'], 'no-cache');
 
       final modified = response.headers['last-modified']!;

@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Calcul de l'image des LED (config + état des sources + temps).
-// Version 1.3 (2026-11-11) — identifiants en anglais (modes, états, types de tuile).
+// BuildBeacon Hub — LED frame computation (config + source states + time).
+// Version 1.4 (2026-11-12) — comments in English.
 
 import 'dart:math';
 
@@ -13,15 +13,15 @@ import '../model/tile.dart';
 import '../model/zone_action.dart';
 import 'led_frame.dart';
 
-/// Ce que montre une LED : un état (donc une couleur) et une intensité
-/// relative, de 0 (éteinte) à 1 (pleine couleur).
+/// What an LED shows: a status (hence a color) and a relative intensity,
+/// from 0 (off) to 1 (full color).
 typedef LedOutput = ({Status status, double intensity});
 
-/// Calcule l'image des LED.
+/// Computes the LED frame.
 ///
-/// Fonction pure du temps : la boucle de sortie l'appelle à chaque frame
-/// (~20 images/s) avec le temps écoulé depuis le démarrage ; toutes les LED
-/// qui pulsent sont ainsi synchrones.
+/// Pure function of time: the output loop calls it on every frame
+/// (~20 frames/s) with the time elapsed since startup, so all pulsing LEDs
+/// stay in sync.
 final class FrameRenderer {
   const FrameRenderer({
     this.pulsePeriod = const Duration(seconds: 2),
@@ -29,21 +29,21 @@ final class FrameRenderer {
     this.identifyPeriod = const Duration(milliseconds: 500),
   });
 
-  /// Durée d'un cycle de pulsation (en cours / en file).
+  /// Duration of one pulse cycle (running / queued).
   final Duration pulsePeriod;
 
-  /// Luminosité relative au creux de la pulsation (0 – 1).
+  /// Relative brightness at the bottom of the pulse (0 – 1).
   final double pulseFloor;
 
-  /// Durée d'un cycle allumé/éteint du clignotement « identifier ».
+  /// Duration of one on/off cycle of the "identify" blinking.
   final Duration identifyPeriod;
 
-  /// Image de toute la chaîne à l'instant [t].
+  /// Frame of the whole chain at time [t].
   ///
-  /// [states] est indexé par clé de source ; une source absente s'affiche
-  /// « inconnu ». Les tuiles de [identify] (ids) clignotent en blanc à la place
-  /// de leur affichage normal. Une tuile au rang invalide est ignorée
-  /// (le signaler est le rôle de [Config.validate]).
+  /// [states] is keyed by source key; a missing source is shown as
+  /// `unknown`. The tiles in [identify] (ids) blink white instead of their
+  /// normal display. A tile with an invalid chain position is ignored
+  /// (reporting it is the job of [Config.validate]).
   LedFrame render(
     Config config,
     Map<String, SourceState> states,
@@ -78,9 +78,9 @@ final class FrameRenderer {
     return frame;
   }
 
-  /// Ce que montre chaque LED d'une zone, dans l'ordre d'affichage.
+  /// What each LED of a zone shows, in display order.
   ///
-  /// Indépendant du temps : sert aussi à l'aperçu de l'interface.
+  /// Time-independent: also used for the UI preview.
   static List<LedOutput> zoneOutputs(
     ZoneAction action,
     SourceState source,
@@ -98,15 +98,15 @@ final class FrameRenderer {
     DisplayMode.gauge => _gauge(action, source, ledCount),
   };
 
-  /// Couleur d'une LED à l'instant [t] (intensité et pulsation comprises).
+  /// Color of an LED at time [t] (intensity and pulse included).
   Rgb colorFor(Palette palette, LedOutput led, Duration t) {
     if (led.intensity <= 0) return Rgb.black;
     final pulse = led.status.pulses ? pulseLevel(t) : 1.0;
     return palette[led.status].scaled(led.intensity * pulse);
   }
 
-  /// Niveau de pulsation : [pulseFloor] à t = 0, maximum (1) à mi-période,
-  /// variation en cosinus.
+  /// Pulse level: [pulseFloor] at t = 0, maximum (1) at half period,
+  /// cosine variation.
   double pulseLevel(Duration t) {
     final period = pulsePeriod.inMicroseconds;
     final phase = (t.inMicroseconds % period) / period;
@@ -124,9 +124,9 @@ final class FrameRenderer {
     return action.thresholds.evaluate(metric.value);
   }
 
-  /// Jauge de gauche à droite. La dernière LED allumée l'est en partie, pour
-  /// que la progression avance en douceur : 62 % sur 5 LED = 3 pleines,
-  /// la 4e à 10 %, la 5e éteinte.
+  /// Gauge from left to right. The last lit LED is partly lit, so that
+  /// progress moves smoothly: 62 % over 5 LEDs = 3 full, the 4th at 10 %,
+  /// the 5th off.
   static List<LedOutput> _gauge(
     ZoneAction action,
     SourceState source,

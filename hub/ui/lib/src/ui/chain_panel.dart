@@ -1,5 +1,5 @@
-// BuildBeacon UI — Panneau « Chaîne » : ordre de câblage des tuiles, nombre de LED.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — "Chain" panel: wiring order of the tiles, LED count.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +8,9 @@ import '../editor/editor_controller.dart';
 import '../editor/model_edit.dart';
 import 'l10n.dart';
 
-/// L'ordre de la chaîne est celui du câblage, indépendant de la place au
-/// mur : la master d'abord, puis les tuiles projet, à réordonner en les
-/// faisant glisser (la mire `mise run test-pattern` aide à le relever).
+/// The chain order is the wiring order, independent of the position on the
+/// wall: the master tile first, then the project tiles, reordered by
+/// dragging them (the `mise run test-pattern` test pattern helps find it).
 class ChainPanel extends StatelessWidget {
   const ChainPanel({
     super.key,

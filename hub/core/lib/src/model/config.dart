@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Configuration complète (contenu de config.json).
-// Version 1.2 (2026-11-11) — messages de validation et erreurs de format traduits.
+// BuildBeacon Hub — Full configuration (contents of config.json).
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
@@ -9,7 +9,7 @@ import 'led_layout.dart';
 import 'palette.dart';
 import 'tile.dart';
 
-/// Connexion au contrôleur WLED.
+/// Connection to the WLED controller.
 final class WledConfig {
   const WledConfig({
     this.host = 'buildbeacon.local',
@@ -25,16 +25,16 @@ final class WledConfig {
     brightness: json.optionalField<int>('brightness') ?? 128,
   );
 
-  /// Nom mDNS (`buildbeacon.local`) ou adresse IP.
+  /// mDNS name (`buildbeacon.local`) or IP address.
   final String host;
 
-  /// Port HTTP de l'API JSON de WLED.
+  /// HTTP port of the WLED JSON API.
   final int port;
 
-  /// Port UDP du flux temps réel DDP (4048 chez WLED ; modifiable pour le simulateur).
+  /// UDP port of the DDP real-time stream (4048 on WLED; changeable for the simulator).
   final int ddpPort;
 
-  /// Luminosité globale 0 – 255. 128 (50 %) par défaut : au-delà, scintillement constaté.
+  /// Global brightness 0 – 255. 128 (50 %) by default: flickering was observed above it.
   final int brightness;
 
   List<LocalizedText> validate() => [
@@ -86,7 +86,7 @@ final class Config {
   }) : palette = palette ?? Palette(),
        tiles = List.unmodifiable(tiles);
 
-  /// Configuration de départ : la master seule, sans action.
+  /// Starting configuration: the master tile alone, with no action.
   factory Config.initial() => Config(
     tiles: [
       Tile(
@@ -126,7 +126,7 @@ final class Config {
     );
   }
 
-  /// Version du format de `config.json` (migrations futures).
+  /// Format version of `config.json` (future migrations).
   static const schemaVersion = 1;
   static const defaultPollSeconds = 30;
   static const minPollSeconds = 10;
@@ -136,11 +136,11 @@ final class Config {
   final Palette palette;
   final List<Tile> tiles;
 
-  /// Nombre de LED de la chaîne décrite.
+  /// Number of LEDs in the described chain.
   int get ledCount => LedLayout.ledCount(tiles);
 
-  /// Liste des problèmes, traduits ; vide si la config est utilisable. Sans
-  /// [plugins], les réglages des sources ne sont pas vérifiés.
+  /// List of problems, translated; empty if the config is usable. Without
+  /// [plugins], source settings are not checked.
   List<LocalizedText> validate({PluginRegistry? plugins}) => [
     ...wled.validate(),
     if (pollSeconds < minPollSeconds)
@@ -232,7 +232,7 @@ final class Config {
     }
   }
 
-  /// Un message par valeur répétée (une seule fois, même si elle apparaît 3 fois).
+  /// One message per repeated value (only once, even if it appears 3 times).
   static List<LocalizedText> _duplicates<T>(
     Iterable<T> values,
     LocalizedText Function(T value) message,

@@ -1,18 +1,18 @@
-// BuildBeacon Hub — Lecture typée des objets JSON (config.json, API).
-// Version 1.1 (2026-11-11) — erreurs traduites (LocalizedFormatException).
+// BuildBeacon Hub — Typed reading of JSON objects (config.json, API).
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
-/// Accès typés aux champs d'un objet JSON décodé, avec des erreurs traduites.
+/// Typed access to the fields of a decoded JSON object, with translated errors.
 extension JsonRead on Map<String, Object?> {
-  /// Champ obligatoire de type [T].
+  /// Required field of type [T].
   T field<T extends Object>(String key) {
     final value = this[key];
     if (value is T) return value;
     throw value == null ? _missing(key) : _invalid<T>(key, value);
   }
 
-  /// Champ facultatif de type [T] ; `null` s'il est absent.
+  /// Optional field of type [T]; `null` if absent.
   T? optionalField<T extends Object>(String key) {
     final value = this[key];
     if (value == null) return null;
@@ -20,7 +20,7 @@ extension JsonRead on Map<String, Object?> {
     throw _invalid<T>(key, value);
   }
 
-  /// Sous-objet facultatif ; vide s'il est absent.
+  /// Optional sub-object; empty if absent.
   Map<String, Object?> objectField(String key) =>
       optionalField<Map<String, Object?>>(key) ?? const {};
 

@@ -1,5 +1,5 @@
-// BuildBeacon UI — Tests : brouillon, chaîne, enregistrement, changements venus du Hub.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Tests: draft, chain, saving, changes coming from the Hub.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:buildbeacon_ui/src/api/hub_events.dart';

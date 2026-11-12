@@ -1,11 +1,11 @@
-// BuildBeacon Hub — API publique du cœur : modèle, rendu, registre des plugins.
-// Version 1.5 (2026-11-11) — état d'une source ↔ JSON (SourceStateJson).
+// BuildBeacon Hub — Public API of the core: model, rendering, plugin registry.
+// Version 1.6 (2026-11-12) — comments in English.
 
-/// Cœur de BuildBeacon : modèle de configuration, calcul de l'image des LED
-/// et registre des plugins de source.
+/// BuildBeacon core: configuration model, LED frame computation and source
+/// plugin registry.
 ///
-/// Pur Dart (pas de `dart:io`) : partagé par le serveur et l'interface. Il
-/// réexporte le SDK des plugins ; un plugin, lui, n'importe que le SDK.
+/// Pure Dart (no `dart:io`): shared by the server and the UI. It re-exports
+/// the plugin SDK; a plugin, on the other hand, imports only the SDK.
 library;
 
 export 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';

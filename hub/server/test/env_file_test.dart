@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : lecture du fichier .env.
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Tests: reading the .env file.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:io';
 

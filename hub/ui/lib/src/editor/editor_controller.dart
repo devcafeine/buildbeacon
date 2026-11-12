@@ -1,5 +1,5 @@
-// BuildBeacon UI — État de l'éditeur : configuration du Hub, brouillon, état en direct.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Editor state: Hub configuration, draft, live state.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -14,17 +14,16 @@ import '../api/live_state.dart';
 import '../api/plugin_info.dart';
 import 'model_edit.dart';
 
-/// Connexion au flux en direct du Hub.
+/// Connection to the Hub's live stream.
 enum HubLink { connecting, live, lost }
 
 enum SaveResult { saved, rejected, unauthorized, failed }
 
-/// Ce que l'interface affiche et modifie.
+/// What the interface shows and edits.
 ///
-/// Les modifications vont dans un brouillon ([draft]) : l'aperçu du mur le
-/// montre tout de suite (calculé ici avec les états en direct des sources),
-/// le Hub le valide au fil de l'eau ([issues]) et ne l'applique qu'à
-/// l'enregistrement ([save]).
+/// Changes go into a draft ([draft]): the wall preview shows it right away
+/// (computed here from the live source states), the Hub validates it as
+/// changes come in ([issues]) and only applies it on save ([save]).
 final class EditorController extends ChangeNotifier {
   EditorController(
     this.api, {
@@ -33,8 +32,8 @@ final class EditorController extends ChangeNotifier {
 
   final HubApi api;
 
-  /// Attente après la dernière modification avant de demander au Hub de
-  /// valider le brouillon.
+  /// Delay after the last change before asking the Hub to validate the
+  /// draft.
   final Duration validationDelay;
 
   List<PluginInfo> plugins = const [];
@@ -46,16 +45,16 @@ final class EditorController extends ChangeNotifier {
 
   String? selectedTileId;
 
-  /// Problèmes du brouillon d'après le Hub ; vide s'il est valide.
+  /// Issues of the draft according to the Hub; empty if it is valid.
   List<LocalizedText> issues = const [];
   bool validating = false;
   bool saving = false;
 
-  /// Dernière erreur d'enregistrement.
+  /// Last save error.
   ApiException? lastError;
 
-  /// Version plus récente enregistrée sur le Hub (fichier modifié à la main,
-  /// autre onglet) pendant que le brouillon a des modifications.
+  /// Newer version saved on the Hub (file edited by hand, another tab)
+  /// while the draft has changes.
   Config? remoteConfig;
 
   Config? _saved;
@@ -65,10 +64,10 @@ final class EditorController extends ChangeNotifier {
   int _validationRun = 0;
   bool _disposed = false;
 
-  /// Configuration appliquée par le Hub.
+  /// Configuration applied by the Hub.
   Config? get saved => _saved;
 
-  /// Configuration en cours d'édition.
+  /// Configuration being edited.
   Config? get draft => _draft;
 
   bool get dirty => _draft != null && !_draft!.sameAs(_saved);
@@ -85,19 +84,19 @@ final class EditorController extends ChangeNotifier {
     return null;
   }
 
-  /// Dernier état connu de [source] ; inconnu si le Hub ne la lit pas
-  /// (encore).
+  /// Last known state of [source]; unknown if the Hub does not read it
+  /// (yet).
   SourceState stateOf(SourceConfig source) =>
       live.sources[source.key] ?? SourceState.unknown;
 
-  /// Le Hub lit-il déjà cette source (configuration enregistrée) ?
+  /// Does the Hub already read this source (saved configuration)?
   bool isRead(SourceConfig source) => live.sources.containsKey(source.key);
 
-  /// La tuile existe-t-elle dans la configuration du Hub (pour l'identifier) ?
+  /// Does the tile exist in the Hub's configuration (to identify it)?
   bool isSavedTile(String id) => _saved?.tile(id) != null;
 
   // -------------------------------------------------------------------------
-  // Chargement et flux en direct
+  // Loading and live stream
 
   Future<void> start() async {
     loading = true;
@@ -149,7 +148,7 @@ final class EditorController extends ChangeNotifier {
       issues = const [];
       _keepSelection();
     } else if (remote.sameAs(_draft)) {
-      // Notre brouillon, enregistré (réponse du PUT pas encore arrivée).
+      // Our draft, saved (the PUT response has not arrived yet).
       _saved = remote;
       remoteConfig = null;
     } else {
@@ -157,7 +156,7 @@ final class EditorController extends ChangeNotifier {
     }
   }
 
-  /// Abandonne le brouillon pour la version du Hub ([remoteConfig]).
+  /// Drops the draft in favor of the Hub's version ([remoteConfig]).
   void loadRemote() {
     final remote = remoteConfig;
     if (remote == null) return;
@@ -166,7 +165,7 @@ final class EditorController extends ChangeNotifier {
     _draftChanged();
   }
 
-  /// Garde le brouillon : l'enregistrer remplacera la version du Hub.
+  /// Keeps the draft: saving it will replace the Hub's version.
   void keepMine() {
     final remote = remoteConfig;
     if (remote == null) return;
@@ -176,7 +175,7 @@ final class EditorController extends ChangeNotifier {
   }
 
   // -------------------------------------------------------------------------
-  // Modifications du brouillon
+  // Draft changes
 
   void select(String? tileId) {
     selectedTileId = tileId;
@@ -189,20 +188,20 @@ final class EditorController extends ChangeNotifier {
     ),
   );
 
-  /// Change l'identifiant d'une tuile ; `false` s'il est vide ou déjà pris.
+  /// Changes a tile's id; `false` if it is empty or already taken.
   bool renameTile(String id, String newId) {
     final name = newId.trim();
     final draft = _draft;
     if (draft == null || name.isEmpty) return false;
     if (name == id) return true;
     if (draft.tile(name) != null) return false;
-    // Sélection déplacée d'abord : la modification vérifie qu'elle existe.
+    // Move the selection first: the change checks that it exists.
     if (selectedTileId == id) selectedTileId = name;
     updateTile(id, (t) => t.copyWith(id: name));
     return true;
   }
 
-  /// Ajoute une tuile projet en [pos], en bout de chaîne ; renvoie son id.
+  /// Adds a project tile at [pos], at the end of the chain; returns its id.
   String? addTile(HexPos pos) {
     final draft = _draft;
     if (draft == null || draft.tileAt(pos) != null) return null;
@@ -224,8 +223,8 @@ final class EditorController extends ChangeNotifier {
     return tile.id;
   }
 
-  /// Retire une tuile projet ; les suivantes de la chaîne remontent d'un
-  /// rang. Renvoie le brouillon d'avant, pour « Annuler » ([restore]).
+  /// Removes a project tile; the following ones in the chain move up one
+  /// position. Returns the previous draft, for "Undo" ([restore]).
   Config? removeTile(String id) {
     final draft = _draft;
     final tile = draft?.tile(id);
@@ -247,8 +246,8 @@ final class EditorController extends ChangeNotifier {
     _draftChanged();
   }
 
-  /// Place la tuile [id] en [pos] ; si une tuile s'y trouve, elles
-  /// échangent leurs places.
+  /// Puts tile [id] at [pos]; if a tile is already there, they swap
+  /// places.
   void moveTile(String id, HexPos pos) {
     final draft = _draft;
     final tile = draft?.tile(id);
@@ -269,8 +268,8 @@ final class EditorController extends ChangeNotifier {
     );
   }
 
-  /// Déplace la tuile projet de rang `from + 1` au rang `to + 1` ; les
-  /// autres se décalent.
+  /// Moves the project tile at chain position `from + 1` to position
+  /// `to + 1`; the others shift.
   void moveInChain(int from, int to) {
     final draft = _draft;
     if (draft == null) return;
@@ -283,9 +282,9 @@ final class EditorController extends ChangeNotifier {
   void setZone(String tileId, ZoneName zone, ZoneAction? action) =>
       updateTile(tileId, (t) => t.withZone(zone, action));
 
-  /// Action proposée quand on allume une zone : la source d'une autre zone
-  /// de la tuile, sinon le premier plugin ; historique sur les points si la
-  /// source en fournit un.
+  /// Action suggested when a zone is turned on: the source of another zone
+  /// of the tile, otherwise the first plugin; history on the dots if the
+  /// source provides one.
   ZoneAction defaultAction(Tile tile, ZoneName zone) {
     final source =
         tile.zones.values.firstOrNull?.source ??
@@ -309,14 +308,14 @@ final class EditorController extends ChangeNotifier {
 
   void resetPalette() => _edit((c) => c.copyWith(palette: Palette()));
 
-  /// Revient à la configuration du Hub.
+  /// Goes back to the Hub's configuration.
   void discard() {
     _draft = _saved;
     _draftChanged();
   }
 
   // -------------------------------------------------------------------------
-  // Actions sur le Hub
+  // Actions on the Hub
 
   Future<SaveResult> save() async {
     final draft = _draft;
@@ -326,7 +325,7 @@ final class EditorController extends ChangeNotifier {
     try {
       final config = await api.saveConfig(draft);
       _saved = config;
-      // Modifié pendant l'enregistrement : le brouillon reste à enregistrer.
+      // Changed while saving: the draft still needs to be saved.
       if (identical(_draft, draft)) _draft = config;
       remoteConfig = null;
       lastError = null;
@@ -348,11 +347,11 @@ final class EditorController extends ChangeNotifier {
     }
   }
 
-  /// Fait clignoter une tuile au mur ; l'erreur éventuelle.
+  /// Makes a tile blink on the wall; the error, if any.
   Future<ApiException?> identify(String tileId) =>
       _attempt(() => api.identify(tileId));
 
-  /// Revérifie WLED ; l'erreur éventuelle.
+  /// Checks WLED again; the error, if any.
   Future<ApiException?> checkWled() => _attempt(api.checkWled);
 
   Future<ApiException?> _attempt(Future<void> Function() action) async {
@@ -394,9 +393,9 @@ final class EditorController extends ChangeNotifier {
       try {
         found = await api.validate(draft);
       } on ApiException catch (e) {
-        // Hub injoignable (ou ancien Hub qui exige le jeton pour valider) :
-        // la validation reprendra à la modification suivante, et
-        // l'enregistrement aura le dernier mot.
+        // Hub unreachable (or an older Hub that requires the token to
+        // validate): validation resumes at the next change, and saving has
+        // the last word.
         if (!e.unauthorized && e.message != null) found = [e.message!];
       }
       if (run != _validationRun) return;

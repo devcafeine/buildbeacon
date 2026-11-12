@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : résolution du nom de WLED (système, mDNS direct).
-// Version 1.0 (2026-11-12)
+// BuildBeacon Hub — Tests: resolving the WLED host name (system, direct mDNS).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:io';
@@ -8,23 +8,22 @@ import 'dart:typed_data';
 import 'package:buildbeacon_hub/buildbeacon_hub.dart';
 import 'package:test/test.dart';
 
-/// Réponse mDNS pour [name] → [ip], le nom de la réponse étant un pointeur
-/// vers celui de la question (compression DNS), comme chez la plupart des
-/// répondeurs.
+/// mDNS answer for [name] → [ip], the answer's name being a pointer to the
+/// question's name (DNS compression), as most responders do.
 Uint8List _answer(Uint8List query, List<int> ip, {bool sameName = true}) {
   final question = query.sublist(12);
   final bytes = BytesBuilder()
-    ..add([query[0], query[1]]) // même identifiant
-    ..add([0x84, 0x00]) // réponse, autorité
-    ..add([0, 1, 0, 1, 0, 0, 0, 0]) // la question, 1 réponse
+    ..add([query[0], query[1]]) // same ID
+    ..add([0x84, 0x00]) // response, authoritative
+    ..add([0, 1, 0, 1, 0, 0, 0, 0]) // the question, 1 answer
     ..add(question)
     ..add(
       sameName
           ? [0xC0, 12]
           : [5, ...'other'.codeUnits, 5, ...'local'.codeUnits, 0],
     )
-    ..add([0, 1, 0x80, 1]) // A, IN (bit « cache flush »)
-    ..add([0, 0, 0, 120]) // durée de vie
+    ..add([0, 1, 0x80, 1]) // A, IN ("cache flush" bit)
+    ..add([0, 0, 0, 120]) // time to live
     ..add([0, 4, ...ip]);
   return bytes.takeBytes();
 }

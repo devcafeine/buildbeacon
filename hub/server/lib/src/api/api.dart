@@ -1,5 +1,5 @@
-// BuildBeacon Hub — API REST (shelf) : configuration, plugins, état en direct, actions.
-// Version 1.3 (2026-11-11) — événement SSE « config » ; validation sans jeton ; interface web revalidée (no-cache) ; accueil sans interface : comment la construire.
+// BuildBeacon Hub — REST API (shelf): configuration, plugins, live state, actions.
+// Version 1.4 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -13,24 +13,24 @@ import 'package:shelf_static/shelf_static.dart';
 import '../hub_service.dart';
 import 'snapshot.dart';
 
-/// Version de l'API (incrémentée en cas de changement incompatible).
+/// API version (incremented on breaking changes).
 const apiVersion = 1;
 
-/// Version du Hub annoncée par `/api/health`.
+/// Hub version reported by `/api/health`.
 const hubVersion = '0.1.0';
 
-/// Gestionnaire HTTP du Hub : l'API sous `/api`, l'interface web (fichiers de
-/// [webDir], s'il existe) partout ailleurs.
+/// HTTP handler of the Hub: the API under `/api`, the web interface (files
+/// of [webDir], if it exists) everywhere else.
 ///
-/// Les requêtes qui modifient quelque chose (`POST`, `PUT`) doivent être en
-/// JSON (`Content-Type: application/json`) : un site tiers ne peut donc pas
-/// les déclencher depuis le navigateur d'un utilisateur, car il lui faudrait
-/// une autorisation CORS que le Hub ne donne pas. Avec [apiToken], elles
-/// exigent en plus `Authorization: Bearer <apiToken>`, sauf la validation
-/// d'une configuration, qui ne change rien.
+/// Requests that change something (`POST`, `PUT`) must be JSON
+/// (`Content-Type: application/json`): a third-party site therefore cannot
+/// trigger them from a user's browser, since it would need a CORS
+/// authorization the Hub does not grant. With [apiToken], they also require
+/// `Authorization: Bearer <apiToken>`, except validating a configuration,
+/// which changes nothing.
 ///
-/// Les messages destinés à l'utilisateur sont renvoyés dans chaque langue de
-/// l'interface : `{"en": "…", "fr": "…"}`.
+/// User-facing messages are returned in every interface language:
+/// `{"en": "…", "fr": "…"}`.
 Handler hubHandler(HubService service, {String? apiToken, String? webDir}) {
   final router = Router(notFoundHandler: _notFound)
     ..get('/api/health', (Request request) => _health(service))
@@ -124,12 +124,11 @@ Response _frame(HubService service) {
   return _json({'led_count': frame.length, 'leds': hex.toString()});
 }
 
-/// Flux Server-Sent Events : un événement `config` (même contenu que
-/// `GET /api/config`) puis un événement `state` (même contenu que
-/// `/api/state`) tout de suite ; ensuite, à chaque changement, au plus 4 par
-/// seconde, `config` si la configuration a changé (enregistrée par l'API ou
-/// modifiée à la main) puis `state`. Un commentaire toutes les 15 s garde la
-/// connexion ouverte.
+/// Server-Sent Events stream: a `config` event (same content as
+/// `GET /api/config`) then a `state` event (same content as `/api/state`)
+/// right away; then, on every change, at most 4 per second, `config` if the
+/// configuration changed (saved by the API or edited by hand) then `state`.
+/// A comment every 15 s keeps the connection open.
 Response _events(HubService service) {
   late final StreamController<List<int>> controller;
   StreamSubscription<void>? changes;
@@ -213,8 +212,8 @@ Future<Response> _checkWled(HubService service) async {
   return _json(wledJson(service.hub.config, status));
 }
 
-/// L'interface change avec le Hub : le navigateur revalide chaque fichier
-/// (304 s'il n'a pas changé) au lieu de garder une ancienne version.
+/// The interface changes with the Hub: the browser revalidates each file
+/// (304 if unchanged) instead of keeping an old version.
 Handler _revalidated(Handler inner) => (Request request) async {
   final response = await inner(request);
   return response.change(headers: {HttpHeaders.cacheControlHeader: 'no-cache'});
@@ -241,11 +240,11 @@ Response _notFound(Request request) => _error(
 );
 
 // ---------------------------------------------------------------------------
-// Garde des écritures et outils
+// Write guard and helpers
 
-/// Écritures en JSON seulement ; avec un jeton, `Authorization: Bearer …`
-/// (sauf `POST /api/config/validate`, sans effet : l'interface valide au fil
-/// de la saisie).
+/// JSON-only writes; with a token, `Authorization: Bearer …` (except
+/// `POST /api/config/validate`, which has no side effect: the interface
+/// validates as the user types).
 Middleware _guardWrites(String? apiToken) =>
     (Handler inner) => (Request request) {
       const reads = {'GET', 'HEAD'};
@@ -278,8 +277,8 @@ Middleware _guardWrites(String? apiToken) =>
       return inner(request);
     };
 
-/// Comparaison en temps constant, pour ne pas révéler le jeton caractère par
-/// caractère.
+/// Constant-time comparison, so as not to reveal the token character by
+/// character.
 bool _sameSecret(String a, String b) {
   final x = utf8.encode(a);
   final y = utf8.encode(b);
@@ -290,7 +289,7 @@ bool _sameSecret(String a, String b) {
   return difference == 0;
 }
 
-/// Corps JSON de la requête (`null` s'il est vide), ou réponse 400.
+/// JSON body of the request (`null` if empty), or a 400 response.
 Future<(Object?, Response?)> _readJson(Request request) async {
   final text = await request.readAsString();
   if (text.trim().isEmpty) return (null, null);

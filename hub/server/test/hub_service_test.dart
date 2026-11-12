@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : service du Hub (rechargement du fichier, enregistrement).
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Tests: Hub service (file reload, saving).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -131,7 +131,7 @@ void main() {
   });
 
   test('enregistrement impossible : rien n\'est appliqué', () async {
-    // Le chemin de la config est un dossier non vide : le renommage échoue.
+    // The config path is a non-empty directory: the rename fails.
     final blocked = Directory('${dir.path}/blocked')..createSync();
     File('${blocked.path}/x').writeAsStringSync('x');
     final stuck = HubService(hub: hub, configPath: blocked.path);

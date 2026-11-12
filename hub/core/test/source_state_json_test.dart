@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : état d'une source ↔ JSON.
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Tests: source state ↔ JSON.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';

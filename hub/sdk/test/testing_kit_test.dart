@@ -1,12 +1,12 @@
-// BuildBeacon Hub — Tests SDK : banc d'essai des plugins (testing.dart).
-// Version 1.1 (2026-11-11) — textes traduits, messages pour développeurs en anglais.
+// BuildBeacon Hub — SDK tests: plugin test harness (testing.dart).
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 import 'package:buildbeacon_plugin_sdk/testing.dart';
 import 'package:http/http.dart' as http;
 import 'package:test/test.dart';
 
-/// Plugin minimal : interroge une URL, succès si elle répond.
+/// Minimal plugin: polls a URL, success if it answers.
 final class _PingPlugin extends SourcePlugin {
   const _PingPlugin();
 

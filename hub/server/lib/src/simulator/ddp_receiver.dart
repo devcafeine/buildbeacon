@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Simulateur : réception DDP (faux WLED).
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Simulator: DDP reception (fake WLED).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:io';
@@ -7,20 +7,20 @@ import 'dart:typed_data';
 
 import '../output/ddp.dart';
 
-/// Image reçue : octets RGB et adresse de l'émetteur.
+/// Received frame: RGB bytes and the sender's address.
 typedef ReceivedFrame = ({Uint8List rgb, InternetAddress from});
 
-/// Faux WLED : reçoit les paquets DDP et reconstitue chaque image.
+/// Fake WLED: receives the DDP packets and reassembles each frame.
 ///
-/// Une image est émise à la réception du paquet marqué PUSH, comme WLED
-/// qui n'affiche qu'à ce moment.
+/// A frame is emitted when the packet flagged PUSH arrives, like WLED, which
+/// only displays at that moment.
 final class DdpReceiver {
   DdpReceiver._(this._socket) {
     _socket.listen(_onEvent, onError: _frames.addError);
   }
 
-  /// Écoute sur [port] (0 = port libre au hasard, pour les tests), sur toutes
-  /// les interfaces par défaut pour recevoir un Hub d'une autre machine.
+  /// Listens on [port] (0 = random free port, for tests), on all interfaces
+  /// by default to receive a Hub from another machine.
   static Future<DdpReceiver> bind({
     InternetAddress? address,
     int port = ddpDefaultPort,
@@ -38,7 +38,7 @@ final class DdpReceiver {
 
   Stream<ReceivedFrame> get frames => _frames.stream;
 
-  /// Paquets ignorés (pas du DDP v1 complet).
+  /// Ignored packets (not complete DDP v1).
   int get invalidPackets => _invalidPackets;
 
   Future<void> close() async {

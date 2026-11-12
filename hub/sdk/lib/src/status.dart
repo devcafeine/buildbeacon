@@ -1,17 +1,17 @@
-// BuildBeacon Hub — SDK des plugins : état affiché par une zone ou une LED.
-// Version 1.3 (2026-11-11) — identifiants en anglais (success, failure…), libellés traduits.
+// BuildBeacon Hub — Plugin SDK: status shown by a zone or an LED.
+// Version 1.4 (2026-11-12) — comments in English.
 
 import 'localized_text.dart';
 
-/// État d'affichage, indépendant de la source : run de CI, imprimante 3D,
-/// indicateur chiffré comparé à des seuils…
+/// Display status, independent of the source: CI run, 3D printer, numeric
+/// indicator compared with thresholds…
 ///
-/// [json] sert aussi de clé dans la palette de `config.json`.
+/// [json] is also the key in the `config.json` palette.
 enum Status {
   success('success', LocalizedText({'en': 'success', 'fr': 'succès'})),
 
-  /// À surveiller sans être un échec : seuil d'attention franchi,
-  /// impression en pause…
+  /// Worth watching without being a failure: warning threshold crossed,
+  /// print paused…
   warning('warning', LocalizedText({'en': 'warning', 'fr': 'attention'})),
   failure('failure', LocalizedText({'en': 'failure', 'fr': 'échec'})),
   running('running', LocalizedText({'en': 'running', 'fr': 'en cours'})),
@@ -23,10 +23,10 @@ enum Status {
 
   final String json;
 
-  /// Nom affiché dans l'interface.
+  /// Name shown in the interface.
   final LocalizedText label;
 
-  /// Les états « vivants » (en cours, en file) pulsent à l'affichage.
+  /// "Live" statuses (running, queued) pulse when displayed.
   bool get pulses => this == running || this == queued;
 
   static Status? tryParse(String json) {

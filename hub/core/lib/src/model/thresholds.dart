@@ -1,16 +1,16 @@
-// BuildBeacon Hub — Seuils d'alerte d'un indicateur chiffré.
-// Version 1.2 (2026-11-11) — identifiants en anglais (warning, failure, above, below), messages traduits.
+// BuildBeacon Hub — Alert thresholds of a numeric indicator.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
 import 'json_read.dart';
 
-/// Sens dans lequel une valeur devient inquiétante.
+/// Direction in which a value becomes worrying.
 enum AlertDirection {
-  /// Température, taux d'erreur, file d'attente… : trop haut = problème.
+  /// Temperature, error rate, queue length…: too high = problem.
   above('above', LocalizedText({'en': 'above', 'fr': 'au-dessus'})),
 
-  /// Filament restant, ventes du jour… : trop bas = problème.
+  /// Remaining filament, daily sales…: too low = problem.
   below('below', LocalizedText({'en': 'below', 'fr': 'en dessous'}));
 
   const AlertDirection(this.json, this.label);
@@ -26,9 +26,9 @@ enum AlertDirection {
   }
 }
 
-/// Seuils d'un indicateur. Avant le seuil [warning] : succès ; à partir de
-/// [warning] : attention ; à partir de [failure] : échec. Chaque seuil est
-/// facultatif ; [direction] dit si l'on alerte au-dessus ou en dessous.
+/// Thresholds of an indicator. Before the [warning] threshold: success; from
+/// [warning] on: warning; from [failure] on: failure. Each threshold is
+/// optional; [direction] says whether to alert above or below.
 final class Thresholds {
   const Thresholds({
     this.warning,
@@ -36,7 +36,7 @@ final class Thresholds {
     this.direction = AlertDirection.above,
   });
 
-  /// Lit `{"warning": 240, "failure": 260, "direction": "above"}`.
+  /// Reads `{"warning": 240, "failure": 260, "direction": "above"}`.
   factory Thresholds.fromJson(Map<String, Object?> json) {
     final direction = json.optionalField<String>('direction');
     return Thresholds(
@@ -69,7 +69,7 @@ final class Thresholds {
 
   bool get isEmpty => warning == null && failure == null;
 
-  /// État correspondant à [value].
+  /// Status corresponding to [value].
   Status evaluate(num value) {
     bool reached(num? threshold) =>
         threshold != null &&

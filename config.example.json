@@ -1,5 +1,5 @@
 {
-  "_comment": "BuildBeacon — example configuration: public repositories, no token needed. Copy to data/config.json. Version du fichier : 1.0 (2026-11-11)",
+  "_comment": "BuildBeacon — example configuration: public repositories, no token needed. Copy to data/config.json. File version: 1.1 (2026-11-12)",
   "version": 1,
   "wled": { "host": "buildbeacon.local", "port": 80, "ddp_port": 4048, "brightness": 128 },
   "poll_seconds": 180,

@@ -1,15 +1,15 @@
-// BuildBeacon Hub — API JSON de WLED : vérification de la connexion et luminosité.
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — WLED JSON API: connection check and brightness.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-/// Ce que le Hub retient de `/json/info`.
+/// What the Hub keeps from `/json/info`.
 typedef WledInfo = ({String version, String name, int ledCount});
 
-/// Erreur de l'API JSON de WLED (message technique, en anglais).
+/// Error from the WLED JSON API (technical message, in English).
 final class WledException implements Exception {
   const WledException(this.message);
 
@@ -19,9 +19,9 @@ final class WledException implements Exception {
   String toString() => message;
 }
 
-/// Petit client de l'API JSON de WLED, limité à ce dont le Hub a besoin :
-/// vérifier la connexion, lire le nombre de LED, régler la luminosité. Les
-/// couleurs, elles, passent par DDP.
+/// Small client of the WLED JSON API, limited to what the Hub needs: check
+/// the connection, read the LED count, set the brightness. The colors go
+/// through DDP.
 final class WledClient {
   WledClient({
     required this.host,
@@ -38,8 +38,8 @@ final class WledClient {
   Uri _uri(String path) =>
       Uri(scheme: 'http', host: host, port: port, path: path);
 
-  /// Version, nom et nombre de LED. Lève une [WledException] (ou une erreur
-  /// réseau) si WLED ne répond pas comme son API.
+  /// Version, name and LED count. Throws a [WledException] (or a network
+  /// error) if WLED does not answer as its API should.
   Future<WledInfo> info() async {
     final response = await _client.get(_uri('/json/info')).timeout(timeout);
     if (response.statusCode != 200) {
@@ -62,7 +62,7 @@ final class WledClient {
     throw const WledException('unexpected /json/info answer');
   }
 
-  /// Règle la luminosité globale (0 – 255).
+  /// Sets the global brightness (0 – 255).
   Future<void> setBrightness(int brightness) async {
     final response = await _client
         .post(

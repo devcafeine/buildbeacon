@@ -1,17 +1,17 @@
-// BuildBeacon Hub — Tests : indicateurs chiffrés (modes thresholds et gauge).
-// Version 1.2 (2026-11-11) — identifiants en anglais (thresholds, gauge, warning, failure, above, below), messages traduits.
+// BuildBeacon Hub — Tests: numeric indicators (thresholds and gauge modes).
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';
 
-// Sans registre de plugins, le cœur ne vérifie pas le type de source :
-// seul l'état en cache compte pour le calcul.
+// Without a plugin registry, the core does not check the source type: only
+// the cached state matters for the computation.
 final _source = SourceConfig(type: 'printer', settings: {'name': 'workshop'});
 
-/// Imprimante 3D en cours d'impression
-/// (Bambu Lab : gcode_state RUNNING, mc_percent 62, buse à 220 °C).
+/// 3D printer in the middle of a print
+/// (Bambu Lab: gcode_state RUNNING, mc_percent 62, nozzle at 220 °C).
 const _printing = SourceState(
   status: Status.running,
   metrics: {
@@ -216,12 +216,12 @@ void main() {
       );
       const renderer = FrameRenderer();
       final orange = Palette()[Status.running];
-      // Mi-période : la pulsation est à son maximum.
+      // Half period: the pulse is at its maximum.
       final frame = renderer.render(config, {
         _source.key: _printing,
       }, const Duration(seconds: 1));
 
-      // Points n° 1 → 5 = LED 9, 8, 7, 6, 5.
+      // Dots #1 → 5 = LEDs 9, 8, 7, 6, 5.
       expect([frame[9], frame[8], frame[7]], everyElement(orange));
       expect(frame[6], orange.scaled(0.1));
       expect(frame[5], Rgb.black);

@@ -1,11 +1,11 @@
-// BuildBeacon UI — Copies modifiées du modèle (le modèle du cœur est immuable).
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Modified copies of the model (the core model is immutable).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
-/// Valeur par défaut des paramètres qui acceptent `null` : « ne pas changer ».
+/// Default value of the parameters that accept `null`: "leave unchanged".
 const Object _keep = Object();
 
 extension ConfigEdit on Config {
@@ -35,12 +35,12 @@ extension ConfigEdit on Config {
     return null;
   }
 
-  /// Tuiles projet dans l'ordre de la chaîne (câblage).
+  /// Project tiles in chain order (wiring order).
   List<Tile> get projectTiles =>
       tiles.where((t) => t.kind == TileKind.project).toList()
         ..sort((a, b) => a.chainIndex.compareTo(b.chainIndex));
 
-  /// Même contenu JSON (même config.json une fois enregistrée).
+  /// Same JSON content (same config.json once saved).
   bool sameAs(Config? other) =>
       other != null && jsonEncode(toJson()) == jsonEncode(other.toJson());
 }
@@ -75,14 +75,14 @@ extension TileEdit on Tile {
     zones: zones ?? this.zones,
   );
 
-  /// La tuile avec [action] dans [zone] (`null` = zone éteinte).
+  /// The tile with [action] in [zone] (`null` = zone turned off).
   Tile withZone(ZoneName zone, ZoneAction? action) {
     final changed = {...zones}..remove(zone);
     if (action != null) changed[zone] = action;
     return copyWith(zones: changed);
   }
 
-  /// Nom affiché : le libellé, sinon l'identifiant.
+  /// Displayed name: the label, otherwise the id.
   String get displayName => label.trim().isEmpty ? id : label;
 }
 
@@ -117,7 +117,7 @@ extension ThresholdsEdit on Thresholds {
 }
 
 extension SourceConfigEdit on SourceConfig {
-  /// Même source avec le réglage [id] changé (`null` = retiré).
+  /// Same source with setting [id] changed (`null` = removed).
   SourceConfig withSetting(String id, Object? value) => SourceConfig(
     type: type,
     settings: {

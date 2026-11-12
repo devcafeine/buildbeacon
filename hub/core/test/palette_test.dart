@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : couleur de chaque état.
-// Version 1.1 (2026-11-11) — états en anglais, clés de palette.
+// BuildBeacon Hub — Tests: color of each status.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';

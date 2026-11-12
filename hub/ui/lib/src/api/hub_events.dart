@@ -1,5 +1,5 @@
-// BuildBeacon UI — Événements en direct du Hub (Server-Sent Events).
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Live events from the Hub (Server-Sent Events).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -8,12 +8,12 @@ import 'event_stream_io.dart'
     if (dart.library.js_interop) 'event_stream_web.dart'
     as platform;
 
-/// Ce que reçoit l'interface sur `/api/events`.
+/// What the interface receives on `/api/events`.
 sealed class HubEvent {
   const HubEvent();
 }
 
-/// Un événement nommé (`config`, `state`) et ses données JSON.
+/// A named event (`config`, `state`) and its JSON data.
 final class HubMessage extends HubEvent {
   const HubMessage(this.name, this.data);
 
@@ -21,22 +21,22 @@ final class HubMessage extends HubEvent {
   final String data;
 }
 
-/// Connexion au flux ouverte ou perdue (le flux se reconnecte seul).
+/// Connection to the stream opened or lost (the stream reconnects by itself).
 final class HubLinkChanged extends HubEvent {
   const HubLinkChanged({required this.open});
 
   final bool open;
 }
 
-/// Ouvre le flux d'événements [url] ; se reconnecte seul.
+/// Opens the event stream [url]; reconnects by itself.
 typedef HubEventSource = Stream<HubEvent> Function(Uri url);
 
-/// Navigateur : `EventSource` ; ailleurs (tests, bureau) : requête HTTP en
-/// continu.
+/// Browser: `EventSource`; elsewhere (tests, desktop): streaming HTTP
+/// request.
 Stream<HubEvent> openHubEvents(Uri url) => platform.openHubEvents(url);
 
-/// Découpe un flux `text/event-stream` en messages : champs `event:` et
-/// `data:`, ligne vide = fin du message, `:` = commentaire.
+/// Splits a `text/event-stream` stream into messages: `event:` and `data:`
+/// fields, empty line = end of message, `:` = comment.
 Stream<HubMessage> parseServerSentEvents(Stream<String> text) async* {
   String? name;
   final data = <String>[];

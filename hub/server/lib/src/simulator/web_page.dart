@@ -1,10 +1,10 @@
-// BuildBeacon Hub — Simulateur web : la page (HTML, CSS et JavaScript intégrés).
-// Version 1.4 (2026-11-11) — langue forcée par l'adresse (?lang=en ou ?lang=fr).
+// BuildBeacon Hub — Web simulator: the page (embedded HTML, CSS and JavaScript).
+// Version 1.5 (2026-11-12) — comments in English.
 //
-// Intégrée au code Dart pour que l'exécutable compilé se suffise à lui-même.
+// Embedded in the Dart code so that the compiled executable is self-contained.
 
-/// Page du simulateur, servie sur `/`. Elle lit `/layout` (disposition) et
-/// reçoit les images par `/events` (Server-Sent Events).
+/// Simulator page, served on `/`. It reads `/layout` (layout) and receives
+/// the frames through `/events` (Server-Sent Events).
 const simulatorPage = r'''<!doctype html>
 <!-- BuildBeacon Hub — WLED simulator page. Version 1.4 (2026-11-11) -->
 <html lang="en">

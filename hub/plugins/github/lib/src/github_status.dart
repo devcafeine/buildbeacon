@@ -1,15 +1,15 @@
-// BuildBeacon Hub — Correspondance status/conclusion GitHub → état d'affichage.
-// Version 1.4 (2026-11-11) — états en anglais (success, failure…).
+// BuildBeacon Hub — Mapping of GitHub status/conclusion → display status.
+// Version 1.5 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
-/// Traduit les champs `status` et `conclusion` d'un workflow run GitHub.
+/// Maps the `status` and `conclusion` fields of a GitHub workflow run.
 ///
-/// Choix pour les conclusions sans couleur prévue dans la spec :
-/// - `neutral` → succès (rien à corriger) ;
-/// - `timed_out`, `startup_failure`, `action_required` → échec (il faut
-///   intervenir) ;
-/// - `skipped`, `stale` → inconnu (le run n'a rien prouvé).
+/// Choices for the conclusions that have no color in the spec:
+/// - `neutral` → success (nothing to fix);
+/// - `timed_out`, `startup_failure`, `action_required` → failure (someone
+///   has to step in);
+/// - `skipped`, `stale` → unknown (the run proved nothing).
 Status statusFromGithub({required String? status, String? conclusion}) =>
     switch (status) {
       'completed' => switch (conclusion) {

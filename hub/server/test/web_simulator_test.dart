@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : simulateur web (page, disposition, flux SSE).
-// Version 1.2 (2026-11-11) — page bilingue, adresses brutes, type de tuile en anglais.
+// BuildBeacon Hub — Tests: web simulator (page, layout, SSE stream).
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -10,7 +10,7 @@ import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:buildbeacon_hub/buildbeacon_hub.dart';
 import 'package:test/test.dart';
 
-/// Disposition de l'utilisateur : master en (0, 1), tuiles en (0, 0) et (1, 1).
+/// The user's layout: master at (0, 1), tiles at (0, 0) and (1, 1).
 final _config = Config(
   tiles: [
     Tile(
@@ -69,7 +69,7 @@ void main() {
     Uri.parse('http://127.0.0.1:${web.port}$path'),
   )).close();
 
-  /// Lit le flux SSE et renvoie les données du premier événement « frame ».
+  /// Reads the SSE stream and returns the data of the first "frame" event.
   Future<Map<String, Object?>> nextFrame(Stream<String> lines) async {
     var isFrame = false;
     await for (final line in lines) {

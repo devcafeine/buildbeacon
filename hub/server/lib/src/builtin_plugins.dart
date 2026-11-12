@@ -1,16 +1,16 @@
-// BuildBeacon Hub — Plugins livrés avec le Hub.
-// Version 1.2 (2026-11-11) — repères en anglais pour `mise run new-plugin`.
+// BuildBeacon Hub — Plugins shipped with the Hub.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:buildbeacon_plugin_github/buildbeacon_plugin_github.dart';
 
 // new-plugin: imports are added above this line.
 
-/// Plugins compilés dans l'image du Hub.
+/// Plugins compiled into the Hub image.
 ///
-/// Ajouter un plugin : `mise run new-plugin <name>` crée son paquet et
-/// l'inscrit ici. À la main : dépendance dans `server/pubspec.yaml` et ligne
-/// dans cette liste.
+/// Adding a plugin: `mise run new-plugin <name>` creates its package and
+/// registers it here. By hand: a dependency in `server/pubspec.yaml` and a
+/// line in this list.
 PluginRegistry builtinPlugins() => PluginRegistry(const [
   GithubPlugin(),
   // new-plugin: plugins are added above this line.

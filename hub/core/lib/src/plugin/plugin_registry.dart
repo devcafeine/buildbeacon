@@ -1,15 +1,15 @@
-// BuildBeacon Hub — Registre des plugins de source disponibles.
-// Version 1.2 (2026-11-11) — messages traduits ; erreurs de programmation en anglais.
+// BuildBeacon Hub — Registry of the available source plugins.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
 import '../model/source_config.dart';
 import '../model/zone_action.dart';
 
-/// Plugins disponibles, par type, et validation des sources qui les utilisent.
+/// Available plugins, by type, and validation of the sources that use them.
 final class PluginRegistry {
-  /// Lève une [ArgumentError] pour un plugin non conforme (voir
-  /// `conformanceIssues`) ou deux plugins du même type.
+  /// Throws an [ArgumentError] for a non-conforming plugin (see
+  /// `conformanceIssues`) or for two plugins of the same type.
   PluginRegistry(Iterable<SourcePlugin> plugins) {
     for (final plugin in plugins) {
       final issues = conformanceIssues(plugin);
@@ -31,8 +31,8 @@ final class PluginRegistry {
 
   List<SourcePlugin> get all => List.unmodifiable(_plugins.values);
 
-  /// Problèmes d'une source : type inconnu, ou réglages refusés par le
-  /// plugin (voir `settingsIssues`).
+  /// Problems of a source: unknown type, or settings rejected by the plugin
+  /// (see `settingsIssues`).
   List<LocalizedText> validateSource(SourceConfig source) {
     final plugin = _plugins[source.type];
     if (plugin == null) {
@@ -52,8 +52,8 @@ final class PluginRegistry {
     return settingsIssues(plugin, source.settings);
   }
 
-  /// Problèmes d'une action : ceux de sa source, puis la compatibilité du
-  /// mode avec ce que fournit le plugin.
+  /// Problems of an action: those of its source, then whether the mode is
+  /// compatible with what the plugin provides.
   List<LocalizedText> validateAction(ZoneAction action) {
     final plugin = _plugins[action.source.type];
     if (plugin == null) return validateSource(action.source);

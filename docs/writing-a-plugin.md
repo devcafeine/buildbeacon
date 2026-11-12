@@ -1,4 +1,4 @@
-<!-- BuildBeacon — writing a plugin (English). Version 1.1 (2026-11-11) — trying a plugin with mise run hub. -->
+<!-- BuildBeacon — writing a plugin (English). Version 1.2 (2026-11-12) — comments of the examples in English. -->
 # Writing a plugin
 
 [Version française](writing-a-plugin.fr.md)
@@ -262,7 +262,7 @@ See also [CONTRIBUTING.md](../CONTRIBUTING.md).
 ## Complete example: OctoPrint
 
 ```dart
-// BuildBeacon Hub — Plugin OctoPrint.
+// BuildBeacon Hub — OctoPrint plugin.
 // Version 1.0 (2026-11-11)
 
 import 'dart:convert';

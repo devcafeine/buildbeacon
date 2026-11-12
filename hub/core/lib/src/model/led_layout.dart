@@ -1,27 +1,27 @@
-// BuildBeacon Hub — Correspondance zones ↔ index de LED de la chaîne.
-// Version 1.1 (2026-11-11) — identifiants en anglais (ambient, dots, system).
+// BuildBeacon Hub — Mapping between zones and LED indices in the chain.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:math';
 
 import 'tile.dart';
 
-/// Topologie de la chaîne : la master (3 LED, index 0 – 2) puis les tuiles
-/// projet dans l'ordre de câblage, 9 LED chacune.
+/// Chain topology: the master tile (3 LEDs, indices 0 – 2), then the project
+/// tiles in wiring order, 9 LEDs each.
 abstract final class LedLayout {
   static const masterLeds = 3;
   static const projectLeds = 9;
 
-  /// Zone système de la master, de gauche à droite.
+  /// System zone of the master tile, from left to right.
   static const systemIndices = [0, 1, 2];
 
-  /// Index locaux de la zone ambiance : ruban du haut (0, 1) et du bas (7, 8).
+  /// Local indices of the ambient zone: top strip (0, 1) and bottom strip (7, 8).
   static const ambientLocal = [0, 1, 7, 8];
 
-  /// Index locaux des points, du n° 1 (à gauche) au n° 5 (à droite) :
-  /// le ruban du milieu est câblé de droite à gauche.
+  /// Local indices of the dots, from #1 (left) to #5 (right): the middle
+  /// strip is wired from right to left.
   static const dotsLocal = [6, 5, 4, 3, 2];
 
-  /// Premier index global de la tuile projet au rang [chainIndex] (≥ 1).
+  /// First global index of the project tile at chain position [chainIndex] (≥ 1).
   static int projectBase(int chainIndex) {
     if (chainIndex < 1) {
       throw RangeError.value(
@@ -33,8 +33,8 @@ abstract final class LedLayout {
     return masterLeds + projectLeds * (chainIndex - 1);
   }
 
-  /// Index globaux de [zone], dans l'ordre d'affichage (gauche → droite ;
-  /// pour l'ambiance : haut puis bas).
+  /// Global indices of [zone], in display order (left → right; for the
+  /// ambient zone: top then bottom).
   static List<int> zoneIndices(TileKind kind, int chainIndex, ZoneName zone) =>
       switch ((kind, zone)) {
         (TileKind.master, ZoneName.system) => systemIndices,
@@ -49,7 +49,7 @@ abstract final class LedLayout {
         _ => throw ArgumentError('No ${zone.name} zone on a ${kind.name} tile'),
       };
 
-  /// Tous les index globaux d'une tuile, dans l'ordre de la chaîne.
+  /// All global indices of a tile, in chain order.
   static List<int> tileIndices(TileKind kind, int chainIndex) => switch (kind) {
     TileKind.master => systemIndices,
     TileKind.project => [
@@ -57,9 +57,9 @@ abstract final class LedLayout {
     ],
   };
 
-  /// Longueur de la chaîne : la master (toujours présente physiquement) plus
-  /// les tuiles projet jusqu'à la plus éloignée. Un rang sans tuile configurée
-  /// reste éteint.
+  /// Chain length: the master tile (always physically present) plus the
+  /// project tiles up to the farthest one. A chain position without a
+  /// configured tile stays off.
   static int ledCount(Iterable<Tile> tiles) {
     final lastRank = tiles
         .where((t) => t.kind == TileKind.project)

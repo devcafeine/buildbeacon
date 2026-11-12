@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests SDK : textes traduits (i18n).
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — SDK tests: translated texts (i18n).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 import 'package:test/test.dart';
