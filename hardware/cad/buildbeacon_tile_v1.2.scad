@@ -1,317 +1,318 @@
 // =====================================================================
-//  BuildBeacon - tuile hexagonale lumineuse (paramétrique)
-//  Version 1.1 (2026-11-11) - référence aux cartes v1.2
-//  v1.0 : première version publique
-//  Cartes : buildbeacon_tuile_v1.2 / buildbeacon_master_v1.2
-//  Source : https://github.com/devcafeine/buildbeacon (hardware/cad)
-//  Licence matériel : CERN-OHL-P-2.0
+//  BuildBeacon - hexagonal light-up tile (parametric)
+//  Version 1.2 (2026-11-12) - comments in English
+//  v1.1: references the v1.2 boards
+//  v1.0: first public version
+//  Boards: buildbeacon_tuile_v1.2 / buildbeacon_master_v1.2
+//  Source: https://github.com/devcafeine/buildbeacon (hardware/cad)
+//  Hardware license: CERN-OHL-P-2.0
 //
-//  Impression :
-//   - Tuile : façade contre le plateau, sans support, PLA/PETG blanc
-//     ou "natural". Le texte est aminci par l'intérieur : il ressort
-//     plus lumineux que le reste de la façade (une seule couleur).
-//   - Plaque arrière : imprimée nervures vers le haut.
-//   - Socle : à plat, tel quel.
+//  Printing:
+//   - Tile: front face down on the build plate, no supports, white or
+//     "natural" PLA/PETG. The text is thinned from the inside: it shows
+//     brighter than the rest of the front (single color).
+//   - Back plate: printed with the ribs facing up.
+//   - Stand: flat, as is.
 //
-//  Orientation "pointy" (par défaut) : pointe en haut et en bas,
-//  côtés plats à gauche et à droite -> les tuiles s'alignent en rangée
-//  sur le socle de bureau et forment aussi un nid d'abeille au mur.
+//  "pointy" orientation (default): points at the top and bottom,
+//  flat sides on the left and right -> the tiles line up in a row
+//  on the desk stand and also form a honeycomb on the wall.
 //
-//  Aimants 6x3 mm : polarité alternée d'un côté à l'autre
-//  (côtés 0,2,4 = Nord vers l'extérieur ; 1,3,5 = Sud).
-//  Ainsi n'importe quelle tuile s'accroche à n'importe quelle autre.
+//  6x3 mm magnets: polarity alternates from one side to the next
+//  (sides 0,2,4 = North facing out; 1,3,5 = South).
+//  So any tile snaps onto any other.
 // =====================================================================
 
 /* [Style] */
-// glow = une couleur, texte aminci qui brille plus fort
-// swap = une couleur + 1 changement de filament : façade noire, lettres blanches
-// dark_face = multicolore : façade sombre, seules les lettres s'allument
-// stencil = une couleur, lettres traversantes + papier calque collé derrière.
-//           Utiliser une police pochoir (ex. "Stardos Stencil:style=Bold")
-//           sinon l'intérieur des lettres (o, D, a...) tombe.
+// glow = single color, thinned text that glows brighter
+// swap = single color + 1 filament change: black front, white letters
+// dark_face = multicolor: dark front, only the letters light up
+// stencil = single color, through-cut letters + tracing paper glued behind.
+//           Use a stencil font (e.g. "Stardos Stencil:style=Bold")
+//           otherwise the inside of the letters (o, D, a...) falls out.
 style = "glow"; // [glow, swap, dark_face, stencil]
-// (swap) Épaisseur noire à l'avant : changer de filament à cette hauteur
+// (swap) Black thickness at the front: change filament at this height
 swap_z = 0.8;
 
-/* [Texte] */
-// Nom du projet affiché
+/* [Text] */
+// Displayed project name
 label = "BuildBeacon";
-// Seconde ligne optionnelle (laisser vide pour aucune)
+// Optional second line (leave empty for none)
 label2 = "";
 font = "Liberation Sans:style=Bold";
-// Taille du texte principal (0 = automatique selon la tuile ; réduire si le nom est long)
+// Main text size (0 = automatic from the tile size; reduce if the name is long)
 text_size = 0;
 text_size2 = 7;
-// Épaisseur restante devant le texte (mm) : plus fin = plus lumineux
+// Remaining thickness in front of the text (mm): thinner = brighter
 text_skin = 0.6;
 
-/* [Décor] */
-// Tuile maître = tuile « tête » : un logo à la place du nom
+/* [Decoration] */
+// Master tile = "head" tile: a logo instead of the name
 master_logo = true;
-// Fichier SVG du logo (vide = logo intégré « balise »). Ex. "logo.svg"
+// Logo SVG file (empty = built-in "beacon" logo). E.g. "logo.svg"
 logo_svg = "";
-// Largeur du logo (mm)
+// Logo width (mm)
 logo_size = 34;
-// Décalage vertical du logo (mm, + = vers le haut)
+// Logo vertical offset (mm, + = up)
 logo_y = 3;
-// Liseré lumineux qui suit le contour de la tuile
+// Light-up border following the tile outline
 border = true;
-// Distance du liseré au bord extérieur (au-delà des bossages d'aimant)
+// Distance from the border to the outer edge (beyond the magnet bosses)
 border_inset = 7.5;
 border_w = 1.2;
-// Barre de points sous le nom : 1 point par LED, allumables séparément.
-// Les 5 LED des points sont enfermées ; 2 LED au-dessus et 2 en dessous
-// éclairent le nom et le liseré. Pas de points sur la tuile maître (pas
-// la place sous l'ESP32), ni avec les T-Clips (logements sur l'axe).
+// Dot row under the name: 1 dot per LED, each lit individually.
+// The 5 dot LEDs are enclosed; 2 LEDs above and 2 below
+// light the name and the border. No dots on the master tile (no
+// room under the ESP32), nor with T-Clips (receivers on the axis).
 dots = true;
-// LED d'ambiance au-dessus / en dessous des points
+// Ambient LEDs above / below the dots
 amb_leds = 2;
-// Distance (verticale) des LED d'ambiance au centre de la tuile
+// (Vertical) distance from the ambient LEDs to the tile center
 amb_offset = 16;
-// Tuile logo : 2 LED d'ambiance en haut en plus du ruban central
-// (utile seulement si le haut du logo/liseré paraît trop sombre)
+// Logo tile: 2 ambient LEDs at the top in addition to the central strip
+// (only useful if the top of the logo/border looks too dark)
 master_amb = false;
-// Nombre de points (= nombre de LED derrière)
+// Number of dots (= number of LEDs behind them)
 dots_n = 5;
-// Écart entre points = pas des LED du ruban (100 LED/m -> 10 mm)
+// Dot spacing = LED pitch of the strip (100 LEDs/m -> 10 mm)
 dots_pitch = 10;
 dots_d = 4;
-// Passage des fils entre les morceaux de ruban PAR L'ARRIÈRE de la plaque :
-// un trou au bout de chaque morceau, des rainures au dos qui les relient
-// (désactivé par défaut : avec du fil épais, utiliser les clips à câbles)
+// Wire routing between the strip pieces THROUGH THE BACK of the plate:
+// a hole at the end of each piece, grooves on the back connecting them
+// (off by default: with thick wire, use the cable clips)
 wire_paths = false;
-// Réglé pour 3 fils silicone 28 AWG (Ø ~1,1 mm) côte à côte
+// Sized for 3 silicone 28 AWG wires (Ø ~1.1 mm) side by side
 groove_w = 3.6;
 groove_d = 1.2;
 wire_hole_size = 3.6;
-// Boîtes fermées autour des points, jusqu'au ruban : chaque LED
-// n'éclaire que son point
+// Closed boxes around the dots, up to the strip: each LED
+// lights only its own dot
 dot_ribs = true;
-// Jeu entre le haut des parois et le ruban (mm)
+// Clearance between the top of the walls and the strip (mm)
 rib_gap = 0.4;
 rib_t = 0.8;
 
-/* [Tuile] */
-// pointy = pointe en haut (rangées sur bureau) ; flat = côté plat en haut
+/* [Tile] */
+// pointy = point at the top (rows on a desk); flat = flat side at the top
 orientation = "pointy"; // [pointy, flat]
-// Largeur entre deux côtés plats (mm) — 65 minimum
+// Width across the flat sides (mm) — 65 minimum
 flat = 80;
-// Profondeur totale (mm)
+// Total depth (mm)
 depth = 22;
 wall = 2;
-// Épaisseur de la façade (mm)
+// Front thickness (mm)
 face = 1.6;
 corner_r = 3;
 
-/* [Liaison des plaques] */
-// Les plaques arrière se relient entre elles par des pièces en « os de
-// chien » (part = links), posées à cheval au milieu des côtés communs,
-// à travers l'encoche ouverte. L'ensemble forme un panneau rigide :
-// quelques tuiles clipsées ou vissées suffisent à tout porter.
+/* [Plate links] */
+// The back plates are joined to each other by "dog bone" pieces
+// (part = links), straddling the middle of the shared sides,
+// through the open notch. The assembly forms a rigid panel:
+// a few clipped or screwed tiles are enough to hold everything.
 plate_links = true;
-// Nombre d'os de chien à imprimer (part = links)
+// Number of dog bones to print (part = links)
 link_count = 6;
-// Serrage des os de chien (mm par côté) : grossit l'os sans toucher aux
-// logements des plaques. 0 = d'origine ; plus grand = moins de jeu.
-// Pour trouver la bonne valeur : part = link_test (4 os de 0,05 à 0,20).
+// Dog bone fit (mm per side): enlarges the bone without changing the
+// plate pockets. 0 = original; larger = less clearance.
+// To find the right value: part = link_test (4 bones from 0.05 to 0.20).
 link_fit = 0.10; // [0:0.025:0.3]
 
-/* [Aimants latéraux (option)] */
-// Aimants sur les côtés des coques. Inutiles avec la liaison des plaques.
+/* [Side magnets (optional)] */
+// Magnets on the sides of the shells. Not needed with plate links.
 magnets = false;
-// Aimants par côté : 2 = pas de pivot ni de glissement entre tuiles.
-// Polarité (2 aimants) : en tournant autour de la tuile vue de face dans
-// le sens des aiguilles d'une montre, sur CHAQUE côté le 1er aimant
-// rencontré a le Nord vers l'extérieur, le 2e le Sud. Toutes les tuiles
-// s'accrochent alors entre elles par n'importe quel côté.
+// Magnets per side: 2 = no pivoting or sliding between tiles.
+// Polarity (2 magnets): going clockwise around the tile seen from the
+// front, on EACH side the 1st magnet
+// encountered has North facing out, the 2nd South. All tiles
+// then snap together on any side.
 side_magnets = 2; // [1, 2]
-// Écart des aimants par rapport au milieu du côté (mm)
+// Magnet offset from the middle of the side (mm)
 mag_spread = 10;
-// Côté d'ouverture des logements d'aimant de la plaque arrière :
-// top = sur le dessus (côté coque, plus facile à imprimer, aimant collé)
-// back = par l'arrière (côté plateau d'impression)
+// Opening side of the magnet pockets in the back plate:
+// top = on the top (shell side, easier to print, magnet glued)
+// back = from the back (build plate side)
 plate_mag_side = "top"; // [top, back]
-// Diamètre du logement (aimant 6 mm + jeu ; les trous imprimés sortent
-// plus petits : 6,4 à 6,5 en général)
+// Pocket diameter (6 mm magnet + clearance; printed holes come out
+// smaller: usually 6.4 to 6.5)
 mag_d = 6.4;
-// Profondeur du logement (aimant 3 mm + jeu)
+// Pocket depth (3 mm magnet + clearance)
 mag_h = 3.2;
-// Hauteur du centre des aimants depuis la façade (0 = automatique)
+// Height of the magnet centers from the front (0 = automatic)
 mag_z = 0;
 
-/* [Passage de câbles] */
+/* [Cable routing] */
 notches = true;
-// Côtés avec encoche, VUS DE FACE (orientation pointy) :
-// 0 = gauche, 1 = haut-gauche, 2 = haut-droite,
-// 3 = droite, 4 = bas-droite, 5 = bas-gauche
+// Sides with a notch, SEEN FROM THE FRONT (pointy orientation):
+// 0 = left, 1 = top-left, 2 = top-right,
+// 3 = right, 4 = bottom-right, 5 = bottom-left
 notch_sides = [0, 1, 2, 3, 4, 5];
 notch_w = 10;
 notch_h = 4;
-// Encoches défonçables : fermées par une fine peau à casser si besoin
+// Knockout notches: closed by a thin skin to break out if needed
 notch_knockout = true;
 knockout_skin = 0.6;
-// Nombre de bouchons à imprimer (part = plugs). Avec les encoches
-// défonçables, inutiles ; à coller si on referme une encoche ouverte.
+// Number of plugs to print (part = plugs). Not needed with knockout
+// notches; glue one in to close an opened notch.
 plug_count = 4;
 
-/* [Plaque arrière] */
+/* [Back plate] */
 back_t = 2;
-// tray  = la plaque arrière est un BAC à rebords, la coque se pose dessus
-//         (les fils courent dans le bac, le long des rebords)
-// inset = ancienne version : plaque plate emboîtée dans une coque pleine
-//         hauteur (compatible avec les coques déjà imprimées avant le bac)
-// double = DOUBLE FOND pour coques pleine hauteur : un plateau LED (comme
-//         inset) posé sur 3 piliers d'un socle ; les câbles passent entre
-//         les deux. Imprimer part = back (plateau) et part = base (socle).
+// tray  = the back plate is a TRAY with rims, the shell sits on it
+//         (the wires run inside the tray, along the rims)
+// inset = previous version: flat plate fitted inside a full-height
+//         shell (compatible with shells printed before the tray)
+// double = DOUBLE BOTTOM for full-height shells: an LED plate (like
+//         inset) resting on 3 pillars of a base; the cables run between
+//         the two. Print part = back (LED plate) and part = base (base).
 plate_style = "inset"; // [inset, tray, double]
-// (double) Hauteur du double fond pour les câbles
+// (double) Height of the double bottom for the cables
 dbl_space = 8;
-// (double) Fixation du plateau sur les piliers du socle (les aimants de la
-// coque tirent sur le plateau : il doit être vissé) :
-// insert = insert laiton M3 dans le pilier + vis M3 x 6 ; self_tap = vis
-// autotaraudeuse M2,5 x 8 ; peg = simples pions (déconseillé)
+// (double) Fastening of the LED plate on the base pillars (the shell
+// magnets pull on the plate: it must be screwed down):
+// insert = M3 brass insert in the pillar + M3 x 6 screw;
+// self_tap = M2.5 x 8 self-tapping screw; peg = plain pegs (not recommended)
 dbl_fix = "insert"; // [insert, self_tap, peg]
-// (double) Diamètre des trous du plateau pour descendre les fils des LED
-// dans le double fond (3 fils silicone 22 AWG : 4,2 mm)
+// (double) Diameter of the plate holes to route the LED wires down
+// into the double bottom (3 silicone 22 AWG wires: 4.2 mm)
 dbl_wire_hole = 4.2;
-// Hauteur des rebords du bac (style tray)
+// Height of the tray rims (tray style)
 base_wall_h = 6;
-// Bourrelet sur le haut des rebords, qui centre la coque
+// Lip on top of the rims, which centers the shell
 base_lip_h = 1.5;
 base_lip_w = 1.2;
-// Jeu d'emboîtement (plaque arrière et socle)
+// Fit clearance (back plate and stand)
 tol = 0.25;
-// Rebord d'appui de la plaque. Inutile avec les colonnes (aimants ou vis)
-// qui arrêtent déjà la plaque ; il crée un porte-à-faux à l'impression.
+// Support ledge for the plate. Not needed with the columns (magnets or screws)
+// which already stop the plate; it creates an overhang when printing.
 ledge = false;
 ledge_w = 1.5;
 ledge_h = 1.5;
-// Support des LED des tuiles projet :
-// strip = morceaux de ruban collés sur la plaque, entre des rails
-// pcb   = circuit imprimé (morceaux de ruban soudés dessus), vissé sur des
-//         entretoises : "tuile_ruban" (tuiles projet) ou "tuile_logo"
-//         (tuile maître, ESP32-C3 SuperMini sur le circuit ; pointy seulement)
+// LED mounting on the project tiles:
+// strip = strip pieces glued onto the plate, between rails
+// pcb   = PCB (strip pieces soldered onto it), screwed onto
+//         spacers: "tuile_ruban" (project tiles) or "tuile_logo"
+//         (master tile, ESP32-C3 SuperMini on the board; pointy only)
 led_mount = "strip"; // [strip, pcb]
-// (pcb) Hauteur des entretoises : place pour les connecteurs JST soudés
-// au dos du circuit (4,8 mm de haut) et les vis des clips Skådis
+// (pcb) Spacer height: room for the JST connectors soldered
+// on the back of the board (4.8 mm high) and the Skådis clip screws
 pcb_standoff = 7;
-// (pcb) Épaisseur du circuit imprimé
+// (pcb) PCB thickness
 pcb_t = 1.6;
-// (pcb) Avant-trou pour vis autotaraudeuse M2,5 x 6 (PLA : 2,2 mm)
+// (pcb) Pilot hole for an M2.5 x 6 self-tapping screw (PLA: 2.2 mm)
 pcb_pilot = 2.2;
-// Fixation de la carte : vis autotaraudeuse M2,5 ou insert laiton M2,5 + vis M2,5 x 6
+// Board fastening: M2.5 self-tapping screw or M2.5 brass insert + M2.5 x 6 screw
 pcb_fix = "insert"; // [self_tap, insert]
-// (insert) Diamètre du logement : diamètre extérieur de l'insert - 0,3 mm (insert M2,5 x 4 x 3,5)
+// (insert) Pocket diameter: outer diameter of the insert - 0.3 mm (M2.5 x 4 x 3.5 insert)
 pcb_insert_d = 3.2;
-// (insert) Longueur de l'insert
+// (insert) Insert length
 pcb_insert_len = 4;
-// (pcb, tuile logo) Hauteur de l'entretoise plastique des barrettes sous
-// l'ESP32-C3 SuperMini (2,5 mm en standard). Sert à placer l'ouverture USB.
+// (pcb, logo tile) Height of the plastic spacer of the pin headers under
+// the ESP32-C3 SuperMini (2.5 mm as standard). Used to place the USB opening.
 esp_spacer = 2.5;
-// (pcb, tuile logo) Épaisseur du circuit de l'ESP32-C3 SuperMini
+// (pcb, logo tile) Thickness of the ESP32-C3 SuperMini board
 esp_board_t = 1.0;
-// (pcb) Fenêtres dans la plaque arrière en face des interrupteurs DIP
+// (pcb) Windows in the back plate facing the DIP switches
 pcb_dip_window = false;
-// Largeur du ruban LED (WS2812B : 10 mm en général)
+// LED strip width (WS2812B: usually 10 mm)
 strip_w = 10;
 rail_len = 56;
-// Passage de câble par l'arrière (ex. alimentation qui sort du mur)
+// Cable hole through the back (e.g. power cable coming out of the wall)
 wire_hole = false;
 wire_hole_d = 8;
-// Trou de serrure pour fixation murale
+// Keyhole for wall mounting
 keyhole = true;
-// Fixation de la plaque arrière sur la coque (3 points, 4 pour la maître)
+// Fastening of the back plate to the shell (3 points, 4 for the master)
 screws = true;
-// magnet = aimants 6x3 (coque interchangeable sans outil)
-// insert = vis M3 + insert laiton ; self_tap = vis autotaraudeuse M2,5
+// magnet = 6x3 magnets (shell swappable without tools)
+// insert = M3 screw + brass insert; self_tap = M2.5 self-tapping screw
 screw_type = "magnet"; // [magnet, insert, self_tap]
-// (insert) Diamètre du trou : ~ diamètre extérieur de l'insert - 0,5 mm
-insert_d = 3.6;     // kit Corgi M3 x 5 x 4 : 4 - 0,4
-// (insert) Longueur de l'insert
+// (insert) Hole diameter: ~ outer diameter of the insert - 0.5 mm
+insert_d = 3.6;     // Corgi kit M3 x 5 x 4: 4 - 0.4
+// (insert) Insert length
 insert_len = 5;
-// (insert) Passage de la vis dans la plaque (M3 : 3,4)
+// (insert) Screw clearance hole in the plate (M3: 3.4)
 insert_screw_clear = 3.4;
-// Diamètre d'avant-trou dans la colonne (M2,5 dans du PLA : 2,2)
+// Pilot hole diameter in the column (M2.5 in PLA: 2.2)
 screw_pilot = 2.2;
-// Diamètre de passage dans la plaque
+// Clearance hole diameter in the plate
 screw_clear = 2.9;
 screw_boss_d = 6;
 
-/* [Tuile maître (ESP32)] */
-// Carte : c3 = ESP32-C3 Super Mini (dans le coin, en diagonale)
-//         d1mini = Wemos D1 mini : à plat au centre, USB à gauche,
-//         ruban LED sur un pont au-dessus (part = led_bridge)
+/* [Master tile (ESP32)] */
+// Board: c3 = ESP32-C3 Super Mini (in the corner, diagonally)
+//         d1mini = Wemos D1 mini: flat in the center, USB on the left,
+//         LED strip on a bridge above it (part = led_bridge)
 esp_board = "c3"; // [c3, d1mini]
-// Nombre de LED du ruban central de la tuile logo
+// Number of LEDs on the central strip of the logo tile
 master_leds = 3; // [3, 4, 5]
-// Tuile qui contient l'ESP32-C3 Super Mini et reçoit l'USB-C
+// Tile that holds the ESP32-C3 Super Mini and takes the USB-C
 master = false;
-// Dimensions de la carte (ESP32-C3 Super Mini : 18 x 22,5 mm)
+// Board dimensions (ESP32-C3 Super Mini: 18 x 22.5 mm)
 esp_w = 18.2;
 esp_l = 22.7;
-// Découpe pour la fiche USB-C (largeur x hauteur)
+// Cutout for the USB-C plug (width x height)
 usb_w = 13;
 usb_h = 8.5;
 
-/* [Socle de bureau (orientation pointy)] */
-// Nombre de tuiles côte à côte sur le socle
+/* [Desk stand (pointy orientation)] */
+// Number of tiles side by side on the stand
 stand_tiles = 2;
-// Inclinaison vers l'arrière (degrés)
+// Backward tilt (degrees)
 tilt = 12;
-// Matière sous la pointe des tuiles
+// Material under the tile points
 stand_floor = 6;
-// Hauteur des joues au-dessus de la pointe
+// Height of the lips above the point
 lip_h = 10;
 lip = 3;
-// Passage du câble USB pour la tuile maître, placée tout à gauche
+// USB cable passage for the master tile, placed far left
 stand_usb = true;
-// Débord avant et arrière de la semelle (stabilité)
+// Front and back extension of the footprint (stability)
 stand_front = 6;
 stand_back = 15;
 
-/* [Adaptateur IKEA Skådis] */
-// Fixation Skådis de la plaque arrière (tuile >= 80 mm) :
-// clips = 2 fentes + nos clips glissés par l'intérieur
-// tclip = logements pour le "Skadis T-Clip System" de LineArcLine
-//         (2 l'un au-dessus de l'autre ; 1 seul sur la tuile maître ;
-//          pas de trou de serrure). Clips à télécharger sur Printables.
+/* [IKEA Skådis adapter] */
+// Skådis mounting of the back plate (tile >= 80 mm):
+// clips = 2 slots + our clips inserted from the inside
+// tclip = receivers for LineArcLine's "Skadis T-Clip System"
+//         (2 one above the other; only 1 on the master tile;
+//          no keyhole). Clips available for download on Printables.
 skadis_mount = "clips"; // [clips, tclip, none]
 skadis_slots = (skadis_mount == "clips");
-// Type de clip Skådis (part = skadis_clips) :
-// snap = clip simple à pinces : on l'enfonce, clic, c'est tenu
-// twist = clip quart de tour
+// Skådis clip type (part = skadis_clips):
+// snap = simple clip with flexible prongs: push it in, click, it holds
+// twist = quarter-turn clip
 skadis_clip_type = "snap"; // [snap, twist]
-// Largeur des clips Skådis (fente : 5 mm ; 4,2 à 4,4 conseillé)
+// Skådis clip width (slot: 5 mm; 4.2 to 4.4 recommended)
 skadis_hook_w = 4.4;
-// (snap) Épaisseur des bras souples : plus fin = plus facile à enclipser
+// (snap) Thickness of the flexible arms: thinner = easier to snap in
 snap_arm_t = 1.2;
-// (snap) Débord des crochets derrière le panneau
+// (snap) Overhang of the hooks behind the pegboard
 snap_barb = 0.7;
-// Épaisseur RÉELLE du panneau Skådis (à mesurer au pied à coulisse)
+// ACTUAL thickness of the Skådis pegboard (measure it with calipers)
 skadis_board = 5.0;
 
-/* [Clips à câbles] */
-// Petits clips à coller sur la plaque pour tenir les fils (part = cable_clips)
+/* [Cable clips] */
+// Small clips to glue onto the plate to hold the wires (part = cable_clips)
 cable_clip_count = 8;
-// Ouverture du clip (2 fils silicone 22 AWG : 4 mm)
+// Clip opening (2 silicone 22 AWG wires: 4 mm)
 cable_clip_gap = 4;
 cable_clip_h = 3.5;
 
 /* [Export] */
-// letters = lettres seules, pour le style dark_face (même origine que tile)
-// skadis_clips = 2 clips qui traversent plaque + panneau (recommandé)
-// skadis = ancien adaptateur à vis (accroche par le trou de serrure)
-// knockout_test = éprouvette pour choisir l'épaisseur des opercules
+// letters = letters only, for the dark_face style (same origin as tile)
+// skadis_clips = 2 clips going through plate + pegboard (recommended)
+// skadis = old screw-on adapter (hangs by the keyhole)
+// knockout_test = test piece to choose the knockout skin thickness
 part = "both"; // [tile, letters, back, both, stand, plugs, skadis_clips, skadis, links, link_test, led_bridge, base, cable_clips, knockout_test]
 
 /* [Hidden] */
-bb_version = "1.1";
-echo(str("BuildBeacon modèle v", bb_version));
+bb_version = "1.2";
+echo(str("BuildBeacon model v", bb_version));
 $fn = 48;
 eps = 0.01;
 pointy = (orientation == "pointy");
-hex_rot = pointy ? 30 : 0;      // rotation du contour
-side_off = pointy ? 0 : 30;     // angle du milieu du côté 0
+hex_rot = pointy ? 30 : 0;      // outline rotation
+side_off = pointy ? 0 : 30;     // angle of the middle of side 0
 apothem = flat / 2;
 R_hex = flat / sqrt(3);
 inner_flat = flat - 2 * wall;
@@ -319,104 +320,104 @@ r_in = max(corner_r - wall, 0.5);
 boss_d = mag_d + 3;
 boss_len = mag_h + 1.2;
 mag_offsets = side_magnets == 2 ? [-mag_spread, mag_spread] : [0];
-// Côté de sortie USB : en pointy, le côté en biais en bas à GAUCHE vu de
-// face (côté 5 du modèle, qui est en miroir) : le ruban reste centré et
-// le câble sort vers l'extérieur de la rangée. En flat : en bas.
+// USB exit side: in pointy, the slanted side at the bottom LEFT seen from
+// the front (side 5 of the model, which is mirrored): the strip stays centered
+// and the cable exits toward the outside of the row. In flat: at the bottom.
 d1 = master && pointy && esp_board == "d1mini";
 eW = d1 ? 25.8 : esp_w;
 eL = d1 ? 34.5 : esp_l;
 USB_SIDE = pointy ? (d1 ? 0 : 5) : 4;
 usb_angle = side_off + 60 * USB_SIDE;
-// La plaque est retournée à la pose (Y inversé) : l'angle s'inverse
+// The plate is flipped when installed (Y inverted): the angle is inverted
 cradle_angle = -usb_angle;
-// Coins (sommets) utilisés pour les colonnes de vis : 1 sur 2
+// Corners (vertices) used for the screw columns: every other one
 vertex_off = pointy ? 30 : 0;
 use_insert = (screw_type == "insert");
 use_magnet = (screw_type == "magnet");
-// Colonne assez grosse pour garder ~1,2 à 1,7 mm de matière autour
+// Column thick enough to keep ~1.2 to 1.7 mm of material around
 column_d = use_magnet ? max(screw_boss_d, mag_d + 2.4)
          : use_insert ? max(screw_boss_d, insert_d + 3.5)
          : screw_boss_d;
-// En retrait du rebord de la plaque (sinon le bossage touche le rebord)
+// Set back from the plate ledge (otherwise the boss touches the ledge)
 screw_r = (inner_flat - 2 * ledge_w) / sqrt(3) - column_d / 2 - 0.8;
-// Mode aimant : la colonne s'arrête plus bas, la plaque porte un
-// bossage avec son propre aimant qui vient au contact.
-// Hauteur des plots d'aimant côté intérieur de la plaque (aimant posé par
-// l'arrière + peau de 0,4 mm)
+// Magnet mode: the column stops lower, the plate carries a
+// boss with its own magnet that comes into contact.
+// Height of the magnet bosses on the inner side of the plate (magnet
+// inserted from the back + 0.4 mm skin)
 plate_boss_h = max(0.6, mag_h + 0.4 - back_t);
 col_top = use_magnet ? depth - back_t - plate_boss_h : depth - back_t;
-// Coins des colonnes de vis/aimants : un coin sur deux, en triangle
-// équilibré, identique pour toutes les tuiles (maître comprise).
-// Vérifié en 80 mm avec ESP32-C3 et D1 mini : le plot voisin de l'USB
-// passe à côté du berceau. En dessous de 80 mm, vérifier à l'aperçu.
+// Corners of the screw/magnet columns: every other corner, in a balanced
+// triangle, identical for all tiles (master included).
+// Checked at 80 mm with ESP32-C3 and D1 mini: the boss next to the USB
+// clears the cradle. Below 80 mm, check in the preview.
 screw_angles = [for (k = [0 : 2]) vertex_off + 120 * k];
-// Aimants : à mi-hauteur entre façade et encoches, sauf réglage manuel
-// Hauteur de la coque (façade + parois) : elle se pose sur les rebords du bac
+// Magnets: halfway between front and notches, unless set manually
+// Shell height (front + walls): it sits on the tray rims
 tray = (plate_style == "tray");
 dbl = (plate_style == "double");
 hc = tray ? depth - back_t - base_wall_h : depth;
 mag_zz = mag_z > 0 ? mag_z : (tray ? hc : depth - back_t - notch_h) - boss_d / 2 - 0.5;
-// Rayon intérieur de la plaque arrière (sommet)
+// Inner radius of the back plate (vertex)
 plate_R = (inner_flat - 2 * tol) / sqrt(3);
-// Positions proportionnelles à la taille de la tuile
-// (positions vérifiées pour flat de 65 à 100 mm, tuile normale et maître)
-// Fentes Skådis dans la plaque : 40 mm d'écart (pas du Skådis), placées
-// dans la moitié haute de la tuile, à l'écart du berceau ESP32.
-// En flat avec les LED d'ambiance, le trou de serrure n'a plus de place :
-// les 2 fentes servent alors aussi à visser la plaque au mur.
+// Positions proportional to the tile size
+// (positions checked for flat from 65 to 100 mm, regular and master tile)
+// Skådis slots in the plate: 40 mm apart (Skådis pitch), placed
+// in the upper half of the tile, away from the ESP32 cradle.
+// In flat with the ambient LEDs, there is no room left for the keyhole:
+// the 2 slots are then also used to screw the plate to the wall.
 slot_on = skadis_slots || (!pointy && dots && skadis_mount != "tclip");
 slot_x = 20;
-slot_h = 15.2;          // laisse passer le pied du clip quart de tour (14,8 mm)
+slot_h = 15.2;          // lets the foot of the quarter-turn clip through (14.8 mm)
 slot_w = skadis_hook_w + 0.8;
-// au-dessus des rails du ruban central, en laissant la place à la tête
-// du clip (3 mm sous la fente) ; à l'écart des liaisons de plaques
+// above the rails of the central strip, leaving room for the head
+// of the clip (3 mm below the slot); away from the plate links
 slot_cy = -(strip_w / 2 + 1.4 + 2.6 + slot_h / 2);
-// Logements T-Clip : sur l'axe vertical, à +/-20 mm (fentes Skådis d'une
-// même colonne). Plaque -Y = haut de la tuile. Tuile maître : seulement
-// celui du haut (celui du bas tomberait sur l'ESP32).
+// T-Clip receivers: on the vertical axis, at +/-20 mm (Skådis slots of the
+// same column). Plate -Y = top of the tile. Master tile: only
+// the top one (the bottom one would land on the ESP32).
 tclip_on = pointy && skadis_mount == "tclip";
-// (décalés de 0,5 mm vers le haut pour s'écarter de la colonne d'aimant
-//  du bas ; l'écart reste de 40 mm)
+// (shifted 0.5 mm up to clear the bottom magnet column;
+//  the spacing stays 40 mm)
 tclip_pos = master ? [[0, -20.5]] : [[0, -20.5], [0, 19.5]];
-// Points et LED d'ambiance (pointy et flat ; pas avec les T-Clips)
+// Dots and ambient LEDs (pointy and flat; not with T-Clips)
 amb_on = dots && !tclip_on;
 dots_on = amb_on && !master;
-// Circuit imprimé (led_mount = pcb). Tuile logo : seulement en pointy avec
-// l'ESP32-C3 (le circuit place le module en biais vers le côté USB 5)
+// PCB (led_mount = pcb). Logo tile: only in pointy with
+// the ESP32-C3 (the board places the module slanted toward USB side 5)
 pcb_on = (led_mount == "pcb") && pointy && !d1;
-// Le ruban est surélevé de l'entretoise + l'épaisseur du circuit
+// The strip is raised by the spacer + the board thickness
 lift = pcb_on ? pcb_standoff + pcb_t : 0;
-// Trous et contour des circuits, en VUE DE FACE (mm, y vers le haut).
-// La plaque est retournée dans la coque : vue de face (x, y) = plaque (-x, -y).
+// Board holes and outline, in FRONT VIEW (mm, y up).
+// The plate is flipped inside the shell: front view (x, y) = plate (-x, -y).
 pcb_holes_front = master
     ? [[0, 23], [20, -12], [-15.5, -26.85], [-20, -10]]
     : [[0, 23], [-20, -12], [20, -12], [0, -27]];
-// circuits hexagonaux (6 connecteurs JST, un par côté ; sommets du circuit
-// vers le milieu des côtés de la tuile, entre les colonnes aimantées)
-// Circuit à la forme de la plaque (1 mm en retrait des parois), avec une
-// encoche en U autour de chacune des 3 colonnes aimantées (tuile pointy)
+// hexagonal boards (6 JST connectors, one per side; board vertices
+// toward the middle of the tile sides, between the magnet columns)
+// Board shaped like the plate (1 mm in from the walls), with a
+// U-shaped notch around each of the 3 magnet columns (pointy tile)
 pcb_outline_front = [[37.00, 14.90], [34.84, 13.65], [33.49, 13.09], [32.04, 12.90], [30.59, 13.09], [29.24, 13.65], [28.08, 14.54], [27.19, 15.70], [26.63, 17.05], [26.44, 18.50], [26.63, 19.95], [27.19, 21.30], [28.08, 22.46], [29.24, 23.35], [31.40, 24.60], [2.60, 41.22], [-2.60, 41.22], [-31.40, 24.60], [-29.24, 23.35], [-28.08, 22.46], [-27.19, 21.30], [-26.63, 19.95], [-26.44, 18.50], [-26.63, 17.05], [-27.19, 15.70], [-28.08, 14.54], [-29.24, 13.65], [-30.59, 13.09], [-32.04, 12.90], [-33.49, 13.09], [-34.84, 13.65], [-37.00, 14.90], [-37.00, -18.36], [-34.40, -22.86], [-5.60, -39.49], [-5.60, -37.00], [-5.41, -35.55], [-4.85, -34.20], [-3.96, -33.04], [-2.80, -32.15], [-1.45, -31.59], [-0.00, -31.40], [1.45, -31.59], [2.80, -32.15], [3.96, -33.04], [4.85, -34.20], [5.41, -35.55], [5.60, -37.00], [5.60, -39.49], [34.40, -22.86], [37.00, -18.36]];
-// Fenêtres d'accès aux interrupteurs DIP (soudés au dos du circuit) :
-// x des colonnes d'interrupteurs en vue de face (IN à gauche, OUT à droite)
+// Access windows for the DIP switches (soldered on the back of the board):
+// x of the switch columns in front view (IN on the left, OUT on the right)
 pcb_dip_x_front = master ? [6.5] : [-6.5, 6.5];
-// (pcb) Fenêtres dans la plaque pour basculer les interrupteurs avec une
-// pointe, tuile décrochée du mur
+// (pcb) Windows in the plate to flip the switches with a
+// pointed tool, with the tile taken off the wall
 pcb_holes = [for (h = pcb_holes_front) [-h[0], -h[1]]];
 pcb_outline = [for (q = pcb_outline_front) [-q[0], -q[1]]];
-// Tuile logo sur circuit : le module est surélevé, l'USB passe par une
-// FENÊTRE fermée dans la paroi (et non plus une fente ouverte vers l'arrière).
-// Hauteur du centre de la prise USB-C depuis le bord arrière de la coque :
+// Logo tile on a PCB: the module is raised, the USB goes through a
+// closed WINDOW in the wall (no longer a slot open toward the back).
+// Height of the USB-C socket center from the back edge of the shell:
 usb_from_back = back_t + pcb_standoff + pcb_t + esp_spacer + esp_board_t + 1.6;
-usb_win_z0 = max(face + 1.2, depth - usb_from_back - usb_h / 2);   // côté façade
-usb_win_z1 = depth - usb_from_back + usb_h / 2;                    // côté arrière
-// Boîtes : largeur du ruban + jeu ; hauteur jusqu'au ruban
+usb_win_z0 = max(face + 1.2, depth - usb_from_back - usb_h / 2);   // front side
+usb_win_z1 = depth - usb_from_back + usb_h / 2;                    // back side
+// Boxes: strip width + clearance; height up to the strip
 cell_y = strip_w + 2 * 0.4;
-rib_h_in = depth - back_t - face - 0.6 - rib_gap - lift;     // entre les LED, sur le circuit
-rib_h_out = depth - back_t - face - 1.5 - rib_gap - lift;    // au-dessus des rails
-// Trous et rainures des fils (coordonnées de la plaque ; -Y = haut de la
-// tuile). Chaîne : haut (entrée) -> points -> bas (sortie).
-dot_half = dots_n * dots_pitch / 2;            // 25 mm pour 5 LED
-amb_half = amb_leds * dots_pitch / 2;          // 10 mm pour 2 LED
+rib_h_in = depth - back_t - face - 0.6 - rib_gap - lift;     // between the LEDs, down to the strip PCB
+rib_h_out = depth - back_t - face - 1.5 - rib_gap - lift;    // above the rails
+// Wire holes and grooves (plate coordinates; -Y = top of the
+// tile). Chain: top (input) -> dots -> bottom (output).
+dot_half = dots_n * dots_pitch / 2;            // 25 mm for 5 LEDs
+amb_half = amb_leds * dots_pitch / 2;          // 10 mm for 2 LEDs
 wp_on = wire_paths && dots_on;
 wire_holes = [[-(amb_half + 1.5), -amb_offset], [amb_half + 1.5, -amb_offset],
               [dot_half + 1.5, 0], [-(dot_half + 1.5), 0],
@@ -425,15 +426,15 @@ wire_grooves = [
     [[amb_half + 1.5, -amb_offset], [amb_half + 1.5, -2], [dot_half + 1.5, -2], [dot_half + 1.5, 0]],
     [[-(dot_half + 1.5), 0], [-(dot_half + 1.5), 2], [-(amb_half + 1.5), 2], [-(amb_half + 1.5), amb_offset]]
 ];
-// (double) Piliers du socle : sur les 3 coins sans aimant, à 33 mm du centre
+// (double) Base pillars: on the 3 corners without a magnet, 33 mm from the center
 pillars = [for (k = [0 : 2]) [33 * cos(-(vertex_off + 60 + 120 * k)),
                                33 * sin(-(vertex_off + 60 + 120 * k))]];
-// (double) Trous du plateau pour descendre les fils vers le double fond
+// (double) Plate holes to route the wires down into the double bottom
 dbl_holes = master ? [[master_leds * dots_pitch / 2 + 1.5, 0], [-(master_leds * dots_pitch / 2 + 1.5), 0]]
                    : (dots_on ? wire_holes : [[dot_half + 1.5, 0], [-(dot_half + 1.5), 0]]);
-// Trou de serrure centré, en haut de la tuile une fois posée
+// Centered keyhole, at the top of the tile once mounted
 key_x = 0;
-// (flat : sous le logement d'os de chien du côté du haut)
+// (flat: below the dog bone pocket of the top side)
 key_y = pointy ? -(plate_R - 12.5) : -0.225 * flat;
 wire_x = pointy ? 0.25 * flat : 0;
 wire_y = pointy ? 0.22 * flat : 0.25 * flat;
@@ -445,16 +446,16 @@ module hex2d(f, r) {
         offset(r = r) offset(delta = -r) circle(r = f / sqrt(3), $fn = 6);
 }
 
-// Place l'enfant au milieu du côté k (axe X local = normale sortante)
+// Places the child at the middle of side k (local X axis = outward normal)
 module side(k) {
     rotate([0, 0, side_off + 60 * k]) children();
 }
 
 module label2d() {
-    // Miroir : le texte se lit correctement vu depuis la façade
+    // Mirrored: the text reads correctly when seen from the front
     ts = text_size > 0 ? text_size : (border ? 0.12 : 0.14) * flat;
-    // avec la barre de points (sur l'axe des LED), le nom monte un peu
-    // le bas du nom (jambages compris) reste au-dessus des boîtes
+    // with the dot row (on the LED axis), the name moves up a bit:
+    // the bottom of the name (descenders included) stays above the boxes
     ty = amb_on ? cell_y / 2 + rib_t + 1 + 0.6 * ts : 0;
     translate([0, ty]) mirror([1, 0, 0]) {
         if (label2 == "") {
@@ -472,8 +473,8 @@ module label2d() {
     }
 }
 
-// Liseré : contour hexagonal en retrait du bord. En style stencil, il est
-// coupé aux 6 sommets pour que le centre de la façade reste attaché.
+// Border: hexagonal outline set in from the edge. In stencil style, it is
+// cut at the 6 vertices so that the center of the front stays attached.
 module border2d() {
     difference() {
         hex2d(flat - 2 * border_inset, max(corner_r - border_inset, 0.5));
@@ -484,22 +485,22 @@ module border2d() {
     }
 }
 
-// Barre de points, centrée sur l'axe du ruban LED (Y = 0)
+// Dot row, centered on the LED strip axis (Y = 0)
 module dots2d() {
     for (i = [0 : dots_n - 1])
         translate([(i - (dots_n - 1) / 2) * dots_pitch, 0])
             circle(d = dots_d);
 }
 
-// Logo intégré : une balise qui émet des ondes (pas d'îlots : compatible
-// avec tous les styles, y compris stencil)
+// Built-in logo: a beacon emitting waves (no islands: compatible
+// with all styles, including stencil)
 module beacon_logo2d() {
     sc = logo_size / 34;
     scale(sc) translate([0, -8]) {
-        circle(d = 6);                                  // la balise
-        translate([-1.2, -12]) square([2.4, 12]);       // son mât
-        translate([-6, -13.2]) square([12, 2.4]);       // son pied
-        for (r = [10, 16])                              // les ondes
+        circle(d = 6);                                  // the beacon
+        translate([-1.2, -12]) square([2.4, 12]);       // its mast
+        translate([-6, -13.2]) square([12, 2.4]);       // its foot
+        for (r = [10, 16])                              // the waves
             intersection() {
                 difference() { circle(r = r + 1.2); circle(r = r - 1.2); }
                 polygon([[0, 0], [30, 25], [-30, 25]]);
@@ -513,28 +514,28 @@ module logo2d() {
         else resize([logo_size, 0], auto = true) import(logo_svg, center = true);
 }
 
-// Tout ce qui s'allume sur la façade
+// Everything that lights up on the front
 module art2d() {
     if (master && master_logo) logo2d(); else label2d();
     if (border) border2d();
     if (dots_on) dots2d();
 }
 
-// Boîtes fermées sur 4 côtés autour des points, de la façade jusqu'au
-// ruban. Parois entre LED : descendent sur le circuit du ruban, entre
-// deux LED. Parois haute/basse et bouts : s'arrêtent au-dessus des rails.
+// Boxes closed on 4 sides around the dots, from the front up to the
+// strip. Walls between LEDs: go down onto the strip PCB, between
+// two LEDs. Top/bottom walls and ends: stop above the rails.
 module dot_ribs3d() {
     w = dots_n * dots_pitch;
-    ex = 2.6;                            // bouts écartés : soudures et fils
+    ex = 2.6;                            // ends spread apart: solder joints and wires
     translate([0, 0, face - eps]) {
         for (i = [0 : dots_n]) {
             x = (i - dots_n / 2) * dots_pitch - rib_t / 2
                 + (i == 0 ? -ex : (i == dots_n ? ex : 0));
             inner = (i > 0 && i < dots_n);
-            // partie centrale (sur le ruban)
+            // central part (over the strip)
             translate([x, -strip_w / 2 + 0.2, 0])
                 cube([rib_t, strip_w - 0.4, inner ? rib_h_in : rib_h_out]);
-            // raccord vers les parois haute/basse
+            // junction with the top/bottom walls
             translate([x, -cell_y / 2 - rib_t / 2, 0])
                 cube([rib_t, cell_y + rib_t, rib_h_out]);
         }
@@ -544,10 +545,10 @@ module dot_ribs3d() {
     }
 }
 
-// ----------------------------- Tuile ---------------------------------
+// ----------------------------- Tile ----------------------------------
 
 module boss() {
-    // Bossage d'aimant avec pente à 45° pour imprimer sans support
+    // Magnet boss with a 45° slope to print without supports
     hull() {
         translate([apothem - wall / 2, 0, mag_zz])
             rotate([0, -90, 0]) cylinder(d = boss_d, h = boss_len);
@@ -562,13 +563,13 @@ module magnet_pocket() {
         rotate([0, 90, 0]) cylinder(d = mag_d, h = mag_h + 1);
 }
 
-// Avec le circuit imprimé, les connecteurs des côtés droit et gauche (vue de
-// face) sont remontés de 8 mm (place du ruban des points) : leurs encoches aussi.
-// Côtés du modèle (en miroir de la vue de face) : 0 = gauche, 3 = droite.
-function notch_shift(k) = 0;   // connecteurs centres sur chaque cote
+// With the PCB, the connectors on the right and left sides (front
+// view) are raised by 8 mm (room for the dot strip): so are their notches.
+// Model sides (mirrored from the front view): 0 = left, 3 = right.
+function notch_shift(k) = 0;   // connectors centered on each side
 
 module notch() {
-    // en mode défonçable, on s'arrête avant la face extérieure
+    // in knockout mode, stop before the outer face
     nl = notch_knockout ? wall + ledge_w + 1 - knockout_skin
                         : wall + ledge_w + 2;
     translate([apothem - wall - ledge_w - 1, -notch_w / 2,
@@ -578,7 +579,7 @@ module notch() {
 
 module usb_cut() {
     if (pcb_on && master)
-        // fenêtre fermée, centrée sur la prise du module
+        // closed window, centered on the module's socket
         translate([apothem - wall - ledge_w - 1, -usb_w / 2, usb_win_z0])
             cube([wall + ledge_w + 2, usb_w, usb_win_z1 - usb_win_z0]);
     else
@@ -595,11 +596,11 @@ module ledge() {
             }
 }
 
-// Colonne de vis dans un coin, de la façade jusqu'au rebord,
-// reliée à la paroi (imprimable sans support).
-// La colonne ne touche la façade que contre la paroi : elle démarre
-// plus haut avec une pente vers le coin, pour ne pas faire d'ombre
-// sur le liseré (imprimable sans support).
+// Screw column in a corner, from the front up to the ledge,
+// joined to the wall (printable without supports).
+// The column only touches the front against the wall: it starts
+// higher with a slope toward the corner, so as not to cast a shadow
+// on the border (printable without supports).
 col_lift = 10;
 module screw_column(a) {
     z0 = min(face + col_lift, col_top - 7);
@@ -627,14 +628,14 @@ module tile() {
         if (screws) for (a = screw_angles)
             rotate(a) translate([screw_r, 0, 0]) {
                 if (use_magnet) {
-                    // logement d'aimant au sommet de la colonne
+                    // magnet pocket at the top of the column
                     translate([0, 0, col_top - mag_h])
                         cylinder(d = mag_d, h = mag_h + 1);
                 } else if (use_insert) {
-                    // logement de l'insert, ouvert côté plaque
+                    // insert pocket, open on the plate side
                     translate([0, 0, depth - back_t - insert_len - 0.5])
                         cylinder(d = insert_d, h = insert_len + 1);
-                    // dégagement pour le bout de la vis
+                    // clearance for the screw tip
                     translate([0, 0, depth - back_t - insert_len - 4.5])
                         cylinder(d = 2.6, h = 4.5);
                 } else {
@@ -644,41 +645,41 @@ module tile() {
                 }
             }
         if (style == "glow")
-            // Texte aminci depuis l'intérieur
+            // Text thinned from the inside
             translate([0, 0, text_skin])
                 linear_extrude(face - text_skin + eps) art2d();
         else if (style == "swap")
-            // Lettres en creux sur l'avant, à travers la couche noire
+            // Letters recessed into the front, through the black layer
             translate([0, 0, -eps])
                 linear_extrude(swap_z + eps) art2d();
         else
-            // Texte traversant : rempli par la pièce "letters"
+            // Through-cut text: filled by the "letters" part
             translate([0, 0, -eps])
                 linear_extrude(face + 2 * eps) art2d();
         if (magnets) for (k = [0 : 5], t = mag_offsets)
             if (!(master && k == USB_SIDE)) side(k) translate([0, t, 0]) magnet_pocket();
-        // encoches dans la coque : seulement en inset (en tray et double,
-        // elles sont dans le bac / le socle)
+        // notches in the shell: only in inset (in tray and double,
+        // they are in the tray / the base)
         if (notches && plate_style == "inset") for (k = notch_sides)
             side(k) translate([0, notch_shift(k), 0]) notch();
         if (master) side(USB_SIDE) usb_cut();
     }
 }
 
-// ------------------------- Plaque arrière ----------------------------
+// ------------------------- Back plate --------------------------------
 
-// Entretoise du circuit imprimé : base évasée (solide, sans support) et
-// avant-trou pour vis autotaraudeuse M2,5
+// PCB spacer: flared base (sturdy, no supports) and
+// pilot hole for an M2.5 self-tapping screw
 module pcb_standoff3d() {
     ins = (pcb_fix == "insert");
-    dd = ins ? pcb_insert_d + 3 : 5.5;            // paroi d'au moins 1,5 mm autour de l'insert
+    dd = ins ? pcb_insert_d + 3 : 5.5;            // wall of at least 1.5 mm around the insert
     difference() {
         union() {
             cylinder(d = dd, h = pcb_standoff + eps);
             cylinder(d1 = dd + 2.5, d2 = dd, h = 1.5);
         }
         if (ins) {
-            // logement de l'insert (ouvert en haut) + degagement pour le bout de la vis
+            // insert pocket (open at the top) + clearance for the screw tip
             translate([0, 0, pcb_standoff - pcb_insert_len - 0.3]) cylinder(d = pcb_insert_d, h = pcb_insert_len + 1);
             translate([0, 0, 0.8]) cylinder(d = 2.7, h = pcb_standoff);
         } else
@@ -686,7 +687,7 @@ module pcb_standoff3d() {
     }
 }
 
-// Silhouette du circuit imprimé (aperçu seulement)
+// PCB silhouette (preview only)
 module pcb2d() {
     difference() {
         polygon(pcb_outline);
@@ -697,51 +698,51 @@ module pcb2d() {
 module back_plate() {
     rail_w = 1.2;
     rail_h = 1.5;
-    half = strip_w / 2 + 0.2 + rail_w;          // demi-largeur du couloir LED
-    // --- orientation flat : ruban perpendiculaire au berceau (comme avant)
+    half = strip_w / 2 + 0.2 + rail_w;          // half-width of the LED channel
+    // --- flat orientation: strip perpendicular to the cradle (as before)
     y_back = inner_flat / 2 - ledge_w - 0.5 - esp_l - 1.2;
     r_off_flat = master ? min(0, y_back - 1 - half) : 0;
     rl_flat = min(rail_len,
              2 * (plate_R - (half + abs(r_off_flat)) * tan(30) - 2),
              screws ? 2 * (screw_r - column_d / 2 - 1) : 1000);
-    // --- orientation pointy : ruban horizontal et centré, dans le sens du
-    // texte. L'ESP32 de la tuile maître est en diagonale, hors du ruban.
+    // --- pointy orientation: strip horizontal and centered, along the
+    // text. The master tile's ESP32 is diagonal, clear of the strip.
     r_off_pt = 0;
     rl_pt = min(rail_len, 2 * (inner_flat / 2 - tol - 2));
     rail_rot = pointy ? 0 : cradle_angle - 90;
     r_off = pointy ? r_off_pt : r_off_flat;
-    // tuile logo : rails à la longueur de son ruban (master_leds)
+    // logo tile: rails as long as its strip (master_leds)
     rl = min(pointy ? rl_pt : rl_flat, master ? master_leds * dots_pitch + 6 : 1000);
     difference() {
         union() {
             if (tray) {
-                // fond du bac, à la taille extérieure de la tuile
+                // tray bottom, at the outer size of the tile
                 linear_extrude(back_t) hex2d(flat, corner_r);
-                // rebords du bac
+                // tray rims
                 translate([0, 0, back_t - eps]) linear_extrude(base_wall_h + eps)
                     difference() { hex2d(flat, corner_r); hex2d(inner_flat, r_in); }
-                // bourrelet de centrage (entre dans la coque)
+                // centering lip (fits into the shell)
                 translate([0, 0, back_t + base_wall_h - eps]) linear_extrude(base_lip_h + eps)
                     difference() {
                         hex2d(inner_flat - 2 * tol, r_in);
                         hex2d(inner_flat - 2 * tol - 2 * base_lip_w, max(r_in - base_lip_w, 0.5));
                     }
             } else {
-                // ancienne plaque plate, emboîtée dans la coque
+                // old flat plate, fitted inside the shell
                 linear_extrude(back_t) hex2d(inner_flat - 2 * tol, r_in);
             }
-            // Circuit imprimé : 3 entretoises à la place des rails
+            // PCB: 3 spacers instead of the rails
             if (pcb_on) for (h = pcb_holes)
                 translate([h[0], h[1], back_t - eps]) pcb_standoff3d();
-            // Rails de guidage du ruban LED (pas en D1 mini : ruban sur le pont)
+            // LED strip guide rails (not with D1 mini: strip on the bridge)
             if (!d1 && !pcb_on) rotate([0, 0, rail_rot])
                 for (s = [-1, 1])
                     translate([-rl / 2,
                                r_off + s * (strip_w / 2 + 0.2 + rail_w / 2) - rail_w / 2,
                                back_t - eps])
                         cube([rl, rail_w, rail_h]);
-            // Rails des LED d'ambiance (plaque -Y = haut de la tuile) :
-            // en haut sur toutes les tuiles, en bas sauf la maître
+            // Ambient LED rails (plate -Y = top of the tile):
+            // at the top on all tiles, at the bottom except on the master
             if (amb_on && (!master || master_amb) && !pcb_on)
                 for (ay = master ? [-amb_offset] : [-amb_offset, amb_offset])
                     for (s = [-1, 1])
@@ -750,32 +751,32 @@ module back_plate() {
                                    back_t - eps])
                             cube([amb_leds * dots_pitch + 2, rail_w, rail_h]);
         }
-        // Fenêtres des interrupteurs DIP du circuit (vue de face x -> plaque -x)
+        // Windows for the board's DIP switches (front view x -> plate -x)
         if (pcb_on && pcb_dip_window) for (dx = pcb_dip_x_front)
-            translate([-dx - 3.6, -8.6, -1]) cube([7.2, 17.2, back_t + 2]);   // DIP 6,7 x 16,8 mm
-        // Passage de fils optionnel (tuiles non maîtres)
+            translate([-dx - 3.6, -8.6, -1]) cube([7.2, 17.2, back_t + 2]);   // DIP 6.7 x 16.8 mm
+        // Optional wire hole (non-master tiles)
         if (wire_hole && !master)
             translate([wire_x, wire_y, -eps]) cylinder(d = wire_hole_d, h = back_t + 1);
-        // Logements d'aimant ouverts côté arrière de la plaque, avec un
-        // chanfrein d'entrée (cette face est sur le plateau : la première
-        // couche écrasée rétrécit l'entrée du trou)
+        // Magnet pockets open on the back side of the plate, with an
+        // entry chamfer (this face is on the build plate: the squished first
+        // layer narrows the hole entrance)
         if (screws && use_magnet && plate_mag_side == "back") for (a = screw_angles)
             rotate(-a) translate([screw_r, 0, -eps]) {
                 cylinder(d = mag_d, h = mag_h + eps);
                 cylinder(d1 = mag_d + 1, d2 = mag_d, h = 0.5);
             }
-        // Logements d'aimant ouverts sur le dessus (fond de 0,4 mm)
+        // Magnet pockets open on the top (0.4 mm floor)
         if (screws && use_magnet && plate_mag_side == "top") for (a = screw_angles)
             rotate(-a) translate([screw_r, 0, back_t + plate_boss_h - mag_h])
                 cylinder(d = mag_d, h = mag_h + 1);
-        // Trous de vis (positions en miroir : la plaque est retournée)
+        // Screw holes (mirrored positions: the plate is flipped)
         if (screws && !use_magnet) for (a = screw_angles)
             rotate(-a)
                 translate([screw_r, 0, -eps])
                     cylinder(d = use_insert ? insert_screw_clear : screw_clear,
                              h = back_t + 1);
-        // Trous et rainures des fils (au dos de la plaque)
-        // (double) trous des pions des piliers + trous de passage des fils
+        // Wire holes and grooves (on the back of the plate)
+        // (double) holes for the pillar pegs + wire pass-through holes
         if (dbl) {
             for (q = pillars) translate([q[0], q[1], -1])
                 cylinder(d = dbl_fix == "insert" ? insert_screw_clear
@@ -791,8 +792,8 @@ module back_plate() {
                     hull() for (q = [path[k], path[k + 1]])
                         translate([q[0], q[1], -1]) cylinder(d = groove_w, h = groove_d + 1);
         }
-        // Encoches des rebords (câbles et os de chien), ouvertes vers le haut,
-        // défonçables ; la coque vient les fermer en se posant
+        // Rim notches (cables and dog bones), open at the top,
+        // knockout; the shell closes them when it is put in place
         if (tray && notches) for (k = notch_sides)
             if (!(master && k == USB_SIDE))
                 rotate(-(side_off + 60 * k)) {
@@ -800,30 +801,30 @@ module back_plate() {
                     translate([inner_flat / 2 - 1, -notch_w / 2, back_t])
                         cube([nl, notch_w, base_wall_h + base_lip_h + 1]);
                 }
-        // Ouverture USB de la tuile maître dans le rebord
+        // USB opening of the master tile in the rim
         if (tray && master) rotate(-usb_angle)
             translate([inner_flat / 2 - 1, -usb_w / 2, back_t])
                 cube([wall + 2, usb_w, base_wall_h + base_lip_h + 1]);
-        // Logements des os de chien (liaison avec les plaques voisines),
-        // au milieu de chaque côté ; pas sur le côté USB de la tuile maître
+        // Dog bone pockets (link with the neighboring plates),
+        // in the middle of each side; not on the USB side of the master tile
         if (plate_links && !dbl) for (k = [0 : 5])
             if (!(master && k == USB_SIDE))
                 rotate(-(side_off + 60 * k)) link_pocket3d(back_t);
-        // Fente oblongue des logements T-Clip, à travers la plaque
+        // Oblong slot of the T-Clip receivers, through the plate
         if (tclip_on) for (p = tclip_pos)
             translate([p[0], p[1], -1]) hull()
                 for (s = [-1, 1]) translate([0, s * (15.2 - 5.2) / 2, 0])
                     cylinder(d = 5.2, h = back_t + 2);
-        // Trous des pieds du pont LED (D1 mini)
+        // Holes for the LED bridge legs (D1 mini)
         if (d1) for (p = bridge_legs)
             translate([p[0], p[1], -1]) cylinder(d = 3.1, h = back_t + 2);
-        // Fentes Skådis (D1 mini : seulement à gauche, la carte occupe la droite)
+        // Skådis slots (D1 mini: only on the left, the board takes the right)
         if (slot_on && !dbl) for (sx = d1 ? [-slot_x] : [-slot_x, slot_x])
             translate([sx - slot_w / 2, slot_cy - slot_h / 2, -eps])
                 cube([slot_w, slot_h, back_t + 1]);
-        // Trou de serrure : petit bout de la fente vers -Y de la plaque,
-        // qui devient le haut une fois la plaque retournée et posée.
-        // (supprimé avec les T-Clips : il tomberait sur le logement du haut)
+        // Keyhole: narrow end of the slot toward -Y of the plate,
+        // which becomes the top once the plate is flipped and mounted.
+        // (removed with T-Clips: it would land on the top receiver)
         if (keyhole && !tclip_on && !dbl && (pointy || !amb_on)) {
             translate([key_x, key_y, -eps]) cylinder(d = 8, h = back_t + 1);
             hull() {
@@ -832,12 +833,12 @@ module back_plate() {
             }
         }
     }
-    // berceau de l'ESP32 (pas avec le circuit : le module est soudé dessus)
+    // ESP32 cradle (not with the PCB: the module is soldered onto it)
     if (master && !pcb_on) rotate([0, 0, cradle_angle - 90]) esp_cradle();
     if (tclip_on) for (p = tclip_pos) translate([p[0], p[1], 0]) tclip_receiver();
-    // Mode aimant : bossages bas face aux colonnes. L'aimant se pose par
-    // l'ARRIÈRE de la plaque ; une peau de 0,4 mm côté coque le retient
-    // (l'attraction le plaque contre elle).
+    // Magnet mode: low bosses facing the columns. The magnet is inserted from
+    // the BACK of the plate; a 0.4 mm skin on the shell side holds it
+    // (the attraction presses it against the skin).
     if (screws && use_magnet) for (a = screw_angles)
         rotate(-a) translate([screw_r, 0, 0])
             difference() {
@@ -851,50 +852,50 @@ module back_plate() {
             }
 }
 
-// Logement T-Clip (cotes relevées sur la pièce d'exemple du "Skadis
-// T-Clip System") : fente oblongue 5,2 x 15,2 mm sur 2,5 mm côté panneau,
-// puis cône de 16,4 à 21,4 mm jusqu'à 5,4 mm d'épaisseur totale.
-// Le clip se pose depuis l'intérieur (coque retirée) et se tourne d'1/4
-// de tour : sa barre de 28 mm balaie un cercle de ~29 mm au-dessus.
+// T-Clip receiver (dimensions measured on the sample part of the "Skadis
+// T-Clip System"): 5.2 x 15.2 mm oblong slot, 2.5 mm deep on the pegboard side,
+// then a cone from 16.4 to 21.4 mm up to 5.4 mm total thickness.
+// The clip is inserted from the inside (shell removed) and given a 1/4
+// turn: its 28 mm bar sweeps a ~29 mm circle above.
 tclip_total = 5.4;
 module tclip_receiver() {
     difference() {
-        // bossage côté intérieur, pour atteindre 5,4 mm d'épaisseur
+        // boss on the inner side, to reach 5.4 mm thickness
         translate([0, 0, back_t - eps])
             cylinder(d = 24, h = tclip_total - back_t + eps);
-        // fente oblongue verticale (dans l'axe Y de la plaque)
+        // vertical oblong slot (along the plate's Y axis)
         translate([0, 0, -1]) hull()
             for (s = [-1, 1]) translate([0, s * (15.2 - 5.2) / 2, 0])
                 cylinder(d = 5.2, h = 3.5 + 1);
-        // cône d'appui des flancs du clip
+        // bearing cone for the clip flanks
         translate([0, 0, 2.5])
             cylinder(r1 = 8.2, r2 = 10.7, h = tclip_total - 2.5 + eps);
     }
 }
 
-// Pont LED (D1 mini) : plateau 52 x 35 sur 4 pieds de 6 mm, posé au-dessus
-// de la carte. Le ruban de 5 LED se colle dans la rainure, LED vers la
-// façade. Imprimé face LED sur le plateau, pieds vers le haut.
+// LED bridge (D1 mini): 52 x 35 deck on 4 legs of 6 mm, sitting above
+// the board. The 5-LED strip is glued into the groove, LEDs facing the
+// front. Printed LED side down on the build plate, legs up.
 bridge_legs = [[-23.5, -4], [23.5, -16.5], [-23.5, 16.5], [23.5, 16.5]];
-bridge_h = 6;      // hauteur sous le plateau (D1 mini sans barrettes : ~5 mm)
+bridge_h = 6;      // height under the deck (D1 mini without pin headers: ~5 mm)
 bridge_t = 2;
 module led_bridge() {
     difference() {
         translate([-26, -17.7, 0]) cube([52, 35.4, bridge_t]);
-        // rainure du ruban, 0,6 mm, côté LED (sur le plateau)
+        // strip groove, 0.6 mm, LED side (on the build plate)
         translate([-26 - 1, -(strip_w + 0.4) / 2, -1]) cube([54, strip_w + 0.4, 1.6]);
     }
     for (p = bridge_legs) translate([p[0], p[1], 0]) {
         translate([-1.2, -1.2, bridge_t - eps]) cube([2.4, 2.4, bridge_h]);
-        // pion qui s'emboîte dans la plaque
+        // peg that fits into the plate
         translate([0, 0, bridge_t + bridge_h - eps]) cylinder(d = 2.8, h = back_t);
     }
 }
 
-// Socle du DOUBLE FOND (plate_style = double). Imprimé fond sur le plateau.
-// Fond à la taille de la tuile + rebords de dbl_space (la coque se pose
-// dessus) + 3 piliers à pions qui portent le plateau LED. Les fixations
-// murales sont ici : fentes Skådis, trou de serrure, os de chien.
+// DOUBLE BOTTOM base (plate_style = double). Printed bottom down on the build plate.
+// Bottom at the tile size + dbl_space-high rims (the shell sits
+// on them) + 3 pegged pillars that carry the LED plate. The wall
+// mounting features are here: Skådis slots, keyhole, dog bones.
 module dbl_base() {
     H = dbl_space;
     pil_d = dbl_fix == "insert" ? max(6, insert_d + 3.5) : 6;
@@ -909,7 +910,7 @@ module dbl_base() {
                     translate([0, 0, back_t + H - eps]) cylinder(d = 2.8, h = back_t - 0.3);
             }
         }
-        // logements de fixation au sommet des piliers
+        // fastening pockets at the top of the pillars
         for (q = pillars) translate([q[0], q[1], 0]) {
             if (dbl_fix == "insert") {
                 translate([0, 0, back_t + H - insert_len - 0.5])
@@ -919,21 +920,21 @@ module dbl_base() {
             if (dbl_fix == "self_tap")
                 translate([0, 0, back_t + 0.8]) cylinder(d = screw_pilot, h = H + 1);
         }
-        // encoches défonçables des rebords (câbles JST, os de chien)
+        // knockout notches in the rims (JST cables, dog bones)
         if (notches) for (k = notch_sides)
             rotate(-(side_off + 60 * k)) {
                 nl = notch_knockout ? wall + 1 - knockout_skin : wall + 2;
                 translate([inner_flat / 2 - 1, -notch_w / 2, back_t])
                     cube([nl, notch_w, H + 1]);
             }
-        // os de chien
+        // dog bones
         if (plate_links) for (k = [0 : 5])
             rotate(-(side_off + 60 * k)) link_pocket3d(back_t);
-        // fentes Skådis
+        // Skådis slots
         if (skadis_mount == "clips") for (sx = [-slot_x, slot_x])
             translate([sx - slot_w / 2, slot_cy - slot_h / 2, -1])
                 cube([slot_w, slot_h, back_t + 2]);
-        // trou de serrure (au-dessus du centre de la tuile)
+        // keyhole (above the tile center)
         if (keyhole) {
             translate([0, -12, -1]) cylinder(d = 8, h = back_t + 2);
             hull() for (y = [-12, -19]) translate([0, y, -1]) cylinder(d = 4, h = back_t + 2);
@@ -941,28 +942,28 @@ module dbl_base() {
     }
 }
 
-// Os de chien : 2 têtes rondes reliées par un col qui traverse l'écart
-// entre deux plaques (2 parois de coque + jeu = 4,5 mm en 80 mm).
+// Dog bone: 2 round heads joined by a neck that spans the gap
+// between two plates (2 shell walls + clearance = 4.5 mm at 80 mm).
 link_head_r = 3.5;
 link_neck_w = 6;
-link_in = 5;          // distance tête - bord de plaque
-link_clr = 0.15;      // jeu dans les logements
+link_in = 5;          // head to plate edge distance
+link_clr = 0.15;      // clearance in the pockets
 link_gap = 2 * (wall + tol);
 module link2d() {
     c = link_in + link_gap / 2;
     for (s = [-1, 1]) translate([s * c, 0]) circle(r = link_head_r);
     translate([-c, -link_neck_w / 2]) square([2 * c, link_neck_w]);
 }
-// Logement d'os de chien avec chanfrein côté plateau d'impression
-// (compense la première couche écrasée, « patte d'éléphant »)
+// Dog bone pocket with a chamfer on the build plate side
+// (compensates for the squished first layer, "elephant's foot")
 module link_pocket3d(h) {
     translate([0, 0, -1]) linear_extrude(h + 2) link_pocket2d();
     translate([0, 0, -eps]) linear_extrude(0.25 + eps) offset(delta = 0.5) link_pocket2d();
     translate([0, 0, 0.25 - eps]) linear_extrude(0.25 + eps) offset(delta = 0.25) link_pocket2d();
 }
 
-// Os de chien avec bords chanfreinés (dessous : patte d'éléphant ;
-// dessus : entrée facilitée)
+// Dog bone with chamfered edges (bottom: elephant's foot;
+// top: easier insertion)
 module link3d(fit = link_fit) {
     linear_extrude(0.3) offset(delta = fit - 0.4) link2d();
     translate([0, 0, 0.3 - eps]) linear_extrude(back_t - 0.5 + eps) offset(delta = fit) link2d();
@@ -976,30 +977,30 @@ module link_pocket2d() {
         square([flat / 2 + 1 - (ap - link_in), link_neck_w + 2 * link_clr]);
 }
 
-// Berceau de l'ESP32 (construit vers +Y puis tourné vers le côté USB).
-// Une fois la plaque retournée et posée, le port USB-C fait face
-// à l'ouverture de la tuile.
+// ESP32 cradle (built toward +Y then rotated toward the USB side).
+// Once the plate is flipped and mounted, the USB-C port faces
+// the tile opening.
 module esp_cradle() {
-    g = 1.2;          // épaisseur des guides
-    gh = 2.5;         // hauteur des guides
-    y_port = inner_flat / 2 - ledge_w - 0.5;   // bord côté USB
+    g = 1.2;          // guide thickness
+    gh = 2.5;         // guide height
+    y_port = inner_flat / 2 - ledge_w - 0.5;   // USB-side edge
     y_back = y_port - eL;
-    // Butée étroite et guides qui démarrent 3 mm plus loin : en diagonale,
-    // les coins du berceau restent ainsi à l'écart du ruban LED.
+    // Narrow end stop and guides starting 3 mm further: diagonally,
+    // the cradle corners thus stay clear of the LED strip.
     translate([0, 0, back_t - eps]) {
-        // butée arrière (le câble pousse la carte contre elle)
+        // rear end stop (the cable pushes the board against it)
         translate([-5, y_back - g, 0]) cube([10, g, gh]);
-        // guides latéraux, ouverts côté USB
+        // side guides, open on the USB side
         for (s = [-1, 1])
             translate([s > 0 ? eW / 2 : -eW / 2 - g, y_back + 3, 0])
                 cube([g, eL * 0.6 - 3, gh]);
     }
 }
 
-// ------------------------- Socle de bureau ---------------------------
-// Barre avec une encoche en V par tuile (orientation pointy).
-// Repère : X = longueur, Y = vers l'arrière, Z = vers le haut.
-// La tuile maître se place à gauche : son USB sort par le côté.
+// ------------------------- Desk stand --------------------------------
+// Bar with one V-notch per tile (pointy orientation).
+// Axes: X = length, Y = toward the back, Z = up.
+// The master tile goes on the left: its USB exits through the side.
 
 module tilted() {
     lift = (depth + 2 * tol + lip) * sin(tilt);
@@ -1011,13 +1012,13 @@ module stand() {
     L = stand_tiles * flat;
     h = stand_floor + lip_h;
     lift = (D + lip) * sin(tilt);
-    // hauteur du bloc = point le plus haut des joues inclinées
+    // block height = highest point of the tilted lips
     top = lift + h * cos(tilt) + lip * sin(tilt);
     difference() {
-        // bloc droit, faces verticales
+        // straight block, vertical faces
         translate([-L / 2, -stand_front, 0])
             cube([L, stand_front + D + stand_back, top]);
-        // une encoche en V (contour de la tuile + jeu) par tuile
+        // one V-notch (tile outline + clearance) per tile
         for (i = [0 : stand_tiles - 1])
             tilted()
                 translate([(i - (stand_tiles - 1) / 2) * flat, 0,
@@ -1025,8 +1026,8 @@ module stand() {
                     rotate([-90, 0, 0])
                         linear_extrude(D)
                             offset(delta = tol) hex2d(flat, corner_r);
-        // passage de la fiche USB de la tuile maître (tuile de gauche,
-        // côté en biais en bas à gauche vu de face, vers l'arrière)
+        // passage for the master tile's USB plug (left tile,
+        // slanted bottom-left side seen from the front, toward the back)
         if (stand_usb && pointy && esp_board != "d1mini")
             tilted()
                 translate([-(stand_tiles - 1) / 2 * flat, 0, stand_floor + R_hex])
@@ -1034,22 +1035,22 @@ module stand() {
                         translate([apothem - wall - 1, depth - usb_h - 1,
                                    -(usb_w + 4) / 2])
                             cube([40, 100, usb_w + 4]);
-        // tout ce qui passe sous le bureau
+        // everything that goes below the desk
         translate([-500, -100, -100]) cube([1000, 300, 100]);
     }
 }
 
 // ---------------------------------------------------------------------
 
-// Lettres seules (style dark_face) : à charger avec la tuile comme
-// un seul objet en plusieurs pièces dans le trancheur.
+// Letters only (dark_face style): load together with the tile as
+// a single multi-part object in the slicer.
 module letters() {
     linear_extrude(face) art2d();
 }
 
-// Bouchon d'encoche : remplit la paroi et la découpe du rebord.
-// Imprimé debout, face extérieure (Y = 0) affleurant la tuile.
-// La plaque arrière vient appuyer sur sa partie "rebord".
+// Notch plug: fills the wall and the ledge cutout.
+// Printed standing up, outer face (Y = 0) flush with the tile.
+// The back plate rests on its "ledge" part.
 module plug() {
     w = notch_w - 2 * tol;
     h = notch_h + back_t;
@@ -1057,26 +1058,26 @@ module plug() {
     translate([0, wall - eps, notch_h - ledge_h]) cube([w, ledge_w, ledge_h]);
 }
 
-// Adaptateur Skådis : 2 crochets au dos (fentes espacées de 40 mm
-// sur une même rangée), un insert laiton M3 devant. Une vis M3 laissée
-// dépasser de ~3 mm sert de "clou" pour le trou de serrure de la tuile.
-// Imprimé tel quel, face du bas sur le plateau, sans support.
-// Repère : X = largeur, Y = vers la tuile (Y < 0 = derrière le panneau),
+// Skådis adapter: 2 hooks on the back (slots 40 mm apart
+// in the same row), an M3 brass insert at the front. An M3 screw left
+// sticking out by ~3 mm acts as a "nail" for the tile's keyhole.
+// Printed as is, bottom face on the build plate, no supports.
+// Axes: X = width, Y = toward the tile (Y < 0 = behind the pegboard),
 // Z = vertical.
 module skadis_adapter() {
     hw = skadis_hook_w / 2;
     difference() {
         union() {
-            // barre
+            // bar
             translate([-24, 0, 0]) cube([48, 6, 14]);
             for (sx = [-20, 20]) translate([sx - hw, 0, 0]) {
-                // tige qui traverse la fente (repose en bas de la fente)
+                // stem going through the slot (rests at the bottom of the slot)
                 translate([0, -skadis_board, 6]) cube([2 * hw, skadis_board + eps, 6]);
-                // ergot qui descend derrière le panneau
+                // tab hanging down behind the pegboard
                 translate([0, -skadis_board - 2, 0]) cube([2 * hw, 2, 12]);
             }
         }
-        // logement de l'insert, ouvert vers la tuile
+        // insert pocket, open toward the tile
         translate([0, -1, 7]) rotate([-90, 0, 0])
             cylinder(d = insert_d, h = 8);
     }
@@ -1086,13 +1087,13 @@ if (part == "skadis") skadis_adapter();
 
 if (part == "led_bridge") led_bridge();
 
-// Clip à câbles : un U sur une semelle, avec 2 ergots qui retiennent les
-// fils. À coller sur la plaque (cyano ou adhésif double face).
+// Cable clip: a U on a base plate, with 2 tabs that hold the
+// wires. Glue onto the plate (CA glue or double-sided tape).
 module cable_clip() {
     w = cable_clip_gap + 2 * 1.2;
     cube([w, 7, 1]);
     for (sx = [0, w - 1.2]) translate([sx, 0, 1 - eps]) cube([1.2, 7, cable_clip_h]);
-    // ergots
+    // tabs
     for (sg = [0, 1])
         translate([sg == 0 ? 1.2 - eps : w - 1.2 - 0.4 + eps, 0, 1 + cable_clip_h - 0.8])
             cube([0.4, 7, 0.8]);
@@ -1101,7 +1102,7 @@ if (part == "cable_clips")
     for (i = [0 : cable_clip_count - 1])
         translate([(i % 4) * (cable_clip_gap + 6), floor(i / 4) * 10, 0]) cable_clip();
 if (part == "base") {
-    if (!dbl) echo("ATTENTION : part = base sert au style plate_style = double");
+    if (!dbl) echo("WARNING: part = base is only for plate_style = double");
     dbl_base();
 }
 
@@ -1110,9 +1111,9 @@ if (part == "links")
         translate([0, i * (2 * link_head_r + 3), 0])
             link3d();
 
-// Éprouvette de serrage : 4 os (0,05 / 0,10 / 0,15 / 0,20 mm),
-// repérés par 1 à 4 encoches sur le col. Garder celui qui entre en
-// forçant légèrement, puis reporter sa valeur dans link_fit.
+// Fit test piece: 4 bones (0.05 / 0.10 / 0.15 / 0.20 mm),
+// identified by 1 to 4 notches on the neck. Keep the one that goes in
+// with slight force, then copy its value into link_fit.
 if (part == "link_test")
     for (i = [0 : 3])
         translate([0, i * (2 * link_head_r + 4), 0])
@@ -1123,8 +1124,8 @@ if (part == "link_test")
                         cube([0.6, 1, 1]);
             }
 
-// Éprouvette : 4 encoches défonçables (peau de 0,4 / 0,6 / 0,8 / 1,0 mm),
-// même paroi et même encoche que la tuile. Imprimée debout, comme la tuile.
+// Test piece: 4 knockout notches (0.4 / 0.6 / 0.8 / 1.0 mm skin),
+// same wall and same notch as the tile. Printed standing up, like the tile.
 module knockout_test() {
     skins = [0.4, 0.6, 0.8, 1.0];
     pitch = notch_w + 6;
@@ -1132,10 +1133,10 @@ module knockout_test() {
     difference() {
         cube([pitch * len(skins) + 2, wall, h]);
         for (i = [0 : len(skins) - 1]) {
-            // encoche ouverte en haut, peau côté Y = 0 (extérieur)
+            // notch open at the top, skin on the Y = 0 side (outside)
             translate([3 + i * pitch, skins[i], h - notch_h - back_t])
                 cube([notch_w, wall, notch_h + back_t + eps]);
-            // repère : i+1 crans gravés sous l'encoche
+            // marker: i+1 ticks engraved below the notch
             for (j = [0 : i])
                 translate([3 + i * pitch + j * 2, -eps, 1])
                     cube([1, 0.4, 2]);
@@ -1145,20 +1146,20 @@ module knockout_test() {
 
 if (part == "knockout_test") knockout_test();
 
-// Clip Skådis SIMPLE À PINCES (snap) : deux bras souples terminés par des
-// crochets traversent la fente de la plaque puis celle du panneau, se
-// resserrent au passage et s'écartent derrière le panneau (clic).
-// Les bras occupent toute la hauteur de la fente (pas de jeu vertical),
-// la tête (8 x 18 mm) serre la plaque contre le panneau. Crochets
-// inclinés au dos : on peut le retirer en tirant fermement.
-// Profil vu de côté (U = vers le mur, V = vertical), extrudé sur la
-// largeur ; imprimé à plat, de préférence en PETG.
+// SIMPLE SNAP Skådis clip (snap): two flexible arms ending in
+// hooks go through the plate slot then the pegboard slot, squeeze
+// together on the way and spread apart behind the pegboard (click).
+// The arms fill the full height of the slot (no vertical play),
+// the head (8 x 18 mm) clamps the plate against the pegboard. Hooks
+// slanted on the back: it can be removed by pulling firmly.
+// Side-view profile (U = toward the wall, V = vertical), extruded over the
+// width; printed flat, preferably in PETG.
 module skadis_snap() {
-    L = back_t + skadis_board + 0.1;     // plaque + panneau
-    o = slot_h / 2 - 0.4;                // bord extérieur des bras (7,2)
-    i = o - snap_arm_t;                  // bord intérieur
-    b = 7.5 + snap_barb;                 // crochet (fente du panneau : 15 mm)
-    // tête, plus large que la fente (8 mm), sur toute sa hauteur
+    L = back_t + skadis_board + 0.1;     // plate + pegboard
+    o = slot_h / 2 - 0.4;                // outer edge of the arms (7.2)
+    i = o - snap_arm_t;                  // inner edge
+    b = 7.5 + snap_barb;                 // hook (pegboard slot: 15 mm)
+    // head, wider than the slot (8 mm), over its full height
     translate([-2, -9, 0]) cube([2, 18, 8]);
     linear_extrude(skadis_hook_w)
         for (sg = [-1, 1]) scale([1, sg])
@@ -1166,35 +1167,35 @@ module skadis_snap() {
                      [L + 3.2, o - 1.4], [L + 3.2, i - 1.0], [L + 0.8, i]]);
 }
 
-// Clip Skådis QUART DE TOUR (même principe que le T-Clip, en plus petit) :
-// 1. Coque retirée, plaque posée contre le panneau, on enfonce le clip
-//    depuis l'intérieur, PIED À LA VERTICALE, à travers la fente de la
-//    plaque puis celle du panneau.
-// 2. On tourne d'un quart de tour par la tête : le pied (14,8 mm) passe à
-//    l'horizontale derrière le panneau et ne peut plus ressortir par la
-//    fente de 5 mm ; la tête (13 mm) serre la plaque contre le panneau.
-// Tige à angles arrondis (diagonale 5 mm) pour tourner dans les fentes.
-// Imprimé à plat, sans support. Pour démonter : quart de tour inverse.
+// QUARTER-TURN Skådis clip (same principle as the T-Clip, but smaller):
+// 1. With the shell removed and the plate against the pegboard, push the
+//    clip in from the inside, FOOT VERTICAL, through the slot of the
+//    plate then the one in the pegboard.
+// 2. Turn it a quarter turn by the head: the foot (14.8 mm) becomes
+//    horizontal behind the pegboard and can no longer come out through the
+//    5 mm slot; the head (13 mm) clamps the plate against the pegboard.
+// Stem with rounded corners (5 mm diagonal) to turn inside the slots.
+// Printed flat, no supports. To remove: reverse quarter turn.
 module skadis_clip() {
-    L = back_t + skadis_board + 0.15;    // plaque + panneau, léger jeu
-    t = 4.8;                             // épaisseur (= hauteur d'impression)
-    // pied (derrière le panneau), avec chanfreins d'entrée
+    L = back_t + skadis_board + 0.15;    // plate + pegboard, slight clearance
+    t = 4.8;                             // thickness (= print height)
+    // foot (behind the pegboard), with entry chamfers
     hull() {
         translate([-7.4, 0, 0]) cube([14.8, 2, t]);
         translate([-6.4, -1, 0]) cube([12.8, 1, t]);
     }
-    // tige : carré de 4,8 aux angles arrondis
+    // stem: 4.8 square with rounded corners
     translate([0, 2 - eps, 0]) intersection() {
         translate([-t / 2, 0, 0]) cube([t, L + 2 * eps, t]);
         translate([0, 0, t / 2]) rotate([-90, 0, 0]) cylinder(d = 5.0, h = L + 2 * eps);
     }
-    // tête / poignée (dans la tuile)
+    // head / handle (inside the tile)
     translate([-6.5, 2 + L, 0]) cube([13, 2.5, t]);
 }
 
 if (part == "skadis_clips") {
-    if (!slot_on) echo("ATTENTION : activer skadis_slots, orientation pointy");
-    if (master && flat < 80) echo("ATTENTION : tuile maître Skådis : flat >= 80");
+    if (!slot_on) echo("WARNING: enable skadis_slots, pointy orientation");
+    if (master && flat < 80) echo("WARNING: Skådis master tile: flat >= 80");
     for (i = [0 : 1]) translate([i * 22, 0, 0])
         if (skadis_clip_type == "twist") skadis_clip(); else skadis_snap();
 }
@@ -1203,29 +1204,29 @@ if (part == "plugs")
     for (i = [0 : plug_count - 1]) translate([i * (notch_w + 4), 0, 0]) plug();
 
 if (master && pointy && !d1 && esp_l > 25)
-    echo("ATTENTION : carte trop longue pour la diagonale : choisir esp_board = d1mini (pont LED) ou un ESP32-C3 Super Mini.");
+    echo("WARNING: board too long for the diagonal: choose esp_board = d1mini (LED bridge) or an ESP32-C3 Super Mini.");
 
 if (part == "tile" || part == "both") tile();
 if (part == "letters") letters();
 if (part == "back" || part == "both")
     translate([flat + 10, 0, 0]) {
         back_plate();
-        // aperçu du circuit en transparence (non exporté)
+        // transparent preview of the PCB (not exported)
         if (pcb_on) %translate([0, 0, back_t + pcb_standoff])
             color("green") linear_extrude(pcb_t) pcb2d();
     }
 if (pcb_on && (part == "back" || part == "both" || part == "tile"))
-    echo(str("CIRCUIT : 3 vis M2,5 x 6 autotaraudeuses. Ruban surélevé de ",
-             lift, " mm : cloisons des points raccourcies d'autant ",
-             "(réimprimer la coque, les anciennes cloisons touchent le circuit)."));
+    echo(str("PCB: 3 M2.5 x 6 self-tapping screws. Strip raised by ",
+             lift, " mm: dot walls shortened by the same amount ",
+             "(reprint the shell, the old walls touch the PCB)."));
 if (led_mount == "pcb" && !pcb_on)
-    echo("Circuit imprimé prévu seulement en orientation pointy (et ESP32-C3 pour la tuile logo) : ruban sur rails.");
+    echo("PCB only supported in pointy orientation (and ESP32-C3 for the logo tile): strip on rails.");
 if (pcb_on && master && depth - usb_from_back - usb_h / 2 < face + 1.2)
-    echo("ATTENTION : fenêtre USB trop près de la façade : augmenter depth (26 conseillé).");
+    echo("WARNING: USB window too close to the front: increase depth (26 recommended).");
 if (pcb_on && master)
-    echo(str("CIRCUIT LOGO : 4 vis M2,5 x 6. Garder l'entretoise plastique des barrettes ",
-             "de l'ESP32 (", esp_spacer, " mm) : une vis passe sous le module."));
+    echo(str("LOGO PCB: 4 M2.5 x 6 screws. Keep the plastic spacer of the pin headers ",
+             "of the ESP32 (", esp_spacer, " mm): a screw goes under the module."));
 if (part == "stand") {
-    if (!pointy) echo("ATTENTION : le socle est prévu pour orientation = \"pointy\"");
+    if (!pointy) echo("WARNING: the stand is designed for orientation = \"pointy\"");
     stand();
 }
