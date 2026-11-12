@@ -1,4 +1,4 @@
-<!-- BuildBeacon — matériel (français). Version 1.7 (2026-11-12) — modèle v1.5 -->
+<!-- BuildBeacon — matériel (français). Version 1.8 (2026-11-12) — modèle v1.6 -->
 # BuildBeacon — matériel
 
 [English version](README.md)
@@ -15,7 +15,7 @@ circuits imprimés (KiCad), sous licence [CERN-OHL-P-2.0](LICENSE).
 
 ```
 hardware/
-  cad/buildbeacon_tile_v1.5.scad      tuiles, plaques arrière, socle, clips Skådis… (OpenSCAD)
+  cad/buildbeacon_tile_v1.6.scad      tuiles, plaques arrière, socle, clips Skådis… (OpenSCAD)
   pcb/buildbeacon_tuile_v1.2.kicad_pcb    carte de la tuile projet (9 LED)
   pcb/buildbeacon_master_v1.2.kicad_pcb   carte de la tuile master (ESP32-C3 + 3 LED)
   pcb/gen_buildbeacon_pcb_v1.2.py     script Python qui génère les deux cartes
@@ -183,14 +183,14 @@ fichiers et le texte imprimé au dos de la carte).
 
 ## Modèles 3D
 
-Un seul fichier paramétrique : [`cad/buildbeacon_tile_v1.5.scad`](cad/buildbeacon_tile_v1.5.scad),
+Un seul fichier paramétrique : [`cad/buildbeacon_tile_v1.6.scad`](cad/buildbeacon_tile_v1.6.scad),
 à ouvrir dans [OpenSCAD](https://openscad.org/) (2021 ou plus récent). Réglez les paramètres
 dans le **Customizer**, choisissez la pièce avec `part`, faites le rendu (**F6**) puis
 exportez en STL.
 
 **Depuis l'interface web du Hub** : l'onglet **Impression 3D** liste les pièces de votre mur
 (une coque par tuile avec son nom, les plaques arrière, les os de chien) et télécharge
-`buildbeacon_tile_v1.5.json`, un jeu de paramètres par pièce. Placez-le à côté du fichier
+`buildbeacon_tile_v1.6.json`, un jeu de paramètres par pièce. Placez-le à côté du fichier
 `.scad` : le Customizer propose les jeux dans sa liste, prêts à rendre ; l'onglet donne aussi
 les commandes qui rendent toutes les pièces d'un coup (`openscad -p … -P <jeu> -o <jeu>.stl`).
 
