@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.9 (2026-11-12) — 3D printing tab. -->
+<!-- BuildBeacon — README (English). Version 1.10 (2026-11-12) — 3D printing section and screenshots. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -93,12 +93,27 @@ with a **+**, move it by dragging it, set the chain order, WLED, the brightness 
 colors. Your changes are previewed on the wall and checked by the Hub as you type; nothing
 reaches the LEDs before you **save**. Language: English or French (menu, or `?lang=fr`).
 
-The **3D printing** tab lists the parts to print for your wall (a shell per tile with its
-name, the back plates, the dog bones that join them) and downloads the matching OpenSCAD
-parameter sets for the model of [`hardware/cad`](hardware/README.md), with the commands
-that render every part.
+![The web interface: the wall and the settings of a tile](docs/images/web-ui_en_v1.1.png)
 
-![The web interface: the wall and the settings of a tile](docs/images/web-ui_en_v1.0.png)
+#### 3D printing
+
+The **3D printing** tab turns your wall into the parts to print with the parametric model
+of [`hardware/cad`](hardware/README.md) (OpenSCAD):
+
+- **the parts**: a shell per tile with its name (the master tile with the logo), the back
+  plate of the master tile (it holds the ESP32), one back plate for the project tiles to
+  print as many times as there are tiles (they are all the same), and the "dog bones" that
+  join the back plates, one per side shared by two tiles;
+- **Download** gives a parameter sets file (`buildbeacon_tile_v1.3.json`, named after the
+  model): put it next to the `.scad` file, open the model in OpenSCAD, pick a part in the
+  Customizer list, render (**F6**) and export to STL;
+- or render every part at once: the tab gives the commands to run in `hardware/cad`
+  (`openscad -p … -P mise-tile -o mise-tile.stl …`), with a copy button.
+
+Style, font and mounting stay the settings of the model; the engraved name is the name of
+the tile. Before the dog bones, print `part = link_test` once to adjust their fit.
+
+![The 3D printing tab: parts of the wall and OpenSCAD parameter sets](docs/images/print-tab_en_v1.0.png)
 
 To start from an example instead: [`config.example.json`](config.example.json) follows
 three public projects — BuildBeacon itself (master tile), WLED and mise — and needs no
