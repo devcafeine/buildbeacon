@@ -1,5 +1,5 @@
 // BuildBeacon UI — Application tests: wall, panels, saving, languages.
-// Version 1.2 (2026-11-12) — test names in English.
+// Version 1.3 (2026-11-12) — "3D printing" tab.
 
 import 'package:buildbeacon_ui/src/app.dart';
 import 'package:flutter/material.dart';
@@ -169,6 +169,29 @@ void main() {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
     expect(hub.config['poll_seconds'], 120);
+  });
+
+  testWidgets('"3D printing" tab: parts of the wall', (tester) async {
+    await open(tester);
+    // The tab bar scrolls when the labels do not fit (wide test font).
+    await tester.ensureVisible(find.text('Impression 3D'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Impression 3D'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text("Coque avec le logo, plaque arrière pour l'ESP32"),
+      findsOneWidget,
+    );
+    // Outside a browser (tests), no download: a clear message.
+    final download = find.text('Télécharger buildbeacon_tile_v1.1.json');
+    await tester.ensureVisible(download);
+    await tester.pumpAndSettle();
+    await tester.tap(download);
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Téléchargement impossible ici'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('in English', (tester) async {

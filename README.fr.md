@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (français). Version 1.8 (2026-11-12) — le simulateur suit config.json. -->
+<!-- BuildBeacon — README (français). Version 1.9 (2026-11-12) — onglet Impression 3D. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -95,6 +95,11 @@ chaque zone ; ajoutez une tuile avec un **+**, déplacez-la en la faisant glisse
 l'ordre de la chaîne, WLED, la luminosité et les couleurs. Vos modifications s'affichent
 sur le mur et sont vérifiées par le Hub pendant la saisie ; rien n'arrive aux LED avant
 d'**enregistrer**. Langue : français ou anglais (menu, ou `?lang=en`).
+
+L'onglet **Impression 3D** liste les pièces à imprimer pour votre mur (une coque par
+tuile avec son nom, les plaques arrière, les os de chien qui les relient) et télécharge les
+jeux de paramètres OpenSCAD correspondants pour le modèle de
+[`hardware/cad`](hardware/README.fr.md), avec les commandes qui rendent toutes les pièces.
 
 ![L'interface web : le mur et les réglages d'une tuile](docs/images/web-ui_fr_v1.0.png)
 

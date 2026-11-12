@@ -1,5 +1,5 @@
 // BuildBeacon UI — Main page: the wall, the panels, save / discard.
-// Version 1.1 (2026-11-12) — comments in English.
+// Version 1.2 (2026-11-12) — "3D printing" tab.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import '../api/hub_api.dart';
 import '../editor/editor_controller.dart';
 import 'chain_panel.dart';
 import 'l10n.dart';
+import 'print_panel.dart';
 import 'settings_panel.dart';
 import 'tile_panel.dart';
 import 'wall_view.dart';
@@ -27,7 +28,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  late final _tabs = TabController(length: 3, vsync: this);
+  late final _tabs = TabController(length: 4, vsync: this);
 
   EditorController get editor => widget.editor;
 
@@ -204,10 +205,16 @@ class _HomePageState extends State<HomePage>
       children: [
         TabBar(
           controller: _tabs,
+          // Each tab as wide as its label: the four fit in the panel, and the
+          // bar scrolls on a narrow screen instead of cutting the labels.
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          labelPadding: const EdgeInsets.symmetric(horizontal: 14),
           tabs: [
             Tab(text: l.tabTile),
             Tab(text: l.tabChain),
             Tab(text: l.tabSettings),
+            Tab(text: l.tabPrint),
           ],
         ),
         Expanded(
@@ -225,6 +232,7 @@ class _HomePageState extends State<HomePage>
                 onIdentify: _identify,
               ),
               SettingsPanel(editor: editor, onCheckWled: _checkWled),
+              PrintPanel(editor: editor),
             ],
           ),
         ),

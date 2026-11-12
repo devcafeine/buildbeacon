@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "@@x-version": "1.0 (2026-11-11)",
+  "@@x-version": "1.1 (2026-11-12)",
   "appTitle": "BuildBeacon",
   "linkConnecting": "Connecting…",
   "linkLive": "Live",
@@ -259,5 +259,57 @@
   "colorExpected": "#RRGGBB expected",
   "colorsReset": "Default colors",
   "settingsSources": "Sources",
-  "secretsHelp": "Secrets (tokens) are never set here: they are environment variables of the Hub (.env file)."
+  "secretsHelp": "Secrets (tokens) are never set here: they are environment variables of the Hub (.env file).",
+  "tabPrint": "3D printing",
+  "printIntro": "Parts to print for this wall with the parametric model {file} (hardware/cad folder of the repository), in OpenSCAD.",
+  "@printIntro": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "printParts": "Parts",
+  "printTileParts": "Shell with the name",
+  "printMasterParts": "Shell with the logo, back plate for the ESP32",
+  "printBacks": "{count, plural, =1{1 back plate for the project tile} other{{count} back plates for the project tiles: all the same, one file to print {count} times}}",
+  "@printBacks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "printLinks": "{count, plural, =0{No dog bone: no tiles side by side} =1{1 dog bone, joining the back plates of the two neighbouring tiles} other{{count} dog bones, one per side shared by two tiles}}",
+  "@printLinks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "printLinkTest": "Print part = link_test first to adjust their fit (link_fit).",
+  "printNameHint": "The engraved name is the name of the tile (Tile tab): keep it short. Style, font and mounting stay the settings of the model.",
+  "printSets": "OpenSCAD parameter sets",
+  "printSetsHelp": "Put {file} next to the model: the OpenSCAD Customizer then offers one set per part, ready to render (F6) and export as STL.",
+  "@printSetsHelp": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "printDownload": "Download {file}",
+  "@printDownload": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "printDownloadUnavailable": "Download not available here: open the interface in a browser.",
+  "printCommands": "Render every part",
+  "printCommandsHelp": "Or all at once, from the hardware/cad folder with OpenSCAD installed and the file downloaded above:",
+  "printCopy": "Copy the commands",
+  "printCopied": "Commands copied."
 }
