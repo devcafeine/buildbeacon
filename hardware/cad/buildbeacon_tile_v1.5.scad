@@ -1,7 +1,8 @@
 // =====================================================================
 //  BuildBeacon - hexagonal light-up tile (parametric)
-//  Version 1.4 (2026-11-12) - stand: straight USB slot that follows the USB window;
-//                              shell closing: 3 points on every tile (comment)
+//  Version 1.5 (2026-11-12) - notches: connectors centered on each side (comment)
+//  v1.4: stand: straight USB slot that follows the USB window; shell closing
+//        comment (3 points on every tile)
 //  v1.3: PCB: 4 spacers and 4 screws (comment and message)
 //  v1.2: comments in English
 //  v1.1: references the v1.2 boards
@@ -315,7 +316,7 @@ cable_clip_h = 3.5;
 part = "both"; // [tile, letters, back, both, stand, plugs, skadis_clips, skadis, links, link_test, led_bridge, base, cable_clips, knockout_test]
 
 /* [Hidden] */
-bb_version = "1.4";
+bb_version = "1.5";
 echo(str("BuildBeacon model v", bb_version));
 $fn = 48;
 eps = 0.01;
@@ -572,8 +573,9 @@ module magnet_pocket() {
         rotate([0, 90, 0]) cylinder(d = mag_d, h = mag_h + 1);
 }
 
-// With the PCB, the connectors on the right and left sides (front
-// view) are raised by 8 mm (room for the dot strip): so are their notches.
+// The JST connectors of the boards are centered on each side (v1.2 boards),
+// and so are the notches. Kept as a function to move the notch of a side if a
+// future board moves its connector.
 // Model sides (mirrored from the front view): 0 = left, 3 = right.
 function notch_shift(k) = 0;   // connectors centered on each side
 
