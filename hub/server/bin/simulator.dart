@@ -1,5 +1,5 @@
 // BuildBeacon Hub — WLED simulator: web page (default) or terminal.
-// Version 1.3 (2026-11-12) — comments in English.
+// Version 1.4 (2026-11-12) — follows config.json live (layout and tile names).
 
 import 'dart:async';
 import 'dart:io';
@@ -21,7 +21,7 @@ Usage: mise run simulator [-- options]          (at the repository root)
 
 Options:
   --port <n>          UDP port for DDP (default: 4048, like WLED)
-  --config <file>     config.json: real layout and tile names
+  --config <file>     config.json: real layout and tile names, followed live
   --http <n>          web page port (default: 8090)
   --network           page reachable from other machines (default: this one only)
   --open              open the page in the browser
@@ -39,7 +39,7 @@ Usage : mise run simulator [-- options]          (à la racine du dépôt)
 
 Options :
   --port <n>          port UDP d'écoute DDP (défaut : 4048, comme WLED)
-  --config <fichier>  config.json : vraie disposition et noms des tuiles
+  --config <fichier>  config.json : vraie disposition et noms des tuiles, suivis en direct
   --http <n>          port de la page web (défaut : 8090)
   --network           page visible depuis les autres machines (défaut : celle-ci seulement)
   --open              ouvre la page dans le navigateur
@@ -69,14 +69,9 @@ Future<void> main(List<String> args) async {
   );
   final httpPort = intOption(options, 'http', 8090, usage: usage, language: l);
 
-  Config? config;
-  if (options['config'] case final path?) {
-    try {
-      config = await readConfigFile(path);
-    } on LocalizedFormatException catch (e) {
-      fail(e.text.resolve(l));
-    }
-  }
+  // config.json is followed: tiles added, moved or renamed (web interface,
+  // editor) show up without restarting the simulator.
+  final configPath = options['config'];
 
   final DdpReceiver receiver;
   try {
@@ -102,7 +97,7 @@ Future<void> main(List<String> args) async {
       receiver,
       l,
       port: port,
-      config: config,
+      configPath: configPath,
       addresses: addresses,
       raw: options.containsKey('raw'),
     );
@@ -112,7 +107,7 @@ Future<void> main(List<String> args) async {
       l,
       port: port,
       httpPort: httpPort,
-      config: config,
+      configPath: configPath,
       addresses: addresses,
       network: options.containsKey('network'),
       open: options.containsKey('open'),
@@ -137,7 +132,7 @@ Future<void> _runWeb(
   String l, {
   required int port,
   required int httpPort,
-  required Config? config,
+  required String? configPath,
   required List<String> addresses,
   required bool network,
   required bool open,
@@ -146,11 +141,7 @@ Future<void> _runWeb(
   try {
     web = await WebSimulator.start(
       frames: receiver.frames,
-      layout: simulatorLayout(
-        config: config,
-        ddpPort: port,
-        addresses: addresses,
-      ),
+      layout: simulatorLayout(ddpPort: port, addresses: addresses),
       port: httpPort,
       address: network ? InternetAddress.anyIPv4 : null,
     );
@@ -195,6 +186,16 @@ Future<void> _runWeb(
           'Ctrl-C pour quitter.',
     ),
   );
+  if (configPath != null) {
+    followConfigFile(
+      configPath,
+      log: (message) => stdout.writeln(message.resolve(l)),
+    ).listen(
+      (config) => web.updateLayout(
+        simulatorLayout(config: config, ddpPort: port, addresses: addresses),
+      ),
+    );
+  }
   if (open) await _openBrowser(url, l);
 
   // Minimal log: start and end of a frame stream.
@@ -270,18 +271,30 @@ Future<void> _runTerminal(
   DdpReceiver receiver,
   String l, {
   required int port,
-  required Config? config,
+  required String? configPath,
   required List<String> addresses,
   required bool raw,
 }) async {
-  final labels = {
-    for (final tile in config?.tiles ?? const <Tile>[])
-      tile.chainIndex: tile.label.isEmpty ? tile.id : tile.label,
-  };
+  // Tile names by chain position, following config.json.
+  var labels = <int, String>{};
+  final terminal = stdout.hasTerminal;
+  var dirty = true;
+  if (configPath != null) {
+    followConfigFile(
+      configPath,
+      // Full-screen drawing: no log line in the middle of it.
+      log: terminal ? null : (message) => stdout.writeln(message.resolve(l)),
+    ).listen((config) {
+      labels = {
+        for (final tile in config?.tiles ?? const <Tile>[])
+          tile.chainIndex: tile.label.isEmpty ? tile.id : tile.label,
+      };
+      dirty = true;
+    });
+  }
   ReceivedFrame? last;
   DateTime? lastAt;
   final arrivals = <DateTime>[];
-  var dirty = true;
 
   receiver.frames.listen((frame) {
     final now = DateTime.now();
@@ -329,7 +342,6 @@ Future<void> _runTerminal(
     en: 'WLED simulator — DDP on UDP $port (Ctrl-C to quit)',
     fr: 'Simulateur WLED — DDP sur UDP $port (Ctrl-C pour quitter)',
   );
-  final terminal = stdout.hasTerminal;
   if (terminal) {
     stdout.write('\x1b[?25l\x1b[2J'); // hide the cursor, clear the screen
     var shownStatus = '';

@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Reading and writing config.json.
-// Version 1.4 (2026-11-12) — comments in English.
+// Version 1.5 (2026-11-12) — parseConfigText (simulator following config.json).
 
 import 'dart:convert';
 import 'dart:io';
@@ -10,34 +10,32 @@ import 'package:buildbeacon_core/buildbeacon_core.dart';
 /// [LocalizedFormatException] whose message names the file (missing, invalid
 /// JSON, rejected content).
 Future<Config> readConfigFile(String path) async {
-  LocalizedFormatException inFile(LocalizedText message) =>
-      LocalizedFormatException(
-        LocalizedText.build(
-          (l) => tr(
-            l,
-            en: '$path: ${message.resolve(l)}',
-            fr: '$path : ${message.resolve(l)}',
-          ),
-        ),
-      );
-
   final file = File(path);
   if (!await file.exists()) {
-    throw inFile(
+    throw _inFile(
+      path,
       const LocalizedText({
         'en': 'file not found',
         'fr': 'fichier introuvable',
       }),
     );
   }
+  return parseConfigText(path, await file.readAsString());
+}
+
+/// Configuration from [text], the content of the file [path] (named in the
+/// error messages). Throws a [LocalizedFormatException] if it is invalid JSON
+/// or rejected content.
+Config parseConfigText(String path, String text) {
   final Object? json;
   try {
-    json = jsonDecode(await file.readAsString());
+    json = jsonDecode(text);
   } on FormatException catch (e) {
-    throw inFile(LocalizedText.same(e.message));
+    throw _inFile(path, LocalizedText.same(e.message));
   }
   if (json is! Map<String, Object?>) {
-    throw inFile(
+    throw _inFile(
+      path,
       const LocalizedText({
         'en': 'JSON object expected',
         'fr': 'objet JSON attendu',
@@ -47,9 +45,20 @@ Future<Config> readConfigFile(String path) async {
   try {
     return Config.fromJson(json);
   } on LocalizedFormatException catch (e) {
-    throw inFile(e.text);
+    throw _inFile(path, e.text);
   }
 }
+
+LocalizedFormatException _inFile(String path, LocalizedText message) =>
+    LocalizedFormatException(
+      LocalizedText.build(
+        (l) => tr(
+          l,
+          en: '$path: ${message.resolve(l)}',
+          fr: '$path : ${message.resolve(l)}',
+        ),
+      ),
+    );
 
 /// Configuration from the file [path]; if it does not exist (first start),
 /// it is created with the starting configuration, the master tile only

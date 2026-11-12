@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.7 (2026-11-12) — published Docker image (GHCR). -->
+<!-- BuildBeacon — README (English). Version 1.8 (2026-11-12) — the simulator follows config.json. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -107,8 +107,8 @@ data/config.json`.
 mise run simulator -- --open --config "$PWD/data/config.json"
 ```
 
-The simulator reads the layout when it starts: restart it after adding tiles to see them
-at their place. The Hub reloads `data/config.json` as soon as it is saved, from the
+The simulator follows `data/config.json`: tiles added, moved or renamed in the interface
+show up at their place, without a reload. The Hub reloads `data/config.json` as soon as it is saved, from the
 interface or by hand, and refuses an invalid version (the previous one is kept).
 
 The Hub also serves its REST API on http://localhost:8080/api (`--port` to change it):

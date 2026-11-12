@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (français). Version 1.7 (2026-11-12) — image Docker publiée (GHCR). -->
+<!-- BuildBeacon — README (français). Version 1.8 (2026-11-12) — le simulateur suit config.json. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -111,8 +111,8 @@ terminal :
 mise run simulator -- --open --config "$PWD/data/config.json"
 ```
 
-Le simulateur lit la disposition à son lancement : relancez-le après avoir ajouté des tuiles
-pour les voir à leur place. Le Hub recharge `data/config.json` dès qu'il est enregistré,
+Le simulateur suit `data/config.json` : les tuiles ajoutées, déplacées ou renommées dans
+l'interface apparaissent à leur place, sans recharger la page. Le Hub recharge `data/config.json` dès qu'il est enregistré,
 depuis l'interface ou à la main, et refuse une version invalide (la précédente est gardée).
 
 Le Hub sert aussi son API REST sur http://localhost:8080/api (`--port` pour en changer) :

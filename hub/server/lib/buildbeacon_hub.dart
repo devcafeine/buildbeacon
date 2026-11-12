@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Public API of the server.
-// Version 1.8 (2026-11-12) — comments in English.
+// Version 1.9 (2026-11-12) — exports the simulator's config follower.
 
 /// BuildBeacon server: built-in plugins, source execution, LED output to
 /// WLED (DDP) and simulator.
@@ -17,6 +17,7 @@ export 'src/output/ddp_sender.dart';
 export 'src/output/host_resolver.dart';
 export 'src/output/led_output_loop.dart';
 export 'src/output/wled_client.dart';
+export 'src/simulator/config_follower.dart';
 export 'src/simulator/ddp_receiver.dart';
 export 'src/simulator/terminal_panel.dart';
 export 'src/simulator/web_simulator.dart';

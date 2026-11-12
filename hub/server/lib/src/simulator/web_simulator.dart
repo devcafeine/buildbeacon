@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Web simulator: serves the page and streams the received frames (SSE).
-// Version 1.3 (2026-11-12) — comments in English.
+// Version 1.4 (2026-11-12) — layout updated live (`layout` event).
 
 import 'dart:async';
 import 'dart:convert';
@@ -43,8 +43,9 @@ Map<String, Object?> simulatorLayout({
 /// HTTP server of the web simulator:
 /// - `/`: the page;
 /// - `/layout`: the layout (JSON);
-/// - `/events`: the received frames, as Server-Sent Events (the browser
-///   cannot receive UDP itself).
+/// - `/events`: Server-Sent Events: the layout (`layout`, on connection and
+///   on every change, see [updateLayout]) and the received frames (`frame`;
+///   the browser cannot receive UDP itself).
 final class WebSimulator {
   WebSimulator._(this._server, Stream<ReceivedFrame> frames, this._layout) {
     _server.listen(_handle);
@@ -73,7 +74,7 @@ final class WebSimulator {
   );
 
   final HttpServer _server;
-  final Map<String, Object?> _layout;
+  Map<String, Object?> _layout;
   late final StreamSubscription<ReceivedFrame> _subscription;
   final _clients = <HttpResponse>{};
   ReceivedFrame? _last;
@@ -83,6 +84,17 @@ final class WebSimulator {
 
   /// Pages currently open.
   int get viewers => _clients.length;
+
+  /// Replaces the layout (configuration changed): served on `/layout` and
+  /// sent to the open pages, which redraw the wall.
+  void updateLayout(Map<String, Object?> layout) {
+    if (jsonEncode(layout) == jsonEncode(_layout)) return;
+    _layout = layout;
+    final event = _layoutEvent();
+    for (final client in _clients.toList()) {
+      _write(client, event);
+    }
+  }
 
   Future<void> close() async {
     await _subscription.cancel();
@@ -121,6 +133,8 @@ final class WebSimulator {
           ..write('retry: 1000\n\n');
         _clients.add(response);
         unawaited(response.done.whenComplete(() => _clients.remove(response)));
+        // The layout first: it may have changed since the page read /layout.
+        _write(response, _layoutEvent());
         // A newly connected page immediately gets the last frame, with its
         // age: if the stream has stopped, it shows it as such.
         if ((_last, _lastAt) case (final frame?, final at?)) {
@@ -140,6 +154,8 @@ final class WebSimulator {
       _clients.remove(client);
     }
   }
+
+  String _layoutEvent() => 'event: layout\ndata: ${jsonEncode(_layout)}\n\n';
 
   static String _frameEvent(ReceivedFrame frame, Duration age) {
     final data = jsonEncode({
