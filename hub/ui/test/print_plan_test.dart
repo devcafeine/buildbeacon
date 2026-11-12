@@ -1,5 +1,5 @@
 // BuildBeacon UI — Tests: 3D printing parts and OpenSCAD parameter sets.
-// Version 1.1 (2026-11-12) — OpenSCAD model v1.2.
+// Version 1.2 (2026-11-12) — OpenSCAD model v1.3.
 
 import 'dart:convert';
 import 'dart:io';
@@ -85,8 +85,8 @@ void main() {
       expect(commands, hasLength(6));
       expect(
         commands[2],
-        'openscad -p buildbeacon_tile_v1.2.json -P app-tile '
-        '-o app-tile.stl buildbeacon_tile_v1.2.scad',
+        'openscad -p buildbeacon_tile_v1.3.json -P app-tile '
+        '-o app-tile.stl buildbeacon_tile_v1.3.scad',
       );
     });
 
@@ -189,14 +189,14 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.tap(find.text('Télécharger buildbeacon_tile_v1.2.json'));
-    expect(saved.single.$1, 'buildbeacon_tile_v1.2.json');
+    await tester.tap(find.text('Télécharger buildbeacon_tile_v1.3.json'));
+    expect(saved.single.$1, 'buildbeacon_tile_v1.3.json');
     expect(saved.single.$3, 'application/json');
     expect(jsonDecode(saved.single.$2), contains('parameterSets'));
 
     await tester.tap(find.text('Copier les commandes'));
     await tester.pumpAndSettle();
-    expect(copied, startsWith('openscad -p buildbeacon_tile_v1.2.json'));
+    expect(copied, startsWith('openscad -p buildbeacon_tile_v1.3.json'));
     expect(find.text('Commandes copiées.'), findsOneWidget);
 
     // Stops the live stream (and its timers) before the end of the test.
