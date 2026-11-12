@@ -1,6 +1,8 @@
 // =====================================================================
 //  BuildBeacon - hexagonal light-up tile (parametric)
-//  Version 1.3 (2026-11-12) - PCB: 4 spacers and 4 screws (comment and message)
+//  Version 1.4 (2026-11-12) - stand: straight USB slot that follows the USB window;
+//                              shell closing: 3 points on every tile (comment)
+//  v1.3: PCB: 4 spacers and 4 screws (comment and message)
 //  v1.2: comments in English
 //  v1.1: references the v1.2 boards
 //  v1.0: first public version
@@ -222,7 +224,7 @@ wire_hole = false;
 wire_hole_d = 8;
 // Keyhole for wall mounting
 keyhole = true;
-// Fastening of the back plate to the shell (3 points, 4 for the master)
+// Fastening of the back plate to the shell: 3 points on every tile, master included
 screws = true;
 // magnet = 6x3 magnets (shell swappable without tools)
 // insert = M3 screw + brass insert; self_tap = M2.5 self-tapping screw
@@ -265,8 +267,14 @@ stand_floor = 6;
 // Height of the lips above the point
 lip_h = 10;
 lip = 3;
-// USB cable passage for the master tile, placed far left
+// USB cable passage for the master tile, placed far left: a straight slot,
+// open at the top, from the USB window of the tile to the back of the stand
 stand_usb = true;
+// Room for the plug beyond the side of the tile (mm): a right-angle USB-C
+// plug fits best, the cable then runs to the back in the slot
+stand_usb_plug = 15;
+// Material left under the slot (mm)
+stand_usb_floor = 2;
 // Front and back extension of the footprint (stability)
 stand_front = 6;
 stand_back = 15;
@@ -307,7 +315,7 @@ cable_clip_h = 3.5;
 part = "both"; // [tile, letters, back, both, stand, plugs, skadis_clips, skadis, links, link_test, led_bridge, base, cable_clips, knockout_test]
 
 /* [Hidden] */
-bb_version = "1.3";
+bb_version = "1.4";
 echo(str("BuildBeacon model v", bb_version));
 $fn = 48;
 eps = 0.01;
@@ -1027,18 +1035,33 @@ module stand() {
                     rotate([-90, 0, 0])
                         linear_extrude(D)
                             offset(delta = tol) hex2d(flat, corner_r);
-        // passage for the master tile's USB plug (left tile,
-        // slanted bottom-left side seen from the front, toward the back)
-        if (stand_usb && pointy && esp_board != "d1mini")
-            tilted()
-                translate([-(stand_tiles - 1) / 2 * flat, 0, stand_floor + R_hex])
-                    rotate([0, 120, 0])
-                        translate([apothem - wall - 1, depth - usb_h - 1,
-                                   -(usb_w + 4) / 2])
-                            cube([40, 100, usb_w + 4]);
+        // passage for the master tile's USB plug (left tile)
+        if (stand_usb && pointy && esp_board != "d1mini") stand_usb_slot();
         // everything that goes below the desk
         translate([-500, -100, -100]) cube([1000, 300, 100]);
     }
+}
+
+// USB slot of the master tile (left tile). Its plug comes out of the slanted
+// bottom-left side seen from the front, in the middle of the side, pointing
+// down and to the left. Straight slot with vertical walls, open at the top:
+// across the width of the USB window plus the room for the plug, from the
+// window (back edge with the strip, closed window near the front with the
+// PCB) to the back of the stand, above a floor of stand_usb_floor.
+module stand_usb_slot() {
+    x0 = -(stand_tiles - 1) / 2 * flat;
+    // middle of the side, before the tilt (x, z); outward normal at 240 deg
+    mid_x = x0 + apothem * cos(240);
+    mid_z = stand_floor + R_hex + apothem * sin(240);
+    // window, from the front of the tile; the tilt moves it back
+    win_y = pcb_on ? usb_win_z0 : depth - usb_h;
+    y0 = max(0, win_y * cos(tilt) + mid_z * sin(tilt) - 2);
+    // half width of the window (plus clearance) along X: the side is at 30 deg
+    half = (usb_w + 4) / 2 * cos(30);
+    x_in = mid_x + half;
+    x_out = mid_x - half - stand_usb_plug * cos(60);
+    translate([x_out, y0, stand_usb_floor])
+        cube([x_in - x_out, 500, 500]);
 }
 
 // ---------------------------------------------------------------------
