@@ -1,11 +1,11 @@
-// BuildBeacon UI — Description d'un plugin de source, reçue de /api/plugins.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Description of a source plugin, received from /api/plugins.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
 import 'json_text.dart';
 
-/// Secret d'un plugin : l'API dit seulement s'il est renseigné sur le Hub.
+/// A plugin secret: the API only tells whether it is set on the Hub.
 final class SecretInfo {
   const SecretInfo({
     required this.env,
@@ -22,8 +22,8 @@ final class SecretInfo {
   final LocalizedText? help;
 }
 
-/// Ce que l'interface sait d'un plugin : de quoi générer le formulaire de
-/// la source et proposer les modes d'affichage qu'il peut alimenter.
+/// What the interface knows about a plugin: enough to generate the source
+/// form and offer the display modes it can feed.
 final class PluginInfo {
   const PluginInfo({
     required this.type,
@@ -101,7 +101,7 @@ final class PluginInfo {
   final List<MetricInfo> metrics;
   final bool dynamicMetrics;
 
-  /// Le plugin peut-il alimenter [mode] ?
+  /// Can the plugin feed [mode]?
   bool supports(DisplayMode mode) => switch (mode) {
     DisplayMode.overall => true,
     DisplayMode.history => providesHistory,

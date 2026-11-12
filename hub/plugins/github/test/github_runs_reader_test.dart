@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : lecture des runs GitHub (URL, ETag, quota, erreurs).
-// Version 1.2 (2026-11-11) — messages d'erreur traduits, états en anglais.
+// BuildBeacon Hub — Tests: reading GitHub runs (URL, ETag, quota, errors).
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 
@@ -17,8 +17,8 @@ String _runs(List<(String, String?)> runs) => jsonEncode({
   ],
 });
 
-/// Faux GitHub : enregistre les requêtes et répond dans l'ordre de [responses]
-/// (la dernière réponse est répétée).
+/// Fake GitHub: records the requests and answers in the order of [responses]
+/// (the last response is repeated).
 final class _FakeGithub {
   _FakeGithub(this.responses);
 
@@ -31,7 +31,7 @@ final class _FakeGithub {
   });
 }
 
-/// Erreur de source dont le message français vérifie [fr] (texte ou matcher).
+/// Source error whose French message matches [fr] (text or matcher).
 Matcher _sourceError(Object fr) => throwsA(
   isA<SourceException>().having((e) => e.message.resolve('fr'), 'fr', fr),
 );

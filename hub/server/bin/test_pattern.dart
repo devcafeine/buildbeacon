@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Mire de mise en service : envoie un motif de test à WLED.
-// Version 1.1 (2026-11-11) — ex mire.dart : options en anglais (--tiles, --duration…), messages traduits.
+// BuildBeacon Hub — Commissioning test pattern: sends a test pattern to WLED.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:io';
@@ -161,7 +161,7 @@ Future<void> main(List<String> args) async {
   await ProcessSignal.sigint.watch().first;
   phases.cancel();
   loop.stop();
-  sender.send(Uint8List(leds * 3)); // tout éteindre tout de suite
+  sender.send(Uint8List(leds * 3)); // turn everything off right away
   await sender.close();
   final sent = loop.framesSent;
   stdout.writeln(

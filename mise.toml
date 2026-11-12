@@ -1,10 +1,10 @@
-# BuildBeacon — outils et tâches du projet (mise).
-# Version 1.9 (2026-11-12) — docker-test : image Docker construite et essayée.
+# BuildBeacon — project tools and tasks (mise).
+# Version 1.10 (2026-11-12) — comments in English.
 #
-# Flutter 3.47.6 embarque Dart 3.13.5 : le même SDK sert au Hub (hub/) et à
-# l'interface Flutter Web (hub/ui). L'image Docker devra suivre cette version.
+# Flutter 3.47.6 ships Dart 3.13.5: the same SDK serves the Hub (hub/) and the
+# Flutter Web interface (hub/ui). hub/Dockerfile and the CI use the same versions.
 #
-# Langue des programmes : BB_LANG=fr ou BB_LANG=en (défaut : langue du système).
+# Language of the programs: BB_LANG=en or BB_LANG=fr (default: system language).
 
 [tools]
 flutter = "3.47.6"

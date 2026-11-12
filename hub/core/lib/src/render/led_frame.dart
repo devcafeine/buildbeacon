@@ -1,11 +1,11 @@
-// BuildBeacon Hub — Image complète de la chaîne de LED.
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Full frame of the LED chain.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:typed_data';
 
 import '../model/rgb.dart';
 
-/// Une couleur par LED, dans l'ordre de la chaîne (index global).
+/// One color per LED, in chain order (global index).
 final class LedFrame {
   LedFrame(int length) : _pixels = List.filled(length, Rgb.black);
 
@@ -19,7 +19,7 @@ final class LedFrame {
 
   void operator []=(int index, Rgb color) => _pixels[index] = color;
 
-  /// Octets R, G, B à la suite, charge utile d'un paquet DDP.
+  /// R, G, B bytes in sequence: the payload of a DDP packet.
   Uint8List toRgbBytes() {
     final bytes = Uint8List(length * 3);
     for (final (i, color) in _pixels.indexed) {

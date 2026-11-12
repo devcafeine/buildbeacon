@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : index des LED dans la chaîne.
-// Version 1.2 (2026-11-11) — identifiants en anglais (project, ambient, dots, system).
+// BuildBeacon Hub — Tests: LED indices in the chain.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';

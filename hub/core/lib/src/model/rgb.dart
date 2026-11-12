@@ -1,18 +1,18 @@
-// BuildBeacon Hub — Couleur RGB 8 bits.
-// Version 1.1 (2026-11-11) — erreur de format traduite.
+// BuildBeacon Hub — 8-bit RGB color.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
-/// Couleur 8 bits par canal, toujours en ordre logique RGB.
+/// Color with 8 bits per channel, always in logical RGB order.
 ///
-/// L'ordre physique des WS2812B (GRB) est géré par WLED : le Hub ne s'en occupe pas.
+/// The physical order of the WS2812B (GRB) is handled by WLED: the Hub does not deal with it.
 final class Rgb {
   const Rgb(this.r, this.g, this.b)
     : assert(r >= 0 && r <= 255),
       assert(g >= 0 && g <= 255),
       assert(b >= 0 && b <= 255);
 
-  /// Lit une couleur au format `#RRGGBB` (le `#` est facultatif, casse libre).
+  /// Reads a color in `#RRGGBB` format (the `#` is optional, case-insensitive).
   factory Rgb.parse(String hex) {
     final digits = hex.startsWith('#') ? hex.substring(1) : hex;
     if (!_hexPattern.hasMatch(digits)) {
@@ -40,13 +40,13 @@ final class Rgb {
   final int g;
   final int b;
 
-  /// Couleur atténuée : chaque canal est multiplié par [factor] (borné à 0 – 1).
+  /// Dimmed color: each channel is multiplied by [factor] (clamped to 0 – 1).
   Rgb scaled(double factor) {
     final f = factor.clamp(0.0, 1.0);
     return Rgb((r * f).round(), (g * f).round(), (b * f).round());
   }
 
-  /// Format `#RRGGBB` en majuscules.
+  /// `#RRGGBB` format, in uppercase.
   String toHex() => '#${_hex2(r)}${_hex2(g)}${_hex2(b)}';
 
   static String _hex2(int channel) =>

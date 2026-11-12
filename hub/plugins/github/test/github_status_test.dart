@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : status/conclusion GitHub → état d'affichage.
-// Version 1.4 (2026-11-11) — états en anglais.
+// BuildBeacon Hub — Tests: GitHub status/conclusion → display status.
+// Version 1.5 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_github/buildbeacon_plugin_github.dart';
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';

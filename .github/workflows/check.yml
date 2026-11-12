@@ -1,5 +1,5 @@
-# BuildBeacon — vérification continue : format, analyse statique, tests (comme `mise run check`).
-# Version du fichier : 1.2 (2026-11-12) — image Docker : construite, essayée, compilée pour arm64 et ARMv7.
+# BuildBeacon — continuous checks: format, static analysis, tests (like `mise run check`).
+# File version: 1.3 (2026-11-12) — comments in English.
 name: check
 
 on:
@@ -19,14 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Même SDK que mise.toml : Flutter 3.47.6, qui embarque Dart 3.13.5.
+      # Same SDK as mise.toml: Flutter 3.47.6, which ships Dart 3.13.5.
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.47.6
           channel: stable
           cache: true
 
-      # Génère aussi les traductions de l'interface (fichiers ARB).
+      # Also generates the translations of the interface (ARB files).
       - name: Dependencies
         run: flutter pub get
 
@@ -49,9 +49,9 @@ jobs:
         working-directory: hub/ui
         run: flutter build web --release --no-web-resources-cdn --no-wasm-dry-run
 
-  # Image Docker : construite pour x86-64 et essayée (premier démarrage,
-  # interface, API, volume, HTTPS), puis compilée pour arm64 et ARMv7
-  # (compilation croisée, sans émulation). Rien n'est publié.
+  # Docker image: built for x86-64 and tried (first start, interface, API,
+  # volume, HTTPS), then built for arm64 and ARMv7 (cross-compilation, no
+  # emulation). Nothing is published.
   docker:
     runs-on: ubuntu-latest
     steps:

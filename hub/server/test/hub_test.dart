@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : le Hub assemblé (config → plugins → image → sortie, WLED).
-// Version 1.1 (2026-11-12) — vérification de WLED en arrière-plan.
+// BuildBeacon Hub — Tests: the assembled Hub (config → plugins → frame → output, WLED).
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:test/test.dart';
 
-/// Plugin alimenté à la main par le test.
+/// Plugin fed by hand by the test.
 final class _ManualPlugin extends SourcePlugin {
   final controllers = <String, StreamController<SourceState>>{};
 
@@ -40,7 +40,7 @@ final class _ManualPlugin extends SourcePlugin {
   }
 }
 
-/// Sortie de test : garde les images envoyées et les adresses ouvertes.
+/// Test output: keeps the frames sent and the addresses opened.
 final class _Outputs {
   final opened = <String>[];
   final closed = <String>[];
@@ -101,8 +101,8 @@ Config _config(
   ],
 );
 
-/// Faux WLED : `/json/info` annonce [ledCount] LED, `/json/state` mémorise
-/// la luminosité ; `null` = WLED injoignable.
+/// Fake WLED: `/json/info` reports [ledCount] LEDs, `/json/state` stores
+/// the brightness; `null` = WLED unreachable.
 MockClient _wled({int? ledCount = 12, List<int>? brightness}) =>
     MockClient((request) async {
       if (ledCount == null) throw http.ClientException('connection refused');
@@ -150,7 +150,7 @@ void main() {
 
     final last = outputs.frames.last;
     expect(last, hasLength(12 * 3));
-    // Ambiance de la tuile n° 1 (LED 3) en rouge.
+    // Ambient zone of tile 1 (LED 3) in red.
     expect(last.sublist(9, 12), [255, 0, 0]);
     expect(logs, contains(startsWith('manual · a — échec')));
   });

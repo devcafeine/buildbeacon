@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Service du Hub : un seul chemin pour changer la configuration (API, fichier).
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Hub service: a single path to change the configuration (API, file).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 import 'dart:io';
@@ -9,12 +9,12 @@ import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'config_file.dart';
 import 'hub.dart';
 
-/// Résultat d'une configuration proposée.
+/// Result of a proposed configuration.
 sealed class ConfigResult {
   const ConfigResult();
 }
 
-/// Utilisable : appliquée si [changed] (identique à celle en cours sinon).
+/// Usable: applied if [changed] (otherwise identical to the current one).
 final class ConfigAccepted extends ConfigResult {
   const ConfigAccepted(this.config, {required this.changed});
 
@@ -22,31 +22,31 @@ final class ConfigAccepted extends ConfigResult {
   final bool changed;
 }
 
-/// Illisible : JSON invalide ou format refusé.
+/// Unreadable: invalid JSON or rejected format.
 final class ConfigUnreadable extends ConfigResult {
   const ConfigUnreadable(this.error);
 
   final LocalizedText error;
 }
 
-/// Lisible mais incohérente : rien n'est appliqué.
+/// Readable but inconsistent: nothing is applied.
 final class ConfigRejected extends ConfigResult {
   const ConfigRejected(this.issues);
 
   final List<LocalizedText> issues;
 }
 
-/// Valide mais impossible à enregistrer : rien n'est appliqué, pour que le
-/// Hub et le fichier restent d'accord.
+/// Valid but impossible to save: nothing is applied, so that the Hub and
+/// the file stay in agreement.
 final class ConfigNotSaved extends ConfigResult {
   const ConfigNotSaved(this.error);
 
   final LocalizedText error;
 }
 
-/// Change la configuration du Hub en un seul endroit, qu'elle vienne de
-/// l'API ou du fichier modifié à la main : lecture, validation avec les
-/// plugins, enregistrement, application à chaud.
+/// Changes the configuration of the Hub in a single place, whether it comes
+/// from the API or from the file edited by hand: reading, validation with
+/// the plugins, saving, applying on the fly.
 final class HubService {
   HubService({
     required this.hub,
@@ -59,8 +59,8 @@ final class HubService {
   final Hub hub;
   final String configPath;
 
-  /// Variables d'environnement du Hub. L'API n'en révèle que la présence des
-  /// secrets déclarés par les plugins, jamais les valeurs.
+  /// Environment variables of the Hub. The API only reveals whether the
+  /// secrets declared by the plugins are present, never their values.
   final Map<String, String> environment;
 
   final void Function(LocalizedText message) _log;
@@ -68,7 +68,7 @@ final class HubService {
 
   PluginRegistry get plugins => hub.plugins;
 
-  /// Lit et valide [json] sans rien appliquer.
+  /// Reads and validates [json] without applying anything.
   ConfigResult validate(Object? json) {
     if (json is! Map<String, Object?>) {
       return const ConfigUnreadable(
@@ -91,9 +91,9 @@ final class HubService {
     return ConfigAccepted(config, changed: !_isCurrent(config));
   }
 
-  /// Valide [json], l'enregistre dans le fichier puis l'applique au Hub. Une
-  /// configuration identique à celle en cours n'est ni réenregistrée ni
-  /// réappliquée.
+  /// Validates [json], saves it to the file, then applies it to the Hub. A
+  /// configuration identical to the current one is neither saved nor applied
+  /// again.
   Future<ConfigResult> update(Object? json) async {
     final result = validate(json);
     if (result is! ConfigAccepted || !result.changed) return result;
@@ -121,9 +121,9 @@ final class HubService {
     return result;
   }
 
-  /// Relit le fichier après une modification à la main. Une version
-  /// illisible ou invalide est refusée et la précédente gardée ; une version
-  /// identique (par exemple celle que l'API vient d'enregistrer) est ignorée.
+  /// Rereads the file after a manual edit. An unreadable or invalid version
+  /// is refused and the previous one kept; an identical version (for example
+  /// the one the API has just saved) is ignored.
   Future<void> reloadFromDisk() async {
     final Config next;
     try {

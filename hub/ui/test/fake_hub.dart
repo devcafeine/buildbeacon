@@ -1,5 +1,5 @@
-// BuildBeacon UI — Tests : faux Hub (API REST et flux d'événements) en mémoire.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Tests: in-memory fake Hub (REST API and event stream).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -9,8 +9,8 @@ import 'package:buildbeacon_ui/src/api/hub_events.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-/// Plugins : GitHub (historique, secret facultatif) et une imprimante
-/// (mesures, pour les modes seuils et jauge).
+/// Plugins: GitHub (history, optional secret) and a printer
+/// (measurements, for the thresholds and gauge modes).
 const pluginsJson = {
   'plugins': [
     {
@@ -152,7 +152,7 @@ Map<String, Object?> stateJson({List<String> identifying = const []}) => {
   },
 };
 
-/// Problèmes trouvés par le faux Hub : un dépôt GitHub vide.
+/// Issues found by the fake Hub: an empty GitHub repository.
 List<Object?> fakeIssues(Map<String, Object?> config) => [
   for (final tile in config['tiles']! as List<Object?>)
     for (final zone in ((tile! as Map)['zones'] as Map? ?? {}).values)
@@ -165,8 +165,8 @@ List<Object?> fakeIssues(Map<String, Object?> config) => [
         },
 ];
 
-/// Faux Hub : garde la configuration, répond comme l'API, journalise les
-/// appels ; [events] alimente le flux en direct.
+/// Fake Hub: keeps the configuration, answers like the API, logs the
+/// calls; [events] feeds the live stream.
 final class FakeHub {
   FakeHub({this.apiToken});
 

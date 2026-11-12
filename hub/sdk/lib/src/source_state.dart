@@ -1,33 +1,33 @@
-// BuildBeacon Hub — SDK des plugins : dernier état connu d'une source.
-// Version 1.4 (2026-11-11) — erreur traduite (LocalizedText), identifiants de mesure en anglais.
+// BuildBeacon Hub — Plugin SDK: last known state of a source.
+// Version 1.5 (2026-11-12) — comments in English.
 
 import 'localized_text.dart';
 import 'status.dart';
 
-/// Valeur chiffrée fournie par une source : progression d'une impression,
-/// température, compteur du jour…
+/// Numeric value provided by a source: progress of a print, temperature,
+/// today's counter…
 final class Metric {
   const Metric(this.value, {this.unit, this.min, this.max});
 
   final double value;
 
-  /// Unité, pour l'aperçu (`%`, `°C`, `min`…).
+  /// Unit, for the preview (`%`, `°C`, `min`…).
   final String? unit;
 
-  /// Bornes naturelles de la mesure (0 – 100 pour un pourcentage), utilisées
-  /// par la jauge quand l'action n'en fixe pas.
+  /// Natural bounds of the measurement (0 – 100 for a percentage), used by
+  /// the gauge when the action does not set any.
   final double? min;
   final double? max;
 }
 
-/// Dernier état connu d'une source, partagé par toutes les zones de même clé.
+/// Last known state of a source, shared by all the zones with the same key.
 ///
-/// Chaque source remplit ce qu'elle sait fournir :
-/// - GitHub : [history], les runs du plus récent au plus ancien ;
-/// - imprimante 3D : [status] (en cours, en pause…) et des [metrics]
-///   (`progress`, `remaining_time`, `nozzle_temp`…) ;
-/// - indicateur seul : des [metrics], et [status] succès quand la lecture
-///   a réussi (couleur de la jauge sans seuils).
+/// Each source fills in what it can provide:
+/// - GitHub: [history], the runs from newest to oldest;
+/// - 3D printer: [status] (running, paused…) and [metrics]
+///   (`progress`, `remaining_time`, `nozzle_temp`…);
+/// - plain indicator: [metrics], and a success [status] when the read
+///   succeeded (gauge color without thresholds).
 final class SourceState {
   const SourceState({
     Status? status,
@@ -37,32 +37,32 @@ final class SourceState {
     this.updatedAt,
   }) : _status = status;
 
-  /// Source jamais lue : tout s'affiche « inconnu ».
+  /// Source never read: everything shows as "unknown".
   static const unknown = SourceState();
 
   final Status? _status;
 
-  /// Historique, du plus récent au plus ancien.
+  /// History, from newest to oldest.
   final List<Status> history;
 
-  /// Mesures chiffrées, par identifiant propre à la source.
+  /// Numeric measurements, keyed by a source-specific identifier.
   final Map<String, Metric> metrics;
 
-  /// Dernière erreur de lecture (réseau, droits, appareil injoignable…),
-  /// affichée dans l'interface ; les valeurs précédentes restent affichées.
+  /// Last read error (network, permissions, unreachable device…), shown in
+  /// the interface; the previous values stay displayed.
   final LocalizedText? error;
 
   final DateTime? updatedAt;
 
-  /// État actuel : celui fourni par la source, sinon le plus récent de
-  /// l'historique, sinon inconnu.
+  /// Current status: the one provided by the source, otherwise the newest in
+  /// the history, otherwise unknown.
   Status get status => _status ?? history.firstOrNull ?? Status.unknown;
 
-  /// Mesure [id] ; sans [id], la première fournie par la source.
+  /// Measurement [id]; without [id], the first one provided by the source.
   Metric? metric([String? id]) =>
       id == null ? metrics.values.firstOrNull : metrics[id];
 
-  /// Même état avec une erreur de lecture, ou sans erreur si [error] est nul.
+  /// Same state with a read error, or without an error if [error] is null.
   SourceState withError(LocalizedText? error) => SourceState(
     status: _status,
     history: history,

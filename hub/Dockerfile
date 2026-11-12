@@ -1,24 +1,24 @@
 # syntax=docker/dockerfile:1
-# BuildBeacon Hub — image Docker : le Hub (Dart compilé) et son interface web (Flutter Web).
-# Version du fichier : 1.0 (2026-11-12)
+# BuildBeacon Hub — Docker image: the Hub (compiled Dart) and its web interface (Flutter Web).
+# File version: 1.1 (2026-11-12) — comments in English.
 #
-#   docker compose up -d --build                     (à la racine du dépôt)
+#   docker compose up -d --build                     (at the repository root)
 #   docker build -t buildbeacon-hub hub
 #   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 hub
 #
-# Tout se compile sur la machine de construction ($BUILDPLATFORM), sans
-# émulation : l'interface web est la même pour toutes les architectures, et le
-# Hub est compilé de façon croisée pour l'architecture visée. Machine de
-# construction : Linux x86-64 ou arm64 (Flutter ne tourne pas sur ARMv7).
+# Everything is compiled on the build machine ($BUILDPLATFORM), without
+# emulation: the web interface is the same for every architecture, and the Hub
+# is cross-compiled for the target architecture. Build machine: Linux x86-64 or
+# arm64 (Flutter does not run on ARMv7).
 #
-# Image finale : à partir de rien (scratch), le Hub, l'interface, les
-# bibliothèques système et certificats de l'image Dart ; utilisateur non root.
+# Final image: from scratch, with the Hub, the interface, and the system
+# libraries and certificates of the Dart image; non-root user.
 
 ARG DART_VERSION=3.13.5
 ARG FLUTTER_VERSION=3.47.6
 
 # ---------------------------------------------------------------------------
-# Interface web (Flutter Web)
+# Web interface (Flutter Web)
 FROM --platform=$BUILDPLATFORM debian:bookworm-slim AS ui
 ARG FLUTTER_VERSION
 RUN apt-get update \
@@ -31,33 +31,33 @@ RUN flutter config --no-analytics --no-cli-animations >/dev/null \
  && flutter precache --web
 WORKDIR /src
 COPY . .
-# flutter pub get génère aussi les traductions (fichiers ARB).
+# flutter pub get also generates the translations (ARB files).
 RUN flutter pub get
 WORKDIR /src/ui
 RUN flutter build web --release --no-web-resources-cdn --no-wasm-dry-run \
- # Fichiers inutiles au rendu CanvasKit (Wasm/skwasm, symboles de débogage).
+ # Files the CanvasKit renderer does not use (Wasm/skwasm, debug symbols).
  && cd build/web \
  && rm -rf canvaskit/skwasm* canvaskit/wimp* canvaskit/webparagraph \
  && find . -name '*.symbols' -delete
 
 # ---------------------------------------------------------------------------
-# Hub (Dart, compilé pour l'architecture visée)
+# Hub (Dart, compiled for the target architecture)
 FROM --platform=$BUILDPLATFORM dart:${DART_VERSION} AS hub
 ARG TARGETARCH
 ARG BUILDARCH
 WORKDIR /src
 COPY . .
-# L'interface Flutter ne fait pas partie du Hub, et l'image Dart n'a pas
-# Flutter : elle sort de l'espace de travail pour cette étape.
+# The Flutter interface is not part of the Hub, and the Dart image has no
+# Flutter: it leaves the workspace for this stage.
 RUN sed -i '/^  - ui$/d' pubspec.yaml && rm -rf ui && dart pub get
 RUN set -eu; \
-    # Dossier des données, à l'utilisateur du Hub (volume initialisé avec).
+    # Data folder, owned by the Hub user (the volume is initialized from it).
     mkdir -p /out/data; \
     case "$TARGETARCH" in \
       amd64) arch=x64 ;; \
       arm64) arch=arm64 ;; \
       arm) arch=arm ;; \
-      *) echo "Architecture non prise en charge : $TARGETARCH" >&2; exit 1 ;; \
+      *) echo "Unsupported architecture: $TARGETARCH" >&2; exit 1 ;; \
     esac; \
     if [ "$TARGETARCH" = "$BUILDARCH" ]; then \
       dart compile exe server/bin/hub.dart -o /out/hub; \
@@ -66,8 +66,8 @@ RUN set -eu; \
         server/bin/hub.dart -o /out/hub; \
     fi
 
-# Bibliothèques système et certificats pour l'architecture visée (aucune
-# commande n'y est lancée : pas d'émulation).
+# System libraries and certificates for the target architecture (no command
+# runs in it: no emulation).
 FROM dart:${DART_VERSION} AS runtime
 
 # ---------------------------------------------------------------------------
@@ -83,6 +83,6 @@ LABEL org.opencontainers.image.title="BuildBeacon Hub" \
       org.opencontainers.image.description="Drives the BuildBeacon LED tiles through WLED, with its web interface." \
       org.opencontainers.image.source="https://github.com/devcafeine/buildbeacon" \
       org.opencontainers.image.licenses="MIT"
-# Chemins fixés ici : un .env de développement (BB_CONFIG, BB_WEB_DIR) ne
-# doit pas les changer dans le conteneur.
+# Paths set here: a development .env (BB_CONFIG, BB_WEB_DIR) must not change
+# them in the container.
 ENTRYPOINT ["/app/hub", "--config", "/data/config.json", "--web", "/app/web"]

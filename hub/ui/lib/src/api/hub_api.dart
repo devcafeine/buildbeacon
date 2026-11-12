@@ -1,5 +1,5 @@
-// BuildBeacon UI — Client de l'API REST du Hub.
-// Version 1.1 (2026-11-11) — repli sur une lecture régulière si le flux SSE reste muet.
+// BuildBeacon UI — Client for the Hub's REST API.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -11,22 +11,22 @@ import 'hub_events.dart';
 import 'json_text.dart';
 import 'plugin_info.dart';
 
-/// Échec d'un appel à l'API.
+/// Failure of an API call.
 final class ApiException implements Exception {
   const ApiException(this.status, {this.message, this.issues = const []});
 
-  /// Code HTTP ; 0 = Hub injoignable (réseau).
+  /// HTTP status code; 0 = Hub unreachable (network).
   final int status;
 
-  /// Message traduit renvoyé par le Hub, s'il y en a un.
+  /// Translated message returned by the Hub, if any.
   final LocalizedText? message;
 
-  /// Problèmes d'une configuration refusée (422).
+  /// Issues of a rejected configuration (422).
   final List<LocalizedText> issues;
 
   bool get unreachable => status == 0;
 
-  /// `BB_API_TOKEN` exigé (ou faux).
+  /// `BB_API_TOKEN` required (or wrong).
   bool get unauthorized => status == 401;
 
   @override
@@ -34,10 +34,10 @@ final class ApiException implements Exception {
       'ApiException($status${message == null ? '' : ': $message'})';
 }
 
-/// Appels à l'API du Hub qui sert la page : `<base>api/…`.
+/// Calls to the API of the Hub that serves the page: `<base>api/…`.
 ///
-/// [base] est l'adresse de la page (le Hub la sert lui-même) ; en
-/// développement, `web_dev_config.yaml` relaie `/api/` vers le Hub.
+/// [base] is the page address (the Hub serves it itself); in development,
+/// `web_dev_config.yaml` proxies `/api/` to the Hub.
 final class HubApi {
   HubApi({
     required this.base,
@@ -52,13 +52,13 @@ final class HubApi {
   final http.Client _client;
   final HubEventSource _openEvents;
 
-  /// Délai sans aucun événement après lequel l'interface lit l'état
-  /// elle-même, toutes les [pollInterval].
+  /// Time without any event after which the interface reads the state
+  /// itself, every [pollInterval].
   final Duration eventsPatience;
   final Duration pollInterval;
 
-  /// Jeton des écritures (`BB_API_TOKEN` du Hub), saisi par l'utilisateur ;
-  /// gardé en mémoire seulement.
+  /// Token for writes (the Hub's `BB_API_TOKEN`), entered by the user;
+  /// kept in memory only.
   String? token;
 
   Future<Config> config() async =>
@@ -72,14 +72,14 @@ final class HubApi {
     ];
   }
 
-  /// Valide, enregistre et applique [config] ; renvoie la configuration
-  /// enregistrée par le Hub.
+  /// Validates, saves and applies [config]; returns the configuration
+  /// saved by the Hub.
   Future<Config> saveConfig(Config config) async {
     final json = _object(await _send('PUT', 'config', config.toJson()));
     return Config.fromJson(_object(json['config']));
   }
 
-  /// Problèmes de [config], sans rien appliquer.
+  /// Issues of [config], without applying anything.
   Future<List<LocalizedText>> validate(Config config) async {
     final json = _object(
       await _send('POST', 'config/validate', config.toJson()),
@@ -87,23 +87,22 @@ final class HubApi {
     return localizedList(json['issues']);
   }
 
-  /// Fait clignoter la tuile [tileId] au mur.
+  /// Makes tile [tileId] blink on the wall.
   Future<void> identify(String tileId, {int seconds = 5}) => _send(
     'POST',
     'tiles/${Uri.encodeComponent(tileId)}/identify',
     {'seconds': seconds},
   );
 
-  /// Revérifie WLED (nombre de LED, luminosité).
+  /// Checks WLED again (LED count, brightness).
   Future<void> checkWled() => _send('POST', 'wled/check', const {});
 
-  /// Événements en direct : `config` et `state`.
+  /// Live events: `config` and `state`.
   ///
-  /// Par le flux SSE du Hub ; si rien n'arrive pendant [eventsPatience]
-  /// (relais qui retient le flux : serveur de développement de Flutter,
-  /// proxy inverse avec mise en tampon), lecture de `/api/config` et
-  /// `/api/state` toutes les [pollInterval], jusqu'au premier événement du
-  /// flux.
+  /// Through the Hub's SSE stream; if nothing arrives within [eventsPatience]
+  /// (a proxy that holds back the stream: Flutter's development server, a
+  /// buffering reverse proxy), reads `/api/config` and `/api/state` every
+  /// [pollInterval], until the first event of the stream.
   Stream<HubEvent> events() {
     late final StreamController<HubEvent> out;
     StreamSubscription<HubEvent>? stream;
@@ -136,7 +135,7 @@ final class HubApi {
             poller?.cancel();
             poller = null;
           }
-          // Pendant la lecture régulière, l'état du flux muet ne compte pas.
+          // While polling, the state of the silent stream does not count.
           if (event is HubLinkChanged && poller != null) return;
           out.add(event);
         });
@@ -165,8 +164,8 @@ final class HubApi {
     final request = http.Request(method, url(path))
       ..headers['accept'] = 'application/json';
     if (method != 'GET') {
-      // Les écritures doivent être en JSON (protection du Hub contre les
-      // requêtes venues d'autres sites).
+      // Writes must be JSON (protects the Hub against requests coming from
+      // other sites).
       request.headers['content-type'] = 'application/json';
       request.body = jsonEncode(body ?? const <String, Object?>{});
       if (token case final token? when token.isNotEmpty) {

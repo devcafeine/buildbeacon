@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests SDK : accès typé aux réglages.
-// Version 1.1 (2026-11-11) — messages d'erreur de programmation en anglais.
+// BuildBeacon Hub — SDK tests: typed access to settings.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 import 'package:test/test.dart';

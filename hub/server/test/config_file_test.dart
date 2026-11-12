@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : lecture de config.json et premier démarrage.
-// Version 1.0 (2026-11-12)
+// BuildBeacon Hub — Tests: reading config.json and first start.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 import 'dart:io';
@@ -24,7 +24,7 @@ void main() {
         expect(created, isTrue);
         expect(config.tiles.single.kind, TileKind.master);
         expect(config.validate(), isEmpty);
-        // Le fichier écrit se relit tel quel.
+        // The written file reads back unchanged.
         expect((await readConfigFile(path)).toJson(), config.toJson());
         expect(File('$path.tmp').existsSync(), isFalse);
       },

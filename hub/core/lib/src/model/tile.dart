@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tuiles hexagonales et leurs zones.
-// Version 1.3 (2026-11-11) — identifiants en anglais (ambient, dots, system, project), libellés et messages traduits.
+// BuildBeacon Hub — Hexagonal tiles and their zones.
+// Version 1.4 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
@@ -7,16 +7,16 @@ import '../plugin/plugin_registry.dart';
 import 'json_read.dart';
 import 'zone_action.dart';
 
-/// Zone lumineuse d'une tuile.
+/// Light zone of a tile.
 enum ZoneName {
-  /// Tuile projet : rubans du haut et du bas (4 LED, non contiguës : pas de
-  /// jauge ni d'historique).
+  /// Project tile: top and bottom strips (4 non-contiguous LEDs: no gauge
+  /// or history).
   ambient({
     DisplayMode.overall,
     DisplayMode.thresholds,
   }, LocalizedText({'en': 'ambient', 'fr': 'ambiance'})),
 
-  /// Tuile projet : les 5 points du milieu.
+  /// Project tile: the 5 dots in the middle.
   dots({
     DisplayMode.overall,
     DisplayMode.history,
@@ -24,7 +24,7 @@ enum ZoneName {
     DisplayMode.gauge,
   }, LocalizedText({'en': 'dots', 'fr': 'points'})),
 
-  /// Tuile master : les 3 LED derrière le logo.
+  /// Master tile: the 3 LEDs behind the logo.
   system({
     DisplayMode.overall,
     DisplayMode.thresholds,
@@ -33,10 +33,10 @@ enum ZoneName {
 
   const ZoneName(this.modes, this.label);
 
-  /// Modes d'affichage acceptés par la zone.
+  /// Display modes accepted by the zone.
   final Set<DisplayMode> modes;
 
-  /// Nom affiché dans l'interface.
+  /// Name shown in the UI.
   final LocalizedText label;
 
   static ZoneName? tryParse(String name) => values.asNameMap()[name];
@@ -51,14 +51,14 @@ enum TileKind {
 
   const TileKind(this.zones, this.label);
 
-  /// Zones présentes sur ce type de tuile.
+  /// Zones present on this kind of tile.
   final Set<ZoneName> zones;
 
-  /// Nom affiché dans l'interface.
+  /// Name shown in the UI.
   final LocalizedText label;
 }
 
-/// Position sur le mur en coordonnées axiales (hexagones « pointe en haut »).
+/// Position on the wall in axial coordinates ("pointy-top" hexagons).
 final class HexPos {
   const HexPos(this.q, this.r);
 
@@ -144,18 +144,18 @@ final class Tile {
   final String label;
   final TileKind kind;
 
-  /// Rang dans la chaîne de LED (ordre de câblage) : 0 pour la master,
-  /// 1, 2… pour les tuiles projet. Indépendant de [pos].
+  /// Position in the LED chain (wiring order): 0 for the master tile,
+  /// 1, 2… for project tiles. Independent of [pos].
   final int chainIndex;
 
-  /// Place sur le mur.
+  /// Place on the wall.
   final HexPos pos;
 
-  /// Action de chaque zone ; une zone absente reste éteinte.
+  /// Action of each zone; a missing zone stays off.
   final Map<ZoneName, ZoneAction> zones;
 
-  /// Problèmes de cohérence propres à la tuile, traduits. Avec [plugins],
-  /// les sources et la compatibilité des modes sont aussi vérifiées.
+  /// Consistency problems specific to the tile, translated. With [plugins],
+  /// sources and mode compatibility are checked too.
   List<LocalizedText> validate({PluginRegistry? plugins}) {
     final issues = <LocalizedText>[
       if (id.trim().isEmpty)
@@ -224,8 +224,8 @@ final class Tile {
     ];
   }
 
-  /// Toutes les zones du type de tuile sont écrites (`null` si sans action),
-  /// pour que l'interface les voie sans connaître le modèle.
+  /// All zones of the tile kind are written (`null` when without action),
+  /// so that the UI sees them without knowing the model.
   Map<String, Object?> toJson() => {
     'id': id,
     'label': label,

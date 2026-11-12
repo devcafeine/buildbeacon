@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Mire de mise en service : vérifie le câblage d'un panneau.
-// Version 1.1 (2026-11-11) — phases en anglais (ranks, dots, ambient), descriptions traduites.
+// BuildBeacon Hub — Commissioning test pattern: checks the wiring of a panel.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
@@ -8,7 +8,7 @@ import '../model/rgb.dart';
 import '../model/tile.dart';
 import 'led_frame.dart';
 
-/// Étapes de la mire, avec ce qu'il faut vérifier sur le panneau.
+/// Steps of the test pattern, with what to check on the panel.
 enum TestPatternPhase {
   ranks(
     LocalizedText({
@@ -43,16 +43,16 @@ enum TestPatternPhase {
   final LocalizedText description;
 }
 
-/// Mire de mise en service, calculée à partir de la topologie du câblage
-/// (`LedLayout`) : si le panneau ne fait pas ce qu'annonce la phase, le
-/// câblage diffère de la spécification.
+/// Commissioning test pattern, computed from the wiring topology
+/// (`LedLayout`): if the panel does not do what the phase announces, the
+/// wiring differs from the specification.
 final class TestPattern {
   const TestPattern({
     required this.projectTiles,
     this.phaseDuration = const Duration(seconds: 5),
   });
 
-  /// Couleurs des rangs 1, 2, 3… (puis on recommence).
+  /// Colors of chain positions 1, 2, 3… (then it starts over).
   static const rankColors = [
     Rgb(255, 0, 0),
     Rgb(0, 255, 0),
@@ -64,13 +64,13 @@ final class TestPattern {
 
   static const masterColor = Rgb.white;
 
-  /// Intensité des points déjà passés pendant le balayage.
+  /// Intensity of the dots already passed during the sweep.
   static const trail = 0.15;
 
-  /// Couleur de la tuile au rang [rank] (1, 2, …).
+  /// Color of the tile at chain position [rank] (1, 2, …).
   static Rgb colorOf(int rank) => rankColors[(rank - 1) % rankColors.length];
 
-  /// Nombre de tuiles projet chaînées après la master.
+  /// Number of project tiles chained after the master tile.
   final int projectTiles;
   final Duration phaseDuration;
 
@@ -125,8 +125,8 @@ final class TestPattern {
     }
   }
 
-  /// Allume une LED après l'autre dans l'ordre d'affichage (gauche → droite),
-  /// les précédentes restant faiblement allumées pour montrer le sens.
+  /// Lights one LED after another in display order (left → right), the
+  /// previous ones staying dimly lit to show the direction.
   void _sweep(LedFrame frame, List<int> indices, Rgb color, int elapsed) {
     final current = elapsed * indices.length ~/ phaseDuration.inMicroseconds;
     for (var i = 0; i <= current; i++) {

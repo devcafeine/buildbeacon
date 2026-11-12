@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : plugin GitHub (conformité, réglages, connexion).
-// Version 1.2 (2026-11-11) — libellés et messages traduits.
+// BuildBeacon Hub — Tests: GitHub plugin (conformance, settings, connection).
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 

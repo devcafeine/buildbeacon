@@ -1,5 +1,5 @@
-// BuildBeacon Hub — SDK des plugins : banc d'essai pour les tests de plugin.
-// Version 1.1 (2026-11-11) — messages pour développeurs en anglais.
+// BuildBeacon Hub — Plugin SDK: test harness for plugin tests.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:async';
 
@@ -12,15 +12,15 @@ import '../source_settings.dart';
 import '../source_state.dart';
 import '../validation.dart';
 
-/// Réponse simulée d'un service HTTP.
+/// Simulated response of an HTTP service.
 typedef FakeHttpHandler =
     FutureOr<http.Response> Function(http.Request request);
 
-/// Contexte de test : HTTP simulé par [respond] (sans lui, toute requête
-/// échoue), secrets, intervalle de scrutation et horloge.
+/// Test context: HTTP simulated by [respond] (without it, every request
+/// fails), secrets, polling interval and clock.
 ///
-/// L'intervalle par défaut (1 h) garantit une seule lecture pendant un test ;
-/// le réduire pour observer plusieurs lectures avec [firstStates].
+/// The default interval (1 h) guarantees a single read during a test;
+/// shorten it to observe several reads with [firstStates].
 PluginContext fakeContext({
   FakeHttpHandler? respond,
   Map<String, String> secrets = const {},
@@ -42,11 +42,11 @@ PluginContext fakeContext({
   log: log,
 );
 
-/// Ouvre [plugin] avec [settings], comme le ferait le Hub, et renvoie le
-/// premier état émis.
+/// Opens [plugin] with [settings], as the Hub would, and returns the first
+/// state emitted.
 ///
-/// Les réglages sont d'abord validés : s'ils ne le sont pas, lève une
-/// [ArgumentError] qui liste les problèmes.
+/// The settings are validated first: if they are invalid, throws an
+/// [ArgumentError] that lists the problems.
 Future<SourceState> firstState(
   SourcePlugin plugin,
   Map<String, Object?> settings, {
@@ -60,8 +60,8 @@ Future<SourceState> firstState(
   timeout: timeout,
 )).single;
 
-/// Les [count] premiers états émis par [plugin] (voir [firstState]). Avec
-/// une source scrutée, réduire `pollInterval` dans [context].
+/// The first [count] states emitted by [plugin] (see [firstState]). For a
+/// polled source, shorten `pollInterval` in [context].
 Future<List<SourceState>> firstStates(
   SourcePlugin plugin,
   Map<String, Object?> settings,

@@ -1,5 +1,5 @@
-// BuildBeacon UI — Champs de saisie liés au brouillon.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Input fields bound to the draft.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +7,10 @@ import 'package:flutter/services.dart';
 
 import 'l10n.dart';
 
-/// Champ texte qui suit une valeur du brouillon : il se met à jour quand
-/// elle change ailleurs (annulation, autre onglet), sans écraser la saisie
-/// en cours ([same] dit si le texte saisi correspond déjà à la valeur).
+/// Text field that follows a draft value: it updates when the value
+/// changes elsewhere (discard, another tab), without overwriting the text
+/// being typed ([same] tells whether the typed text already matches the
+/// value).
 class SyncedTextField extends StatefulWidget {
   const SyncedTextField({
     super.key,
@@ -88,7 +89,7 @@ class _SyncedTextFieldState extends State<SyncedTextField> {
 bool _sameNumber(String text, String value) =>
     parseNumber(text) == parseNumber(value) || text.trim() == value.trim();
 
-/// Nombre facultatif (seuil, borne de jauge) : vide = `null`.
+/// Optional number (threshold, gauge bound): empty = `null`.
 class OptionalNumberField extends StatefulWidget {
   const OptionalNumberField({
     super.key,
@@ -133,8 +134,8 @@ class _OptionalNumberFieldState extends State<OptionalNumberField> {
   );
 }
 
-/// Nombre entier obligatoire (port, intervalle) ; [min] – [max] vérifiés ici,
-/// le Hub revérifie à l'enregistrement.
+/// Required integer (port, interval); [min] – [max] checked here, and the
+/// Hub checks again on save.
 class IntField extends StatefulWidget {
   const IntField({
     super.key,
@@ -191,8 +192,8 @@ class _IntFieldState extends State<IntField> {
   );
 }
 
-/// Champ d'un réglage de plugin, choisi d'après sa description
-/// ([SettingField]) ; erreurs données par les mêmes règles que le Hub.
+/// Field for a plugin setting, chosen from its description
+/// ([SettingField]); errors come from the same rules as the Hub's.
 class SettingInput extends StatelessWidget {
   const SettingInput({
     super.key,
@@ -223,7 +224,7 @@ class SettingInput extends StatelessWidget {
       case SettingKind.choice:
         final current = field.choices.contains(value) ? value as String : null;
         return DropdownButtonFormField<String?>(
-          // Clé = valeur : le champ suit les changements venus d'ailleurs.
+          // Key = value: the field follows changes made elsewhere.
           key: ValueKey(current),
           initialValue: current,
           isExpanded: true,
@@ -261,7 +262,7 @@ class SettingInput extends StatelessWidget {
             final trimmed = text.trim();
             if (trimmed.isEmpty) return onChanged(null);
             onChanged(switch (field.kind) {
-              // Texte invalide gardé tel quel : la validation le signale.
+              // Invalid text kept as is: validation reports it.
               SettingKind.integer => int.tryParse(trimmed) ?? trimmed,
               SettingKind.number => parseNumber(trimmed) ?? trimmed,
               _ => trimmed,
@@ -272,7 +273,7 @@ class SettingInput extends StatelessWidget {
   }
 }
 
-/// Titre de section dans un panneau.
+/// Section title in a panel.
 class SectionTitle extends StatelessWidget {
   const SectionTitle(this.text, {super.key});
 

@@ -1,5 +1,5 @@
-// BuildBeacon UI — Panneau « Tuile » : nom, identifiant, zones (source + mode d'affichage).
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — "Tile" panel: name, id, zones (source + display mode).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:flutter/material.dart';
@@ -101,7 +101,7 @@ class TilePanel extends StatelessWidget {
   }
 }
 
-/// Identifiant : appliqué en quittant le champ (ou Entrée), s'il est libre.
+/// Id: applied when leaving the field (or on Enter), if it is not taken.
 class _IdField extends StatefulWidget {
   const _IdField({super.key, required this.editor, required this.tile});
 
@@ -144,7 +144,7 @@ class _IdFieldState extends State<_IdField> {
         ? l.tileIdTaken(name)
         : null;
     setState(() => _error = error);
-    // Renommée : le panneau est reconstruit avec la nouvelle clé.
+    // Renamed: the panel is rebuilt with the new key.
     if (error == null) widget.editor.renameTile(widget.tile.id, name);
   }
 
@@ -160,7 +160,7 @@ class _IdFieldState extends State<_IdField> {
   );
 }
 
-/// Une zone de la tuile : éteinte, ou une source et un mode d'affichage.
+/// A zone of the tile: off, or a source and a display mode.
 class ZoneEditor extends StatelessWidget {
   const ZoneEditor({
     super.key,
@@ -467,7 +467,7 @@ class ZoneEditor extends StatelessWidget {
   }
 }
 
-/// Secret absent sur le Hub : son aide (ex. « dépôts publics seulement »).
+/// Secret missing on the Hub: its help text (e.g. "public repositories only").
 class _SecretNotice extends StatelessWidget {
   const _SecretNotice({required this.secret});
 
@@ -501,7 +501,7 @@ class _SecretNotice extends StatelessWidget {
   }
 }
 
-/// Dernier état connu de la source, d'après le Hub.
+/// Last known state of the source, according to the Hub.
 class _SourceLive extends StatelessWidget {
   const _SourceLive({required this.editor, required this.source});
 

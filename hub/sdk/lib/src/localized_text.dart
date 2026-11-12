@@ -1,50 +1,50 @@
-// BuildBeacon Hub — SDK des plugins : textes traduits (i18n).
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Plugin SDK: translated texts (i18n).
+// Version 1.1 (2026-11-12) — comments in English.
 
-/// Langues de l'interface.
+/// Interface languages.
 const supportedLanguages = ['en', 'fr'];
 
-/// Langue utilisée quand un texte n'existe pas dans la langue demandée.
+/// Language used when a text is not available in the requested language.
 const fallbackLanguage = 'en';
 
-/// Texte destiné à l'utilisateur, dans les langues de l'interface.
+/// User-facing text, in the interface languages.
 ///
-/// - Libellé fixe : `const LocalizedText({'en': 'Repository', 'fr': 'Dépôt'})`.
-/// - Message qui contient des valeurs ou d'autres textes traduits :
-///   `LocalizedText.build((lang) => tr(lang, en: '…', fr: '…'))`, calculé
-///   dans la langue du lecteur au moment de l'affichage.
+/// - Fixed label: `const LocalizedText({'en': 'Repository', 'fr': 'Dépôt'})`.
+/// - Message that contains values or other translated texts:
+///   `LocalizedText.build((lang) => tr(lang, en: '…', fr: '…'))`, computed
+///   in the reader's language when it is displayed.
 abstract interface class LocalizedText {
   const factory LocalizedText(Map<String, String> translations) = _Translations;
 
   factory LocalizedText.build(String Function(String language) build) = _Built;
 
-  /// Même texte dans toutes les langues (nom propre, valeur technique).
+  /// Same text in every language (proper name, technical value).
   const factory LocalizedText.same(String text) = _Same;
 
-  /// Le texte en [language] (`'fr'`, `'en'`…), sinon en anglais.
+  /// The text in [language] (`'fr'`, `'en'`…), otherwise in English.
   String resolve(String language);
 
-  /// Langues dans lesquelles le texte est écrit.
+  /// Languages the text is written in.
   Set<String> get languages;
 
-  /// Le texte dans chaque langue de l'interface : `{"en": "…", "fr": "…"}`.
+  /// The text in each interface language: `{"en": "…", "fr": "…"}`.
   Map<String, String> toJson();
 }
 
-/// Choisit la phrase de [language] ; l'anglais pour toute autre langue.
+/// Picks the sentence for [language]; English for any other language.
 String tr(String language, {required String en, required String fr}) =>
     language == 'fr' ? fr : en;
 
-/// Langue de l'interface la plus proche de [locale] (`fr_FR.UTF-8`, `fr-CA`,
-/// `en`…) ; l'anglais si elle n'est pas traduite.
+/// Interface language closest to [locale] (`fr_FR.UTF-8`, `fr-CA`, `en`…);
+/// English if that language is not translated.
 String languageOf(String? locale) {
   final code = (locale ?? '').toLowerCase();
   final prefix = code.length >= 2 ? code.substring(0, 2) : code;
   return supportedLanguages.contains(prefix) ? prefix : fallbackLanguage;
 }
 
-/// Erreur de format (config.json, réponse d'un service…) avec un message
-/// traduit ; reste une [FormatException] pour le code qui l'attrape.
+/// Format error (config.json, a service response…) with a translated
+/// message; still a [FormatException] for the code that catches it.
 final class LocalizedFormatException extends FormatException {
   LocalizedFormatException(this.text, [Object? source])
     : super(text.resolve(fallbackLanguage), source);
@@ -53,7 +53,7 @@ final class LocalizedFormatException extends FormatException {
 }
 
 extension LocalizedTexts on Iterable<LocalizedText> {
-  /// Chaque texte dans [language].
+  /// Each text in [language].
   List<String> resolveAll(String language) => [
     for (final text in this) text.resolve(language),
   ];

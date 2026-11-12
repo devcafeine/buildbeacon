@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Simulateur web : sert la page et diffuse les images reçues (SSE).
-// Version 1.2 (2026-11-11) — adresses brutes (la page les présente dans sa langue).
+// BuildBeacon Hub — Web simulator: serves the page and streams the received frames (SSE).
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -11,14 +11,14 @@ import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'ddp_receiver.dart';
 import 'web_page.dart';
 
-/// Délai temps réel de WLED : sans image pendant ce temps, un vrai WLED
-/// reprend son propre affichage.
+/// WLED's realtime timeout: without a frame for this long, a real WLED goes
+/// back to its own display.
 const wledRealtimeTimeout = Duration(milliseconds: 2500);
 
-/// Disposition envoyée à la page (`/layout`) : tuiles de [config] avec leur
-/// place au mur, port DDP et adresses IPv4 à indiquer au Hub (la première
-/// est celle de la boucle locale). Sans [config], la page aligne les tuiles
-/// dans l'ordre de la chaîne.
+/// Layout sent to the page (`/layout`): tiles of [config] with their place
+/// on the wall, DDP port and IPv4 addresses to give to the Hub (the first
+/// one is the loopback). Without [config], the page lines the tiles up in
+/// chain order.
 Map<String, Object?> simulatorLayout({
   Config? config,
   required int ddpPort,
@@ -40,11 +40,11 @@ Map<String, Object?> simulatorLayout({
   ],
 };
 
-/// Serveur HTTP du simulateur web :
-/// - `/` : la page ;
-/// - `/layout` : la disposition (JSON) ;
-/// - `/events` : les images reçues, en Server-Sent Events (le navigateur ne
-///   peut pas recevoir d'UDP lui-même).
+/// HTTP server of the web simulator:
+/// - `/`: the page;
+/// - `/layout`: the layout (JSON);
+/// - `/events`: the received frames, as Server-Sent Events (the browser
+///   cannot receive UDP itself).
 final class WebSimulator {
   WebSimulator._(this._server, Stream<ReceivedFrame> frames, this._layout) {
     _server.listen(_handle);
@@ -58,9 +58,9 @@ final class WebSimulator {
     });
   }
 
-  /// Démarre le serveur sur [port] (0 = port libre au hasard). Par défaut,
-  /// seulement sur cette machine ; [address] = toutes les interfaces pour
-  /// regarder le simulateur depuis un autre poste.
+  /// Starts the server on [port] (0 = random free port). By default, on this
+  /// machine only; [address] = all interfaces to watch the simulator from
+  /// another computer.
   static Future<WebSimulator> start({
     required Stream<ReceivedFrame> frames,
     required Map<String, Object?> layout,
@@ -81,7 +81,7 @@ final class WebSimulator {
 
   int get port => _server.port;
 
-  /// Pages ouvertes en ce moment.
+  /// Pages currently open.
   int get viewers => _clients.length;
 
   Future<void> close() async {
@@ -121,8 +121,8 @@ final class WebSimulator {
           ..write('retry: 1000\n\n');
         _clients.add(response);
         unawaited(response.done.whenComplete(() => _clients.remove(response)));
-        // Une page qui arrive voit tout de suite la dernière image, avec son
-        // âge : si le flux est arrêté, elle l'affiche comme tel.
+        // A newly connected page immediately gets the last frame, with its
+        // age: if the stream has stopped, it shows it as such.
         if ((_last, _lastAt) case (final frame?, final at?)) {
           _write(response, _frameEvent(frame, DateTime.now().difference(at)));
         }

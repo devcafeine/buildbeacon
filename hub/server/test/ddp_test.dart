@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : codage et décodage DDP.
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Tests: DDP encoding and decoding.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:typed_data';
 
@@ -14,11 +14,11 @@ void main() {
 
       expect(packet.sublist(0, ddpHeaderLength), [
         0x41, // version 1, PUSH
-        3, // séquence
-        0x0B, // RGB, 8 bits par canal
-        0x01, // sortie par défaut
-        0, 0, 0, 0, // décalage
-        0, 63, // longueur
+        3, // sequence
+        0x0B, // RGB, 8 bits per channel
+        0x01, // default output
+        0, 0, 0, 0, // offset
+        0, 63, // length
       ]);
       expect(packet.sublist(ddpHeaderLength), rgb);
     });
@@ -72,8 +72,8 @@ void main() {
     test('en-tête avec horodatage (14 octets)', () {
       final packet = DdpPacket.tryParse(
         Uint8List.fromList([
-          0x51, 1, 0x0B, 1, 0, 0, 0, 0, 0, 3, // en-tête, drapeau T
-          0xAA, 0xBB, 0xCC, 0xDD, // horodatage
+          0x51, 1, 0x0B, 1, 0, 0, 0, 0, 0, 3, // header, T flag
+          0xAA, 0xBB, 0xCC, 0xDD, // timestamp
           1, 2, 3,
         ]),
       )!;

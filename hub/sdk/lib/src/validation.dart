@@ -1,5 +1,5 @@
-// BuildBeacon Hub — SDK des plugins : validation des réglages et conformité.
-// Version 1.1 (2026-11-11) — messages utilisateur traduits ; conformité en anglais (développeurs), traductions anglaises exigées.
+// BuildBeacon Hub — Plugin SDK: settings validation and conformance.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 
@@ -11,10 +11,10 @@ import 'source_settings.dart';
 final _identifier = RegExp(r'^[a-z][a-z0-9_]*$');
 final _envName = RegExp(r'^BB_[A-Z0-9_]+$');
 
-/// Problèmes des réglages [values] d'une source de [plugin] : champ
-/// obligatoire absent, mauvais type, format, choix, réglage inconnu (faute de
-/// frappe), puis contrôles propres au plugin. Messages traduits ; vide si
-/// tout va bien. C'est la validation qu'applique le Hub.
+/// Problems with the settings [values] of a [plugin] source: missing required
+/// field, wrong type, format, choice, unknown setting (typo), then the
+/// plugin-specific checks. Translated messages; empty if everything is fine.
+/// This is the validation the Hub applies.
 List<LocalizedText> settingsIssues(
   SourcePlugin plugin,
   Map<String, Object?> values,
@@ -32,16 +32,16 @@ List<LocalizedText> settingsIssues(
           ),
         ),
   ];
-  // Les contrôles du plugin supposent des champs valides.
+  // The plugin checks assume valid fields.
   if (fieldIssues.isNotEmpty) return fieldIssues;
   return plugin.validateSettings(SourceSettings(values));
 }
 
-/// Vérifie qu'un plugin respecte les règles du Hub, sans l'exécuter :
-/// identifiants, réglages, secrets, mesures, traductions anglaises,
-/// description JSON. Messages en anglais, pour les développeurs.
+/// Checks that a plugin follows the Hub rules, without running it:
+/// identifiers, settings, secrets, measurements, English translations, JSON
+/// description. Messages in English, for developers.
 ///
-/// Le Hub refuse un plugin non conforme. Dans les tests d'un plugin :
+/// The Hub rejects a non-conforming plugin. In a plugin's tests:
 /// `expect(conformanceIssues(const MyPlugin()), isEmpty);`
 List<String> conformanceIssues(SourcePlugin plugin) => [
   if (!_identifier.hasMatch(plugin.type))
@@ -68,7 +68,7 @@ List<String> conformanceIssues(SourcePlugin plugin) => [
   ..._describeIssues(plugin),
 ];
 
-/// Un texte doit exister en anglais (langue de repli) et ne pas être vide.
+/// A text must exist in English (the fallback language) and not be empty.
 List<String> _textIssues(String what, LocalizedText text) => [
   if (!text.languages.contains(fallbackLanguage))
     '$what: English translation missing',

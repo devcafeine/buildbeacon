@@ -1,10 +1,10 @@
-// BuildBeacon UI — Textes traduits reçus du Hub ({"en": "…", "fr": "…"}).
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Translated texts received from the Hub ({"en": "…", "fr": "…"}).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
-/// `{"en": "…", "fr": "…"}` → texte traduit ; une chaîne seule vaut pour
-/// toutes les langues.
+/// `{"en": "…", "fr": "…"}` → translated text; a plain string applies to
+/// all languages.
 LocalizedText localizedFromJson(Object? json) => switch (json) {
   final Map<String, Object?> map => LocalizedText({
     for (final MapEntry(:key, :value) in map.entries)

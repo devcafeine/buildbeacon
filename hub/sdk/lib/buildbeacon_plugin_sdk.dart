@@ -1,11 +1,11 @@
-// BuildBeacon Hub — SDK des plugins : API publique.
-// Version 1.1 (2026-11-11) — textes traduits (localized_text.dart).
+// BuildBeacon Hub — Plugin SDK: public API.
+// Version 1.2 (2026-11-12) — comments in English.
 
-/// SDK des plugins de source BuildBeacon.
+/// SDK for BuildBeacon source plugins.
 ///
-/// Un plugin n'importe que cette bibliothèque (et `testing.dart` dans ses
-/// tests). Tout ce qu'elle exporte suit le versionnage du SDK : le cœur du
-/// Hub peut évoluer sans casser les plugins.
+/// A plugin imports only this library (plus `testing.dart` in its tests).
+/// Everything it exports follows the SDK versioning: the Hub core can evolve
+/// without breaking plugins.
 library;
 
 export 'src/localized_text.dart';

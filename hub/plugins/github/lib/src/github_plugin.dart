@@ -1,15 +1,14 @@
-// BuildBeacon Hub — Plugin GitHub Actions.
-// Version 1.2 (2026-11-11) — libellés et aides traduits (anglais, français).
+// BuildBeacon Hub — GitHub Actions plugin.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
 import 'github_runs_reader.dart';
 
-/// Plugin GitHub Actions : état et historique des derniers runs d'un dépôt,
-/// d'un workflow ou d'une branche.
+/// GitHub Actions plugin: status and history of the latest runs of a
+/// repository, a workflow or a branch.
 ///
-/// Écrit uniquement avec le SDK des plugins, comme le serait un plugin de la
-/// communauté.
+/// Written only with the plugin SDK, as a community plugin would be.
 final class GithubPlugin extends SourcePlugin {
   const GithubPlugin();
 

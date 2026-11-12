@@ -1,13 +1,13 @@
-// BuildBeacon Hub — Lecture d'un fichier .env (variables d'environnement).
-// Version 1.0 (2026-11-11)
+// BuildBeacon Hub — Reading a .env file (environment variables).
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:io';
 
 final _validKey = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
-/// Lit le contenu d'un fichier `.env` : lignes `NOM=valeur`, commentaires `#`,
-/// guillemets facultatifs autour de la valeur, préfixe `export ` accepté. Les
-/// lignes illisibles sont ignorées.
+/// Reads the content of a `.env` file: `NAME=value` lines, `#` comments,
+/// optional quotes around the value, `export ` prefix accepted. Unreadable
+/// lines are ignored.
 Map<String, String> parseEnvFile(String content) {
   final values = <String, String>{};
   for (final raw in content.split('\n')) {
@@ -33,9 +33,9 @@ String _value(String text) {
   return comment < 0 ? text : text.substring(0, comment).trimRight();
 }
 
-/// Environnement du Hub : les variables du fichier [envFile] s'il existe,
-/// puis celles du processus, qui ont priorité. Les valeurs vides sont
-/// ignorées (un `.env` copié de `.env.example` sans être rempli).
+/// Environment of the Hub: the variables of the file [envFile] if it exists,
+/// then those of the process, which take precedence. Empty values are
+/// ignored (a `.env` copied from `.env.example` without being filled in).
 Future<Map<String, String>> loadEnvironment({
   String? envFile,
   Map<String, String>? processEnvironment,

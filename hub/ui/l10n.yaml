@@ -1,5 +1,5 @@
-# BuildBeacon UI — génération des traductions (flutter gen-l10n, fichiers ARB).
-# Version du fichier : 1.0 (2026-11-11)
+# BuildBeacon UI — translation generation (flutter gen-l10n, ARB files).
+# File version: 1.1 (2026-11-12) — comments in English.
 arb-dir: lib/l10n
 template-arb-file: app_en.arb
 output-localization-file: app_localizations.dart

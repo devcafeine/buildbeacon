@@ -1,5 +1,5 @@
-// BuildBeacon Hub — SDK des plugins : contrat d'un plugin de source.
-// Version 1.2 (2026-11-11) — libellés et messages traduits (LocalizedText).
+// BuildBeacon Hub — Plugin SDK: contract of a source plugin.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'package:http/http.dart' as http;
 
@@ -8,58 +8,59 @@ import 'plugin_schema.dart';
 import 'source_settings.dart';
 import 'source_state.dart';
 
-/// Plugin de source : tout ce que le Hub sait d'une intégration (GitHub,
-/// imprimante 3D, ping HTTP…).
+/// Source plugin: everything the Hub knows about an integration (GitHub,
+/// 3D printer, HTTP ping…).
 ///
-/// Un plugin décrit ses réglages, ses secrets et ce qu'il fournit
-/// (historique, mesures), puis produit un flux d'états avec [connect]. Le Hub
-/// s'occupe du reste : une seule connexion par source distincte, cache,
-/// rendu, formulaires de l'interface. Les textes destinés à l'utilisateur
-/// sont des [LocalizedText] : le plugin apporte ses traductions.
+/// A plugin describes its settings, its secrets and what it provides
+/// (history, measurements), then produces a stream of states with [connect].
+/// The Hub takes care of the rest: a single connection per distinct source,
+/// caching, rendering, interface forms. User-facing texts are
+/// [LocalizedText]: the plugin brings its own translations.
 abstract class SourcePlugin {
   const SourcePlugin();
 
-  /// Identifiant stable, utilisé dans config.json (`"type": "github"`) :
-  /// minuscules, chiffres et `_`, en anglais.
+  /// Stable identifier, used in config.json (`"type": "github"`): lowercase
+  /// letters, digits and `_`, in English.
   String get type;
 
-  /// Nom affiché dans l'interface.
+  /// Name shown in the interface.
   LocalizedText get label;
 
-  /// Une phrase d'explication pour l'interface.
+  /// One sentence of explanation for the interface.
   LocalizedText get description;
 
-  /// Réglages d'une source de ce type.
+  /// Settings of a source of this type.
   List<SettingField> get settings;
 
-  /// Secrets lus dans l'environnement. Le plugin ne reçoit que ceux-ci.
+  /// Secrets read from the environment. The plugin receives only these.
   List<SecretField> get secrets => const [];
 
-  /// Le plugin remplit [SourceState.history] (mode history).
+  /// The plugin fills [SourceState.history] (history mode).
   bool get providesHistory => false;
 
-  /// Mesures que le plugin peut fournir (modes thresholds et gauge).
+  /// Measurements the plugin can provide (thresholds and gauge modes).
   List<MetricInfo> get metrics => const [];
 
-  /// Mesures non connues d'avance (plugin générique, nommées par
-  /// l'utilisateur) : le Hub ne vérifie alors pas l'option `metric`.
+  /// Measurements not known in advance (generic plugin, named by the
+  /// user): the Hub then does not check the `metric` option.
   bool get dynamicMetrics => false;
 
-  /// Contrôles propres au plugin, en plus de ceux de chaque champ
-  /// (cohérence entre réglages…).
+  /// Plugin-specific checks, on top of the checks of each field
+  /// (consistency between settings…).
   ///
-  /// Appelé seulement quand chaque champ est valide : les accesseurs typés
-  /// de [settings] sont sûrs.
+  /// Called only when every field is valid: the typed accessors of
+  /// [settings] are safe to use.
   List<LocalizedText> validateSettings(SourceSettings settings) => const [];
 
-  /// Ouvre la source décrite par [settings], déjà validés. Le flux émet un
-  /// état à chaque changement ; le Hub l'annule quand la source ne sert plus.
+  /// Opens the source described by [settings], already validated. The stream
+  /// emits a state on each change; the Hub cancels it when the source is no
+  /// longer used.
   ///
-  /// Pour une source scrutée, voir `pollingStream`.
+  /// For a polled source, see `pollingStream`.
   Stream<SourceState> connect(SourceSettings settings, PluginContext context);
 
-  /// Description du plugin pour l'interface, qui en génère les formulaires.
-  /// Les textes y figurent dans chaque langue de l'interface.
+  /// Description of the plugin for the interface, which generates its forms
+  /// from it. Texts appear in every interface language.
   Map<String, Object?> describe() => {
     'type': type,
     'label': label.toJson(),
@@ -72,7 +73,7 @@ abstract class SourcePlugin {
   };
 }
 
-/// Ce que le Hub met à la disposition d'un plugin.
+/// What the Hub makes available to a plugin.
 final class PluginContext {
   PluginContext({
     required this.httpClient,
@@ -84,31 +85,31 @@ final class PluginContext {
        _log = log ?? _silent,
        now = clock ?? DateTime.now;
 
-  /// Client HTTP partagé par tous les plugins (connexions réutilisées).
+  /// HTTP client shared by all plugins (connections are reused).
   final http.Client httpClient;
 
-  /// Intervalle de scrutation réglé par l'utilisateur.
+  /// Polling interval set by the user.
   final Duration pollInterval;
 
-  /// Horloge, remplaçable dans les tests.
+  /// Clock, replaceable in tests.
   final DateTime Function() now;
 
   final Map<String, String> _secrets;
   final void Function(String message) _log;
 
-  /// Valeur du secret [env] s'il est défini. Seuls les secrets déclarés par
-  /// le plugin lui sont transmis.
+  /// Value of the secret [env], if set. Only the secrets declared by the
+  /// plugin are passed to it.
   String? secret(String env) => _secrets[env];
 
-  /// Message technique pour le journal du Hub (en anglais), préfixé par le
-  /// type du plugin.
+  /// Technical message for the Hub log (in English), prefixed with the
+  /// plugin type.
   void log(String message) => _log(message);
 
   static void _silent(String message) {}
 }
 
-/// Erreur de lecture d'une source, avec un message traduit pour
-/// l'utilisateur (affiché dans l'interface).
+/// Error while reading a source, with a translated message for the user
+/// (shown in the interface).
 final class SourceException implements Exception {
   const SourceException(this.message);
 

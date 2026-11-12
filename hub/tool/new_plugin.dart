@@ -1,23 +1,29 @@
-// BuildBeacon Hub — Crée un plugin de source à partir du modèle.
-// Version 1.1 (2026-11-11) — ex nouveau_plugin.dart : nom et option en anglais (--root), messages traduits, modèle avec textes traduits.
+// BuildBeacon Hub — Creates a source plugin from the template.
+// Version 1.3 (2026-11-12) — comments in English; reads `# File version:` headers.
 //
-// Depuis la racine du dépôt : mise run new-plugin <name>
-// Depuis hub/ :               dart run tool/new_plugin.dart <name> [--root <hub folder>]
+// From the repository root: mise run new-plugin <name>
+// From hub/:                dart run tool/new_plugin.dart <name> [--root <hub folder>]
 //
-// Crée hub/plugins/<name>/ (plugin d'exemple qui fonctionne, tests, README),
-// l'inscrit dans l'espace de travail, les dépendances du serveur et la liste
-// des plugins intégrés, puis lance `dart pub get` et `dart format`.
+// Creates hub/plugins/<name>/ (working example plugin, tests, README),
+// registers it in the workspace, the server dependencies and the list of
+// built-in plugins, then runs `dart pub get` and `dart format`.
 
 import 'dart:io';
 
 final _validName = RegExp(r'^[a-z][a-z0-9_]*$');
+
+/// Version line of a file: `// Version 1.2 (date) — note` in Dart,
+/// `# File version: 1.2 (date) — note` in YAML (older files:
+/// `# Version du fichier : …`, rewritten in English).
 final _versionLine = RegExp(
-  r'^(#|//) Version( du fichier :)? (\d+)\.(\d+) \(\d{4}-\d{2}-\d{2}\).*$',
+  r'^(#|//) (?:Version|File version:|Version du fichier :) (\d+)\.(\d+) '
+  r'\(\d{4}-\d{2}-\d{2}\).*$',
   multiLine: true,
 );
 
-/// Langue des messages : `BB_LANG`, sinon la langue du système ; anglais par
-/// défaut. (Ce script n'a pas de dépendance : il ne peut pas utiliser le SDK.)
+/// Language of the messages: `BB_LANG`, otherwise the system language;
+/// English by default. (This script has no dependencies: it cannot use the
+/// SDK.)
 final String _lang = () {
   final env = Platform.environment;
   final locale = [
@@ -67,7 +73,7 @@ Future<void> main(List<String> args) async {
     }
   }
 
-  // 1. Le paquet du plugin.
+  // 1. The plugin package.
   final files = {
     'pubspec.yaml': _pubspec,
     'README.md': _lang == 'fr' ? _readmeFr : _readmeEn,
@@ -81,8 +87,8 @@ Future<void> main(List<String> args) async {
       ..writeAsStringSync(fill(template));
   }
 
-  // 2. Son inscription dans le Hub.
-  final note = 'plugin $name ajouté';
+  // 2. Its registration in the Hub.
+  final note = 'plugin $name added';
   _insertAbove(File('$root/pubspec.yaml'), today, note, {
     'new-plugin: plugins are added above': (indent) =>
         '$indent- plugins/$name\n',
@@ -97,7 +103,7 @@ Future<void> main(List<String> args) async {
     'new-plugin: plugins are added above': (indent) => '$indent$className(),\n',
   });
 
-  // 3. Dépendances et mise en forme.
+  // 3. Dependencies and formatting.
   await _run(root, ['pub', 'get']);
   await _run(root, [
     'format',
@@ -173,9 +179,9 @@ Guide du SDK : sdk/README.md''',
   return (name, root);
 }
 
-/// Insère, au-dessus de chaque repère, la ligne produite par sa fonction
-/// (qui reçoit l'indentation du repère), puis incrémente la version du
-/// fichier (règle du projet : une version par modification).
+/// Inserts, above each marker, the line produced by its function (which
+/// receives the marker's indentation), then bumps the file version (project
+/// rule: one version per change).
 void _insertAbove(
   File file,
   String today,
@@ -212,17 +218,19 @@ void _insertAbove(
       ),
     );
   }
-  final minor = int.parse(version[4]!) + 1;
+  final major = version[2]!;
+  final minor = int.parse(version[3]!) + 1;
+  final label = version[1] == '#' ? 'File version:' : 'Version';
   content = content.replaceRange(
     version.start,
     version.end,
-    '${version[1]} Version${version[2] ?? ''} ${version[3]}.$minor ($today) — $note.',
+    '${version[1]} $label $major.$minor ($today) — $note.',
   );
   file.writeAsStringSync(content);
   stdout.writeln(
     _tr(
-      en: '${file.path}: registered, version ${version[3]}.$minor',
-      fr: '${file.path} : inscrit, version ${version[3]}.$minor',
+      en: '${file.path}: registered, version $major.$minor',
+      fr: '${file.path} : inscrit, version $major.$minor',
     ),
   );
 }
@@ -248,11 +256,11 @@ Never _fail(String message) {
 }
 
 // ---------------------------------------------------------------------------
-// Modèles. Jetons remplacés : %NAME%, %CLASS%, %LABEL%, %DATE%, %ENV%.
+// Templates. Replaced tokens: %NAME%, %CLASS%, %LABEL%, %DATE%, %ENV%.
 
 const _pubspec = r'''
-# BuildBeacon Hub — plugin %LABEL%.
-# Version du fichier : 1.0 (%DATE%)
+# BuildBeacon Hub — %LABEL% plugin.
+# File version: 1.0 (%DATE%)
 name: buildbeacon_plugin_%NAME%
 description: BuildBeacon plugin — %LABEL%.
 version: 0.1.0
@@ -273,7 +281,7 @@ dev_dependencies:
 ''';
 
 const _library = r'''
-// BuildBeacon Hub — Plugin %LABEL% : API publique du paquet.
+// BuildBeacon Hub — %LABEL% plugin: public API of the package.
 // Version 1.0 (%DATE%)
 
 /// BuildBeacon plugin "%LABEL%".
@@ -283,7 +291,7 @@ export 'src/%NAME%_plugin.dart';
 ''';
 
 const _plugin = r'''
-// BuildBeacon Hub — Plugin %LABEL%.
+// BuildBeacon Hub — %LABEL% plugin.
 // Version 1.0 (%DATE%)
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
@@ -358,7 +366,7 @@ final class %CLASS% extends SourcePlugin {
 ''';
 
 const _test = r'''
-// BuildBeacon Hub — Tests : plugin %LABEL%.
+// BuildBeacon Hub — Tests: %LABEL% plugin.
 // Version 1.0 (%DATE%)
 
 import 'package:buildbeacon_plugin_%NAME%/buildbeacon_plugin_%NAME%.dart';

@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Programme principal : config.json → plugins → image des LED → WLED, et API REST.
-// Version 1.2 (2026-11-12) — premier démarrage sans config.json : créé avec la master seule.
+// BuildBeacon Hub — Main program: config.json → plugins → LED frame → WLED, and REST API.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:io';
@@ -71,7 +71,7 @@ Future<void> main(List<String> args) async {
     withValue: {'config', 'env-file', 'port', 'listen', 'web'},
   );
   final environment = await loadEnvironment(envFile: options['env-file']);
-  // BB_LANG peut venir du fichier .env.
+  // BB_LANG may come from the .env file.
   final l = environment['BB_LANG'] == null
       ? systemLanguage
       : languageOf(environment['BB_LANG']);
@@ -92,8 +92,8 @@ Future<void> main(List<String> args) async {
   final apiToken = environment['BB_API_TOKEN'];
 
   final plugins = builtinPlugins();
-  // Premier démarrage : pas de config.json → la master seule, à régler
-  // depuis l'interface. Un fichier présent mais invalide n'est jamais remplacé.
+  // First start: no config.json → the master tile only, to be set up from
+  // the interface. An existing but invalid file is never replaced.
   final ({Config config, bool created}) loaded;
   try {
     loaded = await readOrCreateConfigFile(configPath);
@@ -224,9 +224,9 @@ Future<void> main(List<String> args) async {
     );
   }
 
-  // Rechargement à chaud : surveiller le dossier, car beaucoup d'éditeurs
-  // remplacent le fichier au lieu de le réécrire. Une configuration que l'API
-  // vient d'enregistrer est identique : le service l'ignore.
+  // Hot reload: watch the folder, because many editors replace the file
+  // instead of rewriting it. A configuration the API has just saved is
+  // identical: the service ignores it.
   final file = File(configPath).absolute;
   final name = _fileName(file.path);
   Timer? debounce;
@@ -246,7 +246,7 @@ Future<void> main(List<String> args) async {
         );
       });
 
-  // Arrêt propre : Ctrl-C, ou SIGTERM envoyé par Docker.
+  // Clean shutdown: Ctrl-C, or SIGTERM sent by Docker.
   final stop = Completer<void>();
   void requestStop(ProcessSignal _) {
     if (!stop.isCompleted) stop.complete();

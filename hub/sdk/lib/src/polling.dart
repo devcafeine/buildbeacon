@@ -1,5 +1,5 @@
-// BuildBeacon Hub — SDK des plugins : flux de scrutation.
-// Version 1.1 (2026-11-11) — messages d'erreur traduits.
+// BuildBeacon Hub — Plugin SDK: polling stream.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:async';
 
@@ -7,13 +7,13 @@ import 'localized_text.dart';
 import 'source_plugin.dart';
 import 'source_state.dart';
 
-/// Flux de scrutation : lit dès l'abonnement, puis [interval] après la fin
-/// de chaque lecture. Plus aucune lecture une fois le flux annulé.
+/// Polling stream: reads as soon as it is listened to, then [interval] after
+/// each read completes. No more reads once the stream is cancelled.
 ///
-/// [read] reçoit l'état précédent (utile pour un cache ETag). Une erreur
-/// devient [SourceState.error] en gardant les dernières valeurs connues : le
-/// panneau continue d'afficher le dernier état valable. Lever une
-/// [SourceException] donne un message traduit à l'utilisateur.
+/// [read] receives the previous state (useful for an ETag cache). An error
+/// becomes [SourceState.error] while keeping the last known values: the
+/// panel keeps showing the last valid state. Throwing a [SourceException]
+/// gives the user a translated message.
 Stream<SourceState> pollingStream(
   Duration interval,
   Future<SourceState> Function(SourceState previous) read,

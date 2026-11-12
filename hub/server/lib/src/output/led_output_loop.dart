@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Boucle de sortie : calcule et envoie l'image des LED.
-// Version 1.1 (2026-11-11) — message d'erreur traduit.
+// BuildBeacon Hub — Output loop: computes and sends the LED frame.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:typed_data';
@@ -8,12 +8,12 @@ import 'package:buildbeacon_core/buildbeacon_core.dart';
 
 import 'ddp_sender.dart';
 
-/// Calcule l'image des LED à intervalle régulier (20 images/s par défaut) et
-/// l'envoie quand elle change.
+/// Computes the LED frame at a regular interval (20 frames/s by default) and
+/// sends it when it changes.
 ///
-/// Une image identique est renvoyée au moins toutes les [keepAlive] : sans
-/// flux, WLED reprend son propre affichage après son délai temps réel
-/// (≈ 2,5 s). Un panneau sans animation coûte donc 1 image/s, pas 20.
+/// An identical frame is sent again at least every [keepAlive]: without a
+/// stream, WLED goes back to its own display after its realtime timeout
+/// (≈ 2.5 s). A panel without animation therefore costs 1 frame/s, not 20.
 final class LedOutputLoop {
   LedOutputLoop({
     required this.frameAt,
@@ -25,8 +25,8 @@ final class LedOutputLoop {
   }) : _elapsed = elapsed ?? _stopwatch(),
        _log = log ?? _silent;
 
-  /// Image à l'instant t (temps écoulé depuis le démarrage) : rendu des
-  /// sources, mire de test…
+  /// Frame at time t (elapsed since startup): rendering of the sources, test
+  /// pattern…
   final LedFrame Function(Duration t) frameAt;
   final LedSink sink;
   final Duration frameInterval;
@@ -55,7 +55,7 @@ final class LedOutputLoop {
     _timer = null;
   }
 
-  /// Un pas de la boucle ; `true` si une image a été envoyée.
+  /// One step of the loop; `true` if a frame was sent.
   bool tick() {
     final t = _elapsed();
     final Uint8List bytes;

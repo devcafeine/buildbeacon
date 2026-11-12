@@ -1,5 +1,5 @@
-// BuildBeacon UI — Page principale : le mur, les panneaux, enregistrer / annuler.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Main page: the wall, the panels, save / discard.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ import 'settings_panel.dart';
 import 'tile_panel.dart';
 import 'wall_view.dart';
 
-/// Langue choisie : `null` = celle du navigateur.
+/// Chosen language: `null` = the browser's.
 typedef LanguageChoice = ValueNotifier<String?>;
 
 class HomePage extends StatefulWidget {
@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage>
       ..showSnackBar(SnackBar(content: Text(text), action: action));
   }
 
-  /// Lance [action] ; si le Hub exige `BB_API_TOKEN`, le demande et réessaie.
+  /// Runs [action]; asks for `BB_API_TOKEN` and retries if the Hub requires it.
   Future<ApiException?> _withToken(
     Future<ApiException?> Function() action,
   ) async {

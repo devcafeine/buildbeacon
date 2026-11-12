@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Simulateur WLED : page web (par défaut) ou terminal.
-// Version 1.2 (2026-11-11) — ex simulateur.dart : options en anglais (--open, --network, --raw…), messages traduits.
+// BuildBeacon Hub — WLED simulator: web page (default) or terminal.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:io';
@@ -120,7 +120,7 @@ Future<void> main(List<String> args) async {
   }
 }
 
-/// Adresses à indiquer au Hub, présentées dans la langue [l].
+/// Addresses to give to the Hub, presented in language [l].
 String _hosts(List<String> addresses, String l) {
   final [loopback, ...others] = addresses;
   return [
@@ -130,7 +130,7 @@ String _hosts(List<String> addresses, String l) {
 }
 
 // ---------------------------------------------------------------------------
-// Page web
+// Web page
 
 Future<void> _runWeb(
   DdpReceiver receiver,
@@ -197,7 +197,7 @@ Future<void> _runWeb(
   );
   if (open) await _openBrowser(url, l);
 
-  // Journal minimal : début et fin d'un flux d'images.
+  // Minimal log: start and end of a frame stream.
   String? sender;
   DateTime? lastAt;
   receiver.frames.listen((frame) {
@@ -331,7 +331,7 @@ Future<void> _runTerminal(
   );
   final terminal = stdout.hasTerminal;
   if (terminal) {
-    stdout.write('\x1b[?25l\x1b[2J'); // cache le curseur, efface l'écran
+    stdout.write('\x1b[?25l\x1b[2J'); // hide the cursor, clear the screen
     var shownStatus = '';
     Timer.periodic(const Duration(milliseconds: 50), (_) {
       final text = status();
@@ -352,7 +352,7 @@ Future<void> _runTerminal(
       stdout.write('\x1b[H$screen\x1b[K\x1b[J');
     });
   } else {
-    // Sortie redirigée (journal, test) : une ligne par seconde s'il y a du nouveau.
+    // Redirected output (log, test): one line per second if anything changed.
     stdout
       ..writeln(header)
       ..writeln(status());
@@ -370,7 +370,7 @@ Future<void> _runTerminal(
   exit(0);
 }
 
-/// Adresses IPv4 de cette machine, à donner au Hub ; la boucle locale d'abord.
+/// IPv4 addresses of this machine, to give to the Hub; loopback first.
 Future<List<String>> _localAddresses() async {
   final interfaces = await NetworkInterface.list(
     type: InternetAddressType.IPv4,
@@ -383,7 +383,7 @@ Future<List<String>> _localAddresses() async {
   ];
 }
 
-/// Couleurs en hexadécimal, tuile par tuile (master | n° 1 | n° 2 …).
+/// Colors in hexadecimal, tile by tile (master | no. 1 | no. 2 …).
 String _hexLine(Uint8List rgb) {
   final hex = [
     for (var i = 0; i + 2 < rgb.length; i += 3)

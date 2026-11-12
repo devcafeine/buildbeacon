@@ -1,12 +1,12 @@
-// BuildBeacon Hub — Tests : dessin du panneau dans le terminal (simulateur).
-// Version 1.1 (2026-11-11) — noms par défaut des tuiles traduits.
+// BuildBeacon Hub — Tests: drawing the panel in the terminal (simulator).
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:typed_data';
 
 import 'package:buildbeacon_hub/buildbeacon_hub.dart';
 import 'package:test/test.dart';
 
-/// Retire les codes couleur ANSI.
+/// Strips ANSI color codes.
 String _plain(String text) => text.replaceAll(RegExp(r'\x1b\[[0-9;]*m'), '');
 
 Uint8List _frame(Map<int, (int, int, int)> leds, {int ledCount = 21}) {
@@ -28,7 +28,7 @@ void main() {
       lines[0],
       allOf(contains('BuildBeacon'), contains('App'), contains('Tile 2')),
     );
-    // Ligne du milieu : 3 LED de la master + 5 points par tuile, toutes éteintes.
+    // Middle row: 3 master LEDs + 5 dots per tile, all off.
     expect(lines[2].trim().split(RegExp(r'\s+')), List.filled(13, '·'));
   });
 
@@ -67,7 +67,7 @@ void main() {
     final lines = _plain(
       renderTerminalPanel(_frame({}), columns: 30),
     ).split('\n');
-    expect(lines, hasLength(9)); // 2 tuiles, ligne vide, 1 tuile
+    expect(lines, hasLength(9)); // 2 tiles, blank line, 1 tile
     expect(lines[5], contains('Tile 2'));
   });
 

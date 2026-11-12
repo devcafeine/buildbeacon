@@ -1,7 +1,7 @@
-# BuildBeacon Hub — espace de travail Dart : SDK, cœur, plugins, serveur, interface web.
-# Version du fichier : 1.3 (2026-11-11) — interface Flutter Web (ui).
+# BuildBeacon Hub — Dart workspace: SDK, core, plugins, server, web interface.
+# File version: 1.4 (2026-11-12) — comments in English.
 #
-# Un seul `dart pub get` ici résout tous les paquets ci-dessous.
+# A single `flutter pub get` here resolves every package below.
 name: buildbeacon_workspace
 publish_to: none
 

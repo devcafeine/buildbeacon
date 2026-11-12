@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests SDK : flux de scrutation.
-// Version 1.1 (2026-11-11) — erreurs traduites, états en anglais.
+// BuildBeacon Hub — SDK tests: polling stream.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 import 'package:test/test.dart';

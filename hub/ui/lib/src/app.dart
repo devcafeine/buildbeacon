@@ -1,5 +1,5 @@
-// BuildBeacon UI — Application : thème, langues (anglais, français), page principale.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Application: theme, languages (English, French), main page.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +21,8 @@ class BuildBeaconApp extends StatefulWidget {
   final HubApi api;
   final Preferences? preferences;
 
-  /// Langue imposée (`?lang=fr` dans l'adresse) ; sinon celle choisie dans
-  /// le menu, sinon celle du navigateur.
+  /// Forced language (`?lang=fr` in the address); otherwise the one chosen
+  /// in the menu, otherwise the browser's.
   final String? initialLanguage;
 
   @override
@@ -67,7 +67,7 @@ class _BuildBeaconAppState extends State<BuildBeaconApp> {
       locale: language == null ? null : Locale(language),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      // Langue du navigateur non traduite : anglais.
+      // Browser language not translated: English.
       localeResolutionCallback: (locale, supported) => supported.firstWhere(
         (s) => s.languageCode == locale?.languageCode,
         orElse: () => const Locale(fallbackLanguage),
@@ -79,7 +79,7 @@ class _BuildBeaconAppState extends State<BuildBeaconApp> {
   );
 }
 
-/// Thème Material 3 sur la couleur d'accent du projet (pétrole).
+/// Material 3 theme based on the project's accent color (petrol blue).
 ThemeData buildTheme(Brightness brightness) {
   final scheme = ColorScheme.fromSeed(
     seedColor: const Color(0xFF0A6B75),

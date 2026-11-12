@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Action d'une zone : une source + un mode d'affichage.
-// Version 1.3 (2026-11-11) — modes en anglais (overall, history, thresholds, gauge), libellés et messages traduits.
+// BuildBeacon Hub — Action of a zone: a source + a display mode.
+// Version 1.4 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 
@@ -7,28 +7,28 @@ import 'json_read.dart';
 import 'source_config.dart';
 import 'thresholds.dart';
 
-/// Façon de traduire l'état d'une source en couleurs de LED.
+/// How the state of a source is turned into LED colors.
 enum DisplayMode {
-  /// Toutes les LED prennent la couleur de l'état actuel de la source.
+  /// All LEDs take the color of the source's current status.
   overall(
     'overall',
     LocalizedText({'en': 'overall status', 'fr': 'état global'}),
   ),
 
-  /// Une LED par élément de l'historique, le plus récent à gauche (point n° 1).
+  /// One LED per history entry, the most recent on the left (dot #1).
   history('history', LocalizedText({'en': 'history', 'fr': 'historique'})),
 
-  /// Toutes les LED prennent la couleur d'une mesure comparée aux seuils.
+  /// All LEDs take the color of a measurement compared with the thresholds.
   thresholds('thresholds', LocalizedText({'en': 'thresholds', 'fr': 'seuils'})),
 
-  /// Barre de progression de gauche à droite selon une mesure.
+  /// Progress bar from left to right, driven by a measurement.
   gauge('gauge', LocalizedText({'en': 'gauge', 'fr': 'jauge'}));
 
   const DisplayMode(this.json, this.label);
 
   final String json;
 
-  /// Nom affiché dans l'interface.
+  /// Name shown in the UI.
   final LocalizedText label;
 
   static DisplayMode? tryParse(String json) {
@@ -39,8 +39,8 @@ enum DisplayMode {
   }
 }
 
-/// Action d'une zone. En JSON, les réglages propres au mode sont regroupés
-/// sous `options` :
+/// Action of a zone. In JSON, the mode-specific settings are grouped under
+/// `options`:
 /// `{"metric": "progress", "thresholds": {…}, "min": 0, "max": 100}`.
 final class ZoneAction {
   const ZoneAction({
@@ -78,19 +78,19 @@ final class ZoneAction {
   final SourceConfig source;
   final DisplayMode mode;
 
-  /// Mesure lue par les modes thresholds et gauge ; `null` = la première
-  /// mesure fournie par la source.
+  /// Measurement read by the thresholds and gauge modes; `null` = the first
+  /// measurement provided by the source.
   final String? metric;
 
-  /// Couleur selon la valeur : obligatoire en mode thresholds ; en mode
-  /// gauge, remplace la couleur de l'état de la source s'ils sont définis.
+  /// Color according to the value: required in thresholds mode; in gauge
+  /// mode, replaces the color of the source's status when defined.
   final Thresholds thresholds;
 
-  /// Bornes de la jauge ; `null` = bornes données par la source, à défaut 0 – 100.
+  /// Gauge bounds; `null` = bounds given by the source, otherwise 0 – 100.
   final num? min;
   final num? max;
 
-  /// Problèmes de réglage, traduits.
+  /// Settings problems, translated.
   List<LocalizedText> validate() {
     final (low, high) = (min, max);
     return [

@@ -1,5 +1,5 @@
-// BuildBeacon UI — Tests de l'application : mur, panneaux, enregistrement, langues.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Application tests: wall, panels, saving, languages.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_ui/src/app.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +26,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  /// Laisse passer l'attente avant validation, puis la réponse du Hub.
+  /// Lets the delay before validation elapse, then the Hub's response.
   Future<void> validate(WidgetTester tester) async {
     await tester.pump(const Duration(milliseconds: 350));
     await tester.pumpAndSettle();

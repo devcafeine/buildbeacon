@@ -1,13 +1,13 @@
-// BuildBeacon Hub — Outils communs aux programmes en ligne de commande (bin/).
-// Version 1.1 (2026-11-11) — langue de l'interface (BB_LANG ou système), messages traduits, options en anglais.
+// BuildBeacon Hub — Helpers shared by the command-line programs (bin/).
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:io';
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
-/// Langue des programmes en ligne de commande : `BB_LANG`, sinon la langue
-/// du système (`LC_ALL`, `LANG`, réglages de la machine) ; anglais si elle
-/// n'est pas traduite.
+/// Language of the command-line programs: `BB_LANG`, otherwise the system
+/// language (`LC_ALL`, `LANG`, machine settings); English if it is not
+/// translated.
 String cliLanguage([Map<String, String>? environment]) {
   final env = environment ?? Platform.environment;
   final locale = [
@@ -19,9 +19,9 @@ String cliLanguage([Map<String, String>? environment]) {
   return languageOf(locale);
 }
 
-/// Lit les options `--name value` ([withValue]) et les drapeaux `--name`
-/// ([flags]). `--help` (ou `-h`) affiche [usage] ; une option inconnue
-/// l'affiche aussi et arrête le programme.
+/// Reads the `--name value` options ([withValue]) and the `--name` flags
+/// ([flags]). `--help` (or `-h`) prints [usage]; an unknown option prints it
+/// too and stops the program.
 Map<String, String?> parseOptions(
   List<String> args, {
   required String usage,
@@ -52,7 +52,7 @@ Map<String, String?> parseOptions(
   return options;
 }
 
-/// Option entière [name], ou [orElse] si elle est absente.
+/// Integer option [name], or [orElse] if it is missing.
 int intOption(
   Map<String, String?> options,
   String name,
@@ -69,13 +69,13 @@ int intOption(
       );
 }
 
-/// Arrête le programme avec un message d'erreur.
+/// Stops the program with an error message.
 Never fail(String message) {
   stderr.writeln(message);
   exit(1);
 }
 
-/// Durée en secondes : « 2.5 s » en anglais, « 2,5 s » en français.
+/// Duration in seconds: "2.5 s" in English, "2,5 s" in French.
 String formatSeconds(Duration duration, String language) {
   final text = (duration.inMilliseconds / 1000).toStringAsFixed(1);
   return '${language == 'fr' ? text.replaceAll('.', ',') : text} s';

@@ -1,5 +1,5 @@
-// BuildBeacon UI — Point d'entrée de l'interface web, servie par le Hub.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Entry point of the web interface, served by the Hub.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:flutter/material.dart';
 
@@ -7,7 +7,7 @@ import 'src/api/hub_api.dart';
 import 'src/app.dart';
 
 void main() {
-  // L'API est servie par le même Hub que la page : <adresse de la page>/api/…
+  // The API is served by the same Hub as the page: <page address>/api/…
   final page = Uri.base;
   runApp(
     BuildBeaconApp(

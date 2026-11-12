@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : envoi et réception DDP en UDP sur la boucle locale.
-// Version 1.2 (2026-11-12) — ouverture sans attendre la résolution du nom.
+// BuildBeacon Hub — Tests: sending and receiving DDP over UDP on loopback.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:io';

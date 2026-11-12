@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Le Hub : config → plugins → image des LED → WLED.
-// Version 1.4 (2026-11-12) — vérification de WLED en arrière-plan ; nom résolu comme pour DDP (mDNS dans Docker).
+// BuildBeacon Hub — The Hub: config → plugins → LED frame → WLED.
+// Version 1.5 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:io';
@@ -14,26 +14,26 @@ import 'output/led_output_loop.dart';
 import 'output/wled_client.dart';
 import 'source_manager.dart';
 
-/// Sortie des images ouverte vers une adresse WLED, et sa fermeture.
+/// Frame output opened to a WLED address, and how to close it.
 typedef LedOutputHandle = ({LedSink sink, Future<void> Function() close});
 
-/// Ouvre la sortie vers WLED : DDP par défaut ([Hub.openDdp]), remplaçable
-/// dans les tests.
+/// Opens the output to WLED: DDP by default ([Hub.openDdp]), replaceable in
+/// tests.
 typedef LedOutputOpener =
     Future<LedOutputHandle> Function(
       WledConfig wled,
       void Function(LocalizedText message) log,
     );
 
-/// Résultat de la dernière vérification de WLED par son API JSON : ses
-/// informations, ou la cause de l'échec.
+/// Result of the last check of WLED through its JSON API: its information,
+/// or the cause of the failure.
 typedef WledStatus = ({DateTime checkedAt, WledInfo? info, String? error});
 
-/// Le Hub assemblé : il fait tourner les plugins de la configuration, calcule
-/// l'image des LED 20 fois par seconde et l'envoie à WLED (ou au simulateur).
+/// The assembled Hub: it runs the plugins of the configuration, computes the
+/// LED frame 20 times per second and sends it to WLED (or to the simulator).
 ///
-/// [apply] change de configuration à chaud : seules les sources nouvelles
-/// sont ouvertes, la sortie n'est rouverte que si l'adresse de WLED change.
+/// [apply] switches configuration on the fly: only new sources are opened,
+/// and the output is reopened only if the WLED address changes.
 final class Hub {
   Hub({
     required this.plugins,
@@ -65,8 +65,7 @@ final class Hub {
   LedOutputHandle? _output;
   final _sink = _SwitchSink();
 
-  /// Dernier résumé affiché pour chaque source (seuls les changements sont
-  /// journalisés).
+  /// Last summary shown for each source (only changes are logged).
   final _shown = <String, String>{};
 
   final _events = StreamController<void>.broadcast();
@@ -76,31 +75,31 @@ final class Hub {
 
   Config get config => _config;
 
-  /// États actuels des sources, par clé.
+  /// Current states of the sources, by key.
   Map<String, SourceState> get states => _manager.states;
 
-  /// Émet quand ce que montre le Hub change : état d'une source,
-  /// configuration, tuile identifiée, vérification de WLED.
+  /// Emits when what the Hub shows changes: state of a source,
+  /// configuration, identified tile, WLED check.
   Stream<void> get changes => _events.stream;
 
-  /// Dernière vérification de WLED ; `null` avant la première.
+  /// Last WLED check; `null` before the first one.
   WledStatus? get wled => _wled;
 
-  /// Tuiles en train de clignoter (bouton « identifier »).
+  /// Tiles currently blinking ("identify" button).
   Set<String> get identifying {
     final now = DateTime.now();
     _identifyUntil.removeWhere((_, until) => !until.isAfter(now));
     return _identifyUntil.keys.toSet();
   }
 
-  /// L'image envoyée aux LED en ce moment.
+  /// The frame currently sent to the LEDs.
   LedFrame currentFrame() => _frameAt(_clock.elapsed);
 
   LedFrame _frameAt(Duration t) =>
       _renderer.render(_config, _manager.states, t, identify: identifying);
 
-  /// Fait clignoter la tuile [tileId] pendant [duration] ; `false` si elle
-  /// n'existe pas dans la configuration.
+  /// Makes the tile [tileId] blink for [duration]; `false` if it does not
+  /// exist in the configuration.
   bool identify(
     String tileId, {
     Duration duration = const Duration(seconds: 5),
@@ -116,7 +115,7 @@ final class Hub {
     if (!_events.isClosed) _events.add(null);
   }
 
-  /// Ouvre la sortie DDP vers WLED.
+  /// Opens the DDP output to WLED.
   static Future<LedOutputHandle> openDdp(
     WledConfig wled,
     void Function(LocalizedText message) log,
@@ -150,12 +149,13 @@ final class Hub {
       elapsed: () => _clock.elapsed,
       log: _log,
     )..start();
-    // En arrière-plan : un WLED absent du réseau met plusieurs secondes à
-    // répondre (nom mDNS, délai) ; le résultat arrive par [changes].
+    // In the background: a WLED missing from the network takes several
+    // seconds to answer (mDNS name, timeout); the result arrives through
+    // [changes].
     unawaited(checkWled());
   }
 
-  /// Passe à une nouvelle configuration, déjà validée.
+  /// Switches to a new, already validated configuration.
   Future<void> apply(Config config) async {
     final previous = _config.wled;
     final wled = config.wled;
@@ -177,9 +177,9 @@ final class Hub {
     }
   }
 
-  /// Vérifie WLED par son API JSON (connexion, nombre de LED) et règle la
-  /// luminosité. Une API injoignable n'empêche pas l'envoi des couleurs en
-  /// DDP (simulateur, réseau filtré) : elle est seulement signalée.
+  /// Checks WLED through its JSON API (connection, LED count) and sets the
+  /// brightness. An unreachable API does not prevent sending the colors over
+  /// DDP (simulator, filtered network): it is only reported.
   Future<WledStatus> checkWled() => lastWledCheck = () async {
     final status = await _checkWled();
     _wled = status;
@@ -187,16 +187,16 @@ final class Hub {
     return status;
   }();
 
-  /// Dernière vérification de WLED lancée (au démarrage, à l'enregistrement
-  /// d'une configuration qui touche WLED, ou demandée par l'API).
+  /// Last WLED check started (at startup, when a configuration that affects
+  /// WLED is saved, or requested through the API).
   Future<WledStatus>? lastWledCheck;
 
   Future<WledStatus> _checkWled() async {
     final wled = _config.wled;
     final expected = _config.ledCount;
     try {
-      // Même résolution que la sortie DDP : un nom .local répond aussi dans
-      // un conteneur Docker, sans démon mDNS.
+      // Same resolution as the DDP output: a .local name also resolves in a
+      // Docker container, without an mDNS daemon.
       final address = await _resolve(wled.host);
       if (address == null) throw const SocketException('name not found');
       final client = WledClient(
@@ -283,7 +283,7 @@ final class Hub {
     await output?.close();
   }
 
-  /// Journalise chaque source dont l'état affiché a changé.
+  /// Logs each source whose displayed state has changed.
   void _reportChanges() {
     final states = _manager.states;
     _shown.removeWhere((key, _) => !states.containsKey(key));
@@ -309,7 +309,8 @@ final class Hub {
   static void _silent(LocalizedText message) {}
 }
 
-/// Sortie qui suit la connexion WLED du moment (rouverte si l'adresse change).
+/// Output that follows the current WLED connection (reopened if the address
+/// changes).
 final class _SwitchSink implements LedSink {
   LedSink? target;
 
@@ -317,13 +318,13 @@ final class _SwitchSink implements LedSink {
   void send(rgb) => target?.send(rgb);
 }
 
-/// Nom lisible d'une source : `github · owner/repo · ci.yml · main`.
+/// Readable name of a source: `github · owner/repo · ci.yml · main`.
 String describeSource(SourceConfig source) => [
   source.type,
   for (final value in source.settings.values) '$value',
 ].join(' · ');
 
-/// Résumé d'un état dans la langue [l] : état, historique, mesures, erreur.
+/// Summary of a state in language [l]: status, history, measurements, error.
 String describeState(SourceState state, String l) {
   String number(double value) => value == value.roundToDouble()
       ? value.toStringAsFixed(0)
@@ -339,9 +340,9 @@ String describeState(SourceState state, String l) {
   ].join(' · ');
 }
 
-/// Avertissement si, sans jeton GitHub, la scrutation dépasse le quota
-/// anonyme de GitHub (60 requêtes par heure ; sans jeton, même les réponses
-/// 304 comptent). `null` si tout va bien.
+/// Warning if, without a GitHub token, polling exceeds GitHub's anonymous
+/// quota (60 requests per hour; without a token, even 304 responses count).
+/// `null` if all is well.
 LocalizedText? githubQuotaWarning(
   Config config,
   Map<String, String> environment,
@@ -372,8 +373,8 @@ LocalizedText? githubQuotaWarning(
   );
 }
 
-/// Cause lisible d'une erreur réseau, sans les détails de socket
-/// (« Connection refused », « timeout »…).
+/// Readable cause of a network error, without the socket details
+/// ("Connection refused", "timeout"…).
 String _shortError(Object error) {
   if (error is TimeoutException) return 'timeout';
   final text = error is http.ClientException ? error.message : '$error';

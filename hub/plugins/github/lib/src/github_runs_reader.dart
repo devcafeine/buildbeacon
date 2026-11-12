@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Plugin GitHub : lecture des derniers runs GitHub Actions.
-// Version 1.2 (2026-11-11) — messages d'erreur traduits.
+// BuildBeacon Hub — GitHub plugin: reading the latest GitHub Actions runs.
+// Version 1.3 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 
@@ -8,10 +8,10 @@ import 'package:http/http.dart' as http;
 
 import 'github_status.dart';
 
-/// Lit les derniers runs d'un dépôt, éventuellement filtrés par workflow et
-/// branche, en ménageant le quota de l'API :
-/// - requêtes conditionnelles (ETag) : une réponse 304 ne compte pas ;
-/// - quota épuisé : plus aucune requête jusqu'à sa remise à zéro.
+/// Reads the latest runs of a repository, optionally filtered by workflow
+/// and branch, while sparing the API quota:
+/// - conditional requests (ETag): a 304 response does not count;
+/// - quota exhausted: no more requests until it resets.
 final class GithubRunsReader {
   GithubRunsReader({
     required this.repo,
@@ -24,16 +24,16 @@ final class GithubRunsReader {
        _token = token,
        _now = clock ?? DateTime.now;
 
-  /// Autant de runs que de points sur une tuile.
+  /// As many runs as there are dots on a tile.
   static const runCount = 5;
 
   /// `owner/repo`.
   final String repo;
 
-  /// Nom de fichier (`ci.yml`) ou identifiant ; `null` = tous les workflows.
+  /// File name (`ci.yml`) or id; `null` = all workflows.
   final String? workflow;
 
-  /// `null` = toutes les branches.
+  /// `null` = all branches.
   final String? branch;
 
   final http.Client _client;
@@ -51,10 +51,10 @@ final class GithubRunsReader {
     {'per_page': '$runCount', 'branch': ?branch},
   );
 
-  /// Lit les runs, du plus récent au plus ancien. Si GitHub répond 304
-  /// (rien de neuf), l'historique de [previous] est conservé.
+  /// Reads the runs, from newest to oldest. If GitHub answers 304 (nothing
+  /// new), the history of [previous] is kept.
   ///
-  /// Lève une [SourceException] au message traduit en cas d'échec.
+  /// Throws a [SourceException] with a translated message on failure.
   Future<SourceState> read(SourceState previous) async {
     if (_blockedUntil case final until? when _now().isBefore(until)) {
       throw SourceException(_quotaMessage(until));
@@ -161,8 +161,8 @@ final class GithubRunsReader {
       response.headers['x-ratelimit-remaining'] == '0' ||
       response.headers.containsKey('retry-after');
 
-  /// Fin du blocage : `retry-after` (limite secondaire), sinon
-  /// `x-ratelimit-reset`, sinon une minute.
+  /// End of the block: `retry-after` (secondary rate limit), otherwise
+  /// `x-ratelimit-reset`, otherwise one minute.
   DateTime _resetTime(http.Response response) {
     if (int.tryParse(response.headers['retry-after'] ?? '') case final s?) {
       return _now().add(Duration(seconds: s));

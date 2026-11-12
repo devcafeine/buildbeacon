@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Envoi des images à WLED en DDP (UDP).
-// Version 1.3 (2026-11-12) — un nom se résout en arrière-plan ; résolution dans host_resolver.dart (mDNS).
+// BuildBeacon Hub — Sending frames to WLED over DDP (UDP).
+// Version 1.4 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:io';
@@ -10,19 +10,19 @@ import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'ddp.dart';
 import 'host_resolver.dart';
 
-/// Destination des images de LED : WLED, simulateur, test.
+/// Destination of the LED frames: WLED, simulator, test.
 abstract interface class LedSink {
-  /// Envoie une image : octets R, G, B à la suite, dans l'ordre de la chaîne.
+  /// Sends a frame: R, G, B bytes in sequence, in chain order.
   void send(Uint8List rgb);
 }
 
-/// Envoie les images à WLED en DDP.
+/// Sends the frames to WLED over DDP.
 ///
-/// [host] peut être un nom mDNS (`buildbeacon.local`), un nom DNS ou une
-/// adresse IPv4. Une adresse sert tout de suite ; un nom est résolu en
-/// arrière-plan (plusieurs secondes pour un nom mDNS absent du réseau), puis
-/// toutes les `refresh` : l'adresse d'un ESP32 peut changer. En cas d'échec,
-/// la dernière adresse connue est gardée ; sans adresse, rien n'est envoyé.
+/// [host] can be an mDNS name (`buildbeacon.local`), a DNS name or an IPv4
+/// address. An address is used right away; a name is resolved in the
+/// background (several seconds for an mDNS name missing from the network),
+/// then every `refresh`: the address of an ESP32 can change. On failure, the
+/// last known address is kept; without an address, nothing is sent.
 final class DdpSender implements LedSink {
   DdpSender._(this.host, this.port, this._socket, this._resolve, this._log);
 
@@ -50,8 +50,8 @@ final class DdpSender implements LedSink {
         ),
       ),
     );
-    // Ne pas attendre la résolution : elle retarderait le démarrage du Hub
-    // et l'enregistrement d'une configuration.
+    // Do not wait for the resolution: it would delay the Hub's startup and
+    // the saving of a configuration.
     if (InternetAddress.tryParse(host) case final ip?
         when ip.type == InternetAddressType.IPv4) {
       sender._use(ip);
@@ -76,7 +76,7 @@ final class DdpSender implements LedSink {
   var _packetsSent = 0;
   String? _lastWarning;
 
-  /// Adresse résolue de WLED ; `null` tant que [host] est introuvable.
+  /// Resolved address of WLED; `null` as long as [host] cannot be found.
   InternetAddress? get address => _address;
 
   int get packetsSent => _packetsSent;
@@ -152,7 +152,7 @@ final class DdpSender implements LedSink {
     _log(LocalizedText.same('WLED: $host → ${address.address}:$port'));
   }
 
-  /// Un même avertissement n'est journalisé qu'une fois de suite.
+  /// The same warning is logged only once in a row.
   void _warn(LocalizedText message) {
     final key = message.resolve(fallbackLanguage);
     if (key == _lastWarning) return;

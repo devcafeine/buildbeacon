@@ -1,5 +1,5 @@
-// BuildBeacon UI — Flux d'événements dans le navigateur : EventSource.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Event stream in the browser: EventSource.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:async';
 import 'dart:js_interop';
@@ -8,7 +8,7 @@ import 'package:web/web.dart' as web;
 
 import 'hub_events.dart';
 
-/// `EventSource` se reconnecte seul ; `onerror` signale chaque coupure.
+/// `EventSource` reconnects by itself; `onerror` reports each disconnection.
 Stream<HubEvent> openHubEvents(Uri url) {
   late final StreamController<HubEvent> controller;
   web.EventSource? source;

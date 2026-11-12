@@ -1,25 +1,25 @@
-// BuildBeacon Hub — Simulateur : dessin du panneau dans un terminal (couleurs 24 bits).
-// Version 1.1 (2026-11-11) — noms par défaut des tuiles traduits, identifiants en anglais.
+// BuildBeacon Hub — Simulator: drawing the panel in a terminal (24-bit colors).
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
-/// Largeur visible d'une tuile, en caractères.
+/// Visible width of a tile, in characters.
 const terminalTileWidth = 13;
 const _gap = '  ';
 const _reset = '\x1b[0m';
 const _off = '\x1b[38;2;70;70;70m·$_reset';
 
-/// Dessine les tuiles dans l'ordre de la chaîne, chacune telle qu'on la voit
-/// au mur : nom, ruban du haut, points n° 1 → 5 de gauche à droite, ruban du
-/// bas. Une LED éteinte apparaît en `·`.
+/// Draws the tiles in chain order, each as seen on the wall: name, top
+/// strip, dots no. 1 → 5 from left to right, bottom strip. An LED that is
+/// off shows as `·`.
 ///
-/// [labels] : nom des tuiles par rang (0 = master) ; sans nom, « Tile n » ou
-/// « Tuile n » selon [language]. [columns] : largeur du terminal, les tuiles
-/// passent à la ligne. [raw] : couleurs brutes, sans la correction qui
-/// rapproche l'écran du rendu d'une LED.
+/// [labels]: tile names by chain position (0 = master); without a name,
+/// "Tile n" or "Tuile n" depending on [language]. [columns]: terminal width,
+/// tiles wrap to the next line. [raw]: raw colors, without the correction
+/// that brings the screen closer to how an LED looks.
 String renderTerminalPanel(
   Uint8List rgb, {
   Map<int, String> labels = const {},
@@ -79,7 +79,7 @@ String renderTerminalPanel(
   return lines.join('\n');
 }
 
-/// Nom centré sur la largeur d'une tuile, raccourci s'il dépasse.
+/// Name centered on the width of a tile, shortened if it overflows.
 String _center(String text) {
   final shown = text.length > terminalTileWidth - 2
       ? '${text.substring(0, terminalTileWidth - 3)}…'
@@ -88,6 +88,6 @@ String _center(String text) {
   return ' ' * left + shown + ' ' * (terminalTileWidth - left - shown.length);
 }
 
-/// Une LED à faible intensité paraît plus lumineuse qu'un pixel d'écran de
-/// même valeur : correction gamma 2,2, comme l'aperçu web.
+/// An LED at low intensity looks brighter than a screen pixel of the same
+/// value: gamma correction 2.2, like the web preview.
 int _screen(int channel) => (255 * pow(channel / 255, 1 / 2.2)).round();

@@ -1,8 +1,8 @@
-// BuildBeacon Hub — API publique du serveur.
-// Version 1.7 (2026-11-12) — résolution du nom de WLED (host_resolver, mDNS).
+// BuildBeacon Hub — Public API of the server.
+// Version 1.8 (2026-11-12) — comments in English.
 
-/// Serveur BuildBeacon : plugins intégrés, exécution des sources, sortie des
-/// LED vers WLED (DDP) et simulateur.
+/// BuildBeacon server: built-in plugins, source execution, LED output to
+/// WLED (DDP) and simulator.
 library;
 
 export 'src/api/api.dart';

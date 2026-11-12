@@ -1,5 +1,5 @@
-// BuildBeacon UI — Panneau « Réglages » : WLED, luminosité, scrutation, couleurs, sources.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — "Settings" panel: WLED, brightness, polling, colors, sources.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +20,7 @@ class SettingsPanel extends StatelessWidget {
   final EditorController editor;
   final VoidCallback onCheckWled;
 
-  /// Au-delà de 50 %, scintillement constaté avec une alimentation USB-C.
+  /// Above 50 %, flicker observed with a USB-C power supply.
   static const comfortableBrightness = 128;
 
   @override
@@ -189,7 +189,7 @@ extension on WledConfig {
       brightness == other.brightness;
 }
 
-/// Résultat de la dernière vérification de WLED par le Hub.
+/// Result of the Hub's last WLED check.
 class _WledStatus extends StatelessWidget {
   const _WledStatus({required this.editor});
 
@@ -228,7 +228,7 @@ class _WledStatus extends StatelessWidget {
   }
 }
 
-/// Couleur d'un état : aperçu et code `#RRGGBB`.
+/// Color of a status: preview and `#RRGGBB` code.
 class _ColorRow extends StatefulWidget {
   const _ColorRow({
     super.key,

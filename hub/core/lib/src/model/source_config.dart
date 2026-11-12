@@ -1,16 +1,15 @@
-// BuildBeacon Hub — Source d'une zone : un type de plugin et ses réglages.
-// Version 1.0 (2026-11-11) — remplace la classe scellée Source (source.dart) :
-// les types de source sont désormais fournis par des plugins.
+// BuildBeacon Hub — Source of a zone: a plugin type and its settings.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 
 import 'json_read.dart';
 
-/// Source d'une zone : le [type] du plugin qui la lit et ses [settings].
+/// Source of a zone: the [type] of the plugin that reads it and its [settings].
 ///
-/// En JSON, les réglages sont à plat à côté du type :
+/// In JSON, the settings sit flat next to the type:
 /// `{"type": "github", "repo": "acme/app", "workflow": "ci.yml"}`.
-/// Le cœur ne les interprète pas : c'est le rôle du plugin (voir
+/// The core does not interpret them: that is the plugin's job (see
 /// `PluginRegistry.validateSource`).
 final class SourceConfig {
   SourceConfig({required String type, Map<String, Object?> settings = const {}})
@@ -27,11 +26,11 @@ final class SourceConfig {
 
   final String type;
 
-  /// Réglages nettoyés : textes sans espaces autour, valeurs vides retirées.
+  /// Cleaned settings: texts trimmed, empty values removed.
   final Map<String, Object?> settings;
 
-  /// Clé de regroupement : les zones dont la source a la même clé partagent
-  /// une seule connexion au plugin et un seul état en cache.
+  /// Grouping key: zones whose source has the same key share a single
+  /// connection to the plugin and a single cached state.
   late final String key = '$type:${jsonEncode(_sortedKeys(settings))}';
 
   Map<String, Object?> toJson() => {'type': type, ...settings};

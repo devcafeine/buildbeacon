@@ -1,14 +1,14 @@
-// BuildBeacon Hub — Lecture et écriture de config.json.
-// Version 1.3 (2026-11-12) — premier démarrage : fichier absent créé avec la master seule.
+// BuildBeacon Hub — Reading and writing config.json.
+// Version 1.4 (2026-11-12) — comments in English.
 
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
-/// Lit la configuration du fichier [path]. Lève une
-/// [LocalizedFormatException] dont le message cite le fichier (absent, JSON
-/// invalide, contenu refusé).
+/// Reads the configuration from the file [path]. Throws a
+/// [LocalizedFormatException] whose message names the file (missing, invalid
+/// JSON, rejected content).
 Future<Config> readConfigFile(String path) async {
   LocalizedFormatException inFile(LocalizedText message) =>
       LocalizedFormatException(
@@ -51,12 +51,12 @@ Future<Config> readConfigFile(String path) async {
   }
 }
 
-/// Configuration du fichier [path] ; s'il n'existe pas (premier démarrage),
-/// il est créé avec la configuration de départ, la master seule
-/// ([Config.initial]), à régler ensuite depuis l'interface web.
+/// Configuration from the file [path]; if it does not exist (first start),
+/// it is created with the starting configuration, the master tile only
+/// ([Config.initial]), to be set up afterwards from the web interface.
 ///
-/// Un fichier présent mais illisible ou refusé n'est jamais remplacé : même
-/// erreur que [readConfigFile]. Un dossier impossible à créer lève une
+/// An existing but unreadable or rejected file is never replaced: same error
+/// as [readConfigFile]. A folder that cannot be created throws a
 /// [FileSystemException].
 Future<({Config config, bool created})> readOrCreateConfigFile(
   String path,
@@ -69,9 +69,9 @@ Future<({Config config, bool created})> readOrCreateConfigFile(
   return (config: await readConfigFile(path), created: false);
 }
 
-/// Enregistre [config] dans [path] de façon atomique : écriture d'un fichier
-/// temporaire voisin, puis renommage. Un arrêt brutal pendant l'écriture
-/// laisse l'ancien fichier intact.
+/// Saves [config] to [path] atomically: writes a temporary file next to it,
+/// then renames it. An abrupt stop during the write leaves the old file
+/// intact.
 Future<void> writeConfigFile(String path, Config config) async {
   final file = File(path);
   await file.parent.create(recursive: true);

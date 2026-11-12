@@ -1,5 +1,5 @@
-// BuildBeacon UI — Préférences hors navigateur (tests) : en mémoire.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Preferences outside the browser (tests): in memory.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'preferences.dart';
 

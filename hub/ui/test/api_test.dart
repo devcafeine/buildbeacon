@@ -1,5 +1,5 @@
-// BuildBeacon UI — Tests : client de l'API, flux SSE, lecture des réponses du Hub.
-// Version 1.0 (2026-11-11)
+// BuildBeacon UI — Tests: API client, SSE stream, parsing of the Hub's responses.
+// Version 1.1 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:buildbeacon_ui/src/api/hub_api.dart';
@@ -147,14 +147,14 @@ void main() {
             HubLinkChanged(:final open) => open ? 'open' : 'closed',
           }),
         );
-        // Le flux annonce qu'il est ouvert, mais ne transmet rien.
+        // The stream reports that it is open, but sends nothing.
         hub.events.add(const HubLinkChanged(open: true));
         await Future<void>.delayed(const Duration(milliseconds: 100));
         expect(received.first, 'open');
         expect(received.skip(1).take(3), ['open', 'config', 'state']);
         expect(hub.requests, contains('GET /api/state'));
 
-        // Le flux se met à transmettre : fin de la lecture régulière.
+        // The stream starts sending: polling stops.
         hub.sendState(stateJson());
         await Future<void>.delayed(Duration.zero);
         final count = hub.requests.length;

@@ -1,10 +1,10 @@
-// BuildBeacon Hub — Tests SDK : validation des réglages et conformité.
-// Version 1.1 (2026-11-11) — messages traduits ; conformité en anglais, traduction anglaise exigée.
+// BuildBeacon Hub — SDK tests: settings validation and conformance.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 import 'package:test/test.dart';
 
-/// Plugin bien écrit : la conformité ne doit rien lui reprocher.
+/// Well-written plugin: conformance must find nothing wrong with it.
 final class _GoodPlugin extends SourcePlugin {
   const _GoodPlugin();
 
@@ -75,7 +75,7 @@ final class _GoodPlugin extends SourcePlugin {
       const Stream.empty();
 }
 
-/// Plugin qui enfreint une règle de chaque sorte.
+/// Plugin that breaks one rule of each kind.
 final class _BadPlugin extends SourcePlugin {
   const _BadPlugin();
 

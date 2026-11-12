@@ -1,5 +1,5 @@
-// BuildBeacon Hub — Tests : mire de mise en service.
-// Version 1.1 (2026-11-11) — phases en anglais (ranks, dots, ambient), descriptions traduites.
+// BuildBeacon Hub — Tests: commissioning test pattern.
+// Version 1.2 (2026-11-12) — comments in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';
@@ -31,14 +31,14 @@ void main() {
   });
 
   test('phase 2 : le point avance de gauche à droite', () {
-    // Début : point n° 1 de chaque tuile (LED 9 et 18), LED 0 de la master.
+    // Start: dot #1 of each tile (LEDs 9 and 18), LED 0 of the master tile.
     final start = pattern.frameAt(s(5));
     expect(pattern.phaseAt(s(5)), TestPatternPhase.dots);
     expect(at(start, [9, 8, 7, 6, 5]), [red, off, off, off, off]);
     expect(start[18], green);
     expect(at(start, [0, 1, 2]), [Rgb.white, off, off]);
 
-    // À 2,2 s dans la phase : point n° 3, les précédents en traînée.
+    // At 2.2 s into the phase: dot #3, the previous ones as a trail.
     final later = pattern.frameAt(s(7.2));
     final trail = red.scaled(TestPattern.trail);
     expect(at(later, [9, 8, 7, 6, 5]), [trail, trail, red, off, off]);
