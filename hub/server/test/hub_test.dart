@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests : le Hub assemblé (config → plugins → image → sortie, WLED).
-// Version 1.0 (2026-11-11)
+// Version 1.1 (2026-11-12) — vérification de WLED en arrière-plan.
 
 import 'dart:async';
 import 'dart:convert';
@@ -160,6 +160,7 @@ void main() {
     final h = hub(_wled(ledCount: 12, brightness: brightness));
     await h.start(_config('a', brightness: 90));
     addTearDown(h.stop);
+    await h.lastWledCheck;
 
     expect(logs, contains('WLED 0.15.0 « WLED » : 12 LED'));
     expect(logs, contains('Luminosité WLED : 90/255'));
@@ -170,6 +171,7 @@ void main() {
     final h = hub(_wled(ledCount: 30));
     await h.start(_config('a'));
     addTearDown(h.stop);
+    await h.lastWledCheck;
 
     expect(
       logs,
@@ -183,12 +185,33 @@ void main() {
       final h = hub(_wled(ledCount: null));
       await h.start(_config('a'));
       addTearDown(h.stop);
+      await h.lastWledCheck;
       await Future<void>.delayed(const Duration(milliseconds: 80));
 
       expect(logs, contains(contains('API JSON de WLED injoignable')));
       expect(outputs.frames, isNotEmpty);
     },
   );
+
+  test('WLED lent à répondre : ni le démarrage ni l\'enregistrement ne '
+      'l\'attendent', () async {
+    final answer = Completer<http.Response>();
+    final h = hub(MockClient((_) => answer.future));
+    await h.start(_config('a')).timeout(const Duration(seconds: 1));
+    addTearDown(h.stop);
+    expect(h.wled, isNull, reason: 'vérification encore en cours');
+
+    await h
+        .apply(_config('a', brightness: 60))
+        .timeout(const Duration(seconds: 1));
+    expect(plugin.controllers['a']!.hasListener, isTrue);
+
+    answer.complete(
+      http.Response('{"ver":"0.15.0","name":"WLED","leds":{"count":12}}', 200),
+    );
+    expect((await h.lastWledCheck)!.info?.ledCount, 12);
+    expect(h.wled, isNotNull);
+  });
 
   test('nouvelle config : nouvelle source ouverte, ancienne fermée', () async {
     final h = hub(_wled());

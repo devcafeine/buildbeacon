@@ -1,5 +1,5 @@
 # BuildBeacon — outils et tâches du projet (mise).
-# Version 1.7 (2026-11-11) — interface web : ui-build, ui-dev ; get, format, test et check l'incluent.
+# Version 1.8 (2026-11-12) — hub : data/config.json créé au premier démarrage.
 #
 # Flutter 3.47.6 embarque Dart 3.13.5 : le même SDK sert au Hub (hub/) et à
 # l'interface Flutter Web (hub/ui). L'image Docker devra suivre cette version.
@@ -46,7 +46,7 @@ dir = "{{config_root}}/hub"
 run = "dart run tool/new_plugin.dart"
 
 [tasks.hub]
-description = "Run the Hub: data/config.json (copy config.example.json) and .env at the repository root; web interface on http://localhost:8080 once built (mise run ui-build)"
+description = "Run the Hub: data/config.json (created on the first start) and .env at the repository root; web interface on http://localhost:8080 once built (mise run ui-build)"
 dir = "{{config_root}}/hub/server"
 run = "dart run bin/hub.dart --config {{config_root}}/data/config.json --env-file {{config_root}}/.env --web {{config_root}}/hub/ui/build/web"
 
