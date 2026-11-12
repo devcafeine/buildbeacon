@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (français). Version 1.9 (2026-11-12) — onglet Impression 3D. -->
+<!-- BuildBeacon — README (français). Version 1.10 (2026-11-12) — section Impression 3D et captures. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -96,12 +96,30 @@ l'ordre de la chaîne, WLED, la luminosité et les couleurs. Vos modifications s
 sur le mur et sont vérifiées par le Hub pendant la saisie ; rien n'arrive aux LED avant
 d'**enregistrer**. Langue : français ou anglais (menu, ou `?lang=en`).
 
-L'onglet **Impression 3D** liste les pièces à imprimer pour votre mur (une coque par
-tuile avec son nom, les plaques arrière, les os de chien qui les relient) et télécharge les
-jeux de paramètres OpenSCAD correspondants pour le modèle de
-[`hardware/cad`](hardware/README.fr.md), avec les commandes qui rendent toutes les pièces.
+![L'interface web : le mur et les réglages d'une tuile](docs/images/web-ui_fr_v1.1.png)
 
-![L'interface web : le mur et les réglages d'une tuile](docs/images/web-ui_fr_v1.0.png)
+#### Impression 3D
+
+L'onglet **Impression 3D** transforme votre mur en pièces à imprimer avec le modèle
+paramétrique de [`hardware/cad`](hardware/README.fr.md) (OpenSCAD) :
+
+- **les pièces** : une coque par tuile avec son nom (la master avec le logo), la plaque
+  arrière de la master (elle porte l'ESP32), une plaque arrière pour les tuiles projet à
+  imprimer autant de fois qu'il y a de tuiles (elles sont toutes identiques), et les « os de
+  chien » qui relient les plaques arrière, un par côté commun à deux tuiles ;
+- **Télécharger** donne un fichier de jeux de paramètres (`buildbeacon_tile_v1.3.json`, au
+  nom du modèle) : placez-le à côté du fichier `.scad`, ouvrez le modèle dans OpenSCAD,
+  choisissez une pièce dans la liste du Customizer, faites le rendu (**F6**) et exportez en
+  STL ;
+- ou rendez toutes les pièces d'un coup : l'onglet donne les commandes à lancer dans
+  `hardware/cad` (`openscad -p … -P mise-tile -o mise-tile.stl …`), avec un bouton pour les
+  copier.
+
+Le style, la police et la fixation restent les réglages du modèle ; le nom gravé est celui
+de la tuile. Avant les os de chien, imprimez une fois `part = link_test` pour régler leur
+serrage.
+
+![L'onglet Impression 3D : les pièces du mur et les jeux de paramètres OpenSCAD](docs/images/print-tab_fr_v1.0.png)
 
 Pour partir plutôt d'un exemple : [`config.example.json`](config.example.json) suit trois
 projets publics — BuildBeacon lui-même (tuile master), WLED et mise — et ne demande pas de
