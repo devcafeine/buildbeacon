@@ -1,6 +1,6 @@
 {
   "@@locale": "fr",
-  "@@x-version": "1.0 (2026-11-11)",
+  "@@x-version": "1.1 (2026-11-12)",
   "appTitle": "BuildBeacon",
   "linkConnecting": "Connexion…",
   "linkLive": "En direct",
@@ -108,5 +108,22 @@
   "colorExpected": "#RRGGBB attendu",
   "colorsReset": "Couleurs par défaut",
   "settingsSources": "Sources",
-  "secretsHelp": "Les secrets (jetons) ne se règlent jamais ici : ce sont des variables d'environnement du Hub (fichier .env)."
+  "secretsHelp": "Les secrets (jetons) ne se règlent jamais ici : ce sont des variables d'environnement du Hub (fichier .env).",
+  "tabPrint": "Impression 3D",
+  "printIntro": "Pièces à imprimer pour ce mur avec le modèle paramétrique {file} (dossier hardware/cad du dépôt), dans OpenSCAD.",
+  "printParts": "Pièces",
+  "printTileParts": "Coque avec le nom",
+  "printMasterParts": "Coque avec le logo, plaque arrière pour l'ESP32",
+  "printBacks": "{count, plural, =1{1 plaque arrière pour la tuile projet} other{{count} plaques arrière pour les tuiles projet : toutes identiques, un seul fichier à imprimer {count} fois}}",
+  "printLinks": "{count, plural, =0{Aucun os de chien : pas de tuiles côte à côte} =1{1 os de chien, qui relie les plaques arrière des deux tuiles voisines} other{{count} os de chien, un par côté commun à deux tuiles}}",
+  "printLinkTest": "Imprimez d'abord part = link_test pour régler leur serrage (link_fit).",
+  "printNameHint": "Le nom gravé est celui de la tuile (onglet Tuile) : gardez-le court. Style, police et fixation restent les réglages du modèle.",
+  "printSets": "Jeux de paramètres OpenSCAD",
+  "printSetsHelp": "Placez {file} à côté du modèle : le Customizer d'OpenSCAD propose alors un jeu par pièce, prêt à rendre (F6) et à exporter en STL.",
+  "printDownload": "Télécharger {file}",
+  "printDownloadUnavailable": "Téléchargement impossible ici : ouvrez l'interface dans un navigateur.",
+  "printCommands": "Rendre toutes les pièces",
+  "printCommandsHelp": "Ou toutes d'un coup, depuis le dossier hardware/cad, avec OpenSCAD installé et le fichier téléchargé ci-dessus :",
+  "printCopy": "Copier les commandes",
+  "printCopied": "Commandes copiées."
 }

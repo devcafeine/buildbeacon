@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.8 (2026-11-12) — the simulator follows config.json. -->
+<!-- BuildBeacon — README (English). Version 1.9 (2026-11-12) — 3D printing tab. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -92,6 +92,11 @@ colors. Select a tile to choose the source and the display mode of each zone; ad
 with a **+**, move it by dragging it, set the chain order, WLED, the brightness and the
 colors. Your changes are previewed on the wall and checked by the Hub as you type; nothing
 reaches the LEDs before you **save**. Language: English or French (menu, or `?lang=fr`).
+
+The **3D printing** tab lists the parts to print for your wall (a shell per tile with its
+name, the back plates, the dog bones that join them) and downloads the matching OpenSCAD
+parameter sets for the model of [`hardware/cad`](hardware/README.md), with the commands
+that render every part.
 
 ![The web interface: the wall and the settings of a tile](docs/images/web-ui_en_v1.0.png)
 
