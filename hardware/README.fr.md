@@ -1,4 +1,4 @@
-<!-- BuildBeacon — matériel (français). Version 1.2 (2026-11-11) — liste d'achat et outils -->
+<!-- BuildBeacon — matériel (français). Version 1.3 (2026-11-12) — jeux de paramètres depuis l'interface web -->
 # BuildBeacon — matériel
 
 [English version](README.md)
@@ -187,6 +187,12 @@ Un seul fichier paramétrique : [`cad/buildbeacon_tile_v1.1.scad`](cad/buildbeac
 à ouvrir dans [OpenSCAD](https://openscad.org/) (2021 ou plus récent). Réglez les paramètres
 dans le **Customizer**, choisissez la pièce avec `part`, faites le rendu (**F6**) puis
 exportez en STL.
+
+**Depuis l'interface web du Hub** : l'onglet **Impression 3D** liste les pièces de votre mur
+(une coque par tuile avec son nom, les plaques arrière, les os de chien) et télécharge
+`buildbeacon_tile_v1.1.json`, un jeu de paramètres par pièce. Placez-le à côté du fichier
+`.scad` : le Customizer propose les jeux dans sa liste, prêts à rendre ; l'onglet donne aussi
+les commandes qui rendent toutes les pièces d'un coup (`openscad -p … -P <jeu> -o <jeu>.stl`).
 
 ### Pièces (`part`)
 

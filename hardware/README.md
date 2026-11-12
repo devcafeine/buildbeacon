@@ -1,4 +1,4 @@
-<!-- BuildBeacon — hardware (English). Version 1.2 (2026-11-11) — shopping list and tools -->
+<!-- BuildBeacon — hardware (English). Version 1.3 (2026-11-12) — parameter sets from the web interface -->
 # BuildBeacon — hardware
 
 [Version française](README.fr.md)
@@ -185,6 +185,12 @@ A single parametric file: [`cad/buildbeacon_tile_v1.1.scad`](cad/buildbeacon_til
 to open in [OpenSCAD](https://openscad.org/) (2021 or later). Set the parameters in the
 **Customizer**, pick the part with `part`, render (**F6**) and export to STL. Comments in the
 file are in French.
+
+**From the web interface of the Hub**: the **3D printing** tab lists the parts of your wall
+(a shell per tile with its name, the back plates, the dog bones) and downloads
+`buildbeacon_tile_v1.1.json`, one parameter set per part. Put it next to the `.scad` file:
+the Customizer offers the sets in its list, ready to render; the tab also gives the
+commands that render every part at once (`openscad -p … -P <set> -o <set>.stl`).
 
 ### Parts (`part`)
 
