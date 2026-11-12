@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.6 (2026-11-12) — Docker. -->
+<!-- BuildBeacon — README (English). Version 1.7 (2026-11-12) — published Docker image (GHCR). -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -148,13 +148,13 @@ same network as WLED (UDP 4048, HTTP 80) and reach the Internet for the sources.
 |---|---|---|
 | Mini PC, server or NAS, Linux x86-64 | yes | recommended: always on, [with Docker](#install-with-docker-linux) |
 | Raspberry Pi 3, 4, 5, Zero 2 W with a 64-bit OS (arm64) | yes | a good choice without a server; Docker too |
-| Raspberry Pi 2 or 3 with a 32-bit OS (ARMv7) | yes | Docker image to build on another machine |
+| Raspberry Pi 2 or 3 with a 32-bit OS (ARMv7) | yes | published Docker image |
 | macOS, Windows, Linux desktop | yes | to develop or try it out |
 | Raspberry Pi 1, Zero, Zero W (ARMv6) | no | Dart does not support ARMv6 |
 | ESP32 and other microcontrollers | no | the ESP32 runs WLED and only receives the colors |
 
 Tested so far: macOS (Apple Silicon), Linux x86-64 (CI) and the Docker image (x86-64 in
-the CI, arm64 with OrbStack; arm64 and ARMv7 images built in the CI). The other platforms
+the CI, arm64 with OrbStack; arm64 and ARMv7 images built and published by the CI). The other platforms
 are supported by Dart but not tested yet: reports are welcome.
 
 ## Install with Docker (Linux)
@@ -162,11 +162,16 @@ are supported by Dart but not tested yet: reports are welcome.
 The recommended setup: an always-on Linux machine on the same network as WLED — mini PC,
 server, Raspberry Pi 4 or 5 with a 64-bit OS.
 
+The image is published on GitHub for x86-64, arm64 and ARMv7
+([`ghcr.io/devcafeine/buildbeacon-hub`](https://github.com/devcafeine/buildbeacon/pkgs/container/buildbeacon-hub)):
+two files are enough, no need to clone the repository.
+
 ```sh
-git clone https://github.com/devcafeine/buildbeacon.git
-cd buildbeacon
-cp .env.example .env          # optional: BB_GITHUB_TOKEN, BB_LANG=fr, BB_PORT…
-docker compose up -d --build
+mkdir buildbeacon && cd buildbeacon
+curl -fsSLO https://raw.githubusercontent.com/devcafeine/buildbeacon/main/docker-compose.yml
+curl -fsSL -o .env https://raw.githubusercontent.com/devcafeine/buildbeacon/main/.env.example
+# optional, in .env: BB_GITHUB_TOKEN, BB_LANG=fr, BB_PORT…
+docker compose pull && docker compose up -d
 ```
 
 Then open **http://<address of the machine>:8080**. On its first start, the Hub creates
@@ -176,12 +181,17 @@ else is set up in the web interface.
 - **Network**: the container uses the network of the machine (`network_mode: host`), so
   the LED frames reach WLED over UDP and `buildbeacon.local` is found by mDNS, as outside
   Docker. The interface listens on port 8080; set `BB_PORT` in `.env` to change it.
-- **Update**: `git pull && docker compose up -d --build`. **Logs**: `docker compose logs -f`.
-- **Building the image** takes a few minutes the first time (it downloads Flutter to build
-  the interface) and about 2 GB of RAM, on a Linux x86-64 or arm64 machine. For a Raspberry
-  Pi with a 32-bit OS, build it elsewhere: `docker buildx build --platform linux/arm/v7 hub`.
+- **Update**: `docker compose pull && docker compose up -d`. **Logs**:
+  `docker compose logs -f`.
+- **Versions**: `latest` follows the main branch; each version also has its own tag
+  (`ghcr.io/devcafeine/buildbeacon-hub:0.2.0`): put it in `docker-compose.yml` instead of
+  `latest` to stay on a version, or to go back to one.
 - **The image** (about 40 MB) holds the compiled Hub and its interface only, and runs as
   an unprivileged user. Secrets stay in `.env`, outside the image and the volume.
+- **Build it from the sources** instead: `git clone` the repository, then
+  `docker compose up -d --build` in it. It takes a few minutes the first time (it downloads
+  Flutter to build the interface) and about 2 GB of RAM, on a Linux x86-64 or arm64
+  machine.
 - **On macOS or Windows**, Docker runs in a virtual machine: set the IP address of WLED, as
   mDNS does not reach the local network from there. To try BuildBeacon on these systems,
   `mise run hub` is simpler.
