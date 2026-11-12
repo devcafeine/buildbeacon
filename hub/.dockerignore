@@ -1,0 +1,7 @@
+# BuildBeacon Hub — fichiers exclus de l'image Docker (contexte : hub/).
+# Version du fichier : 1.0 (2026-11-12)
+**/.dart_tool
+**/build
+**/.flutter-plugins-dependencies
+# Régénérées par flutter pub get.
+ui/lib/l10n/app_localizations*.dart

@@ -1,4 +1,4 @@
-<!-- BuildBeacon — contributing guide (English). Version 1.4 (2026-11-12) — mise run hub creates data/config.json. -->
+<!-- BuildBeacon — contributing guide (English). Version 1.5 (2026-11-12) — mise run docker-test. -->
 # Contributing to BuildBeacon
 
 [Version française](CONTRIBUTING.fr.md)
@@ -46,6 +46,7 @@ Useful tasks (`mise tasks` lists them all):
 | `mise run simulator -- --open` | fake WLED in a web page, to work without hardware |
 | `mise run test-pattern -- --host 127.0.0.1` | test pattern towards the simulator |
 | `mise run new-plugin <name>` | create a plugin from the template |
+| `mise run docker-test` | build the Docker image and try it (needs Docker) |
 
 ## Project rules
 

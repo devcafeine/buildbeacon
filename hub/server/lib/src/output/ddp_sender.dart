@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Envoi des images à WLED en DDP (UDP).
-// Version 1.2 (2026-11-12) — un nom se résout en arrière-plan : ouverture immédiate.
+// Version 1.3 (2026-11-12) — un nom se résout en arrière-plan ; résolution dans host_resolver.dart (mDNS).
 
 import 'dart:async';
 import 'dart:io';
@@ -8,15 +8,13 @@ import 'dart:typed_data';
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 
 import 'ddp.dart';
+import 'host_resolver.dart';
 
 /// Destination des images de LED : WLED, simulateur, test.
 abstract interface class LedSink {
   /// Envoie une image : octets R, G, B à la suite, dans l'ordre de la chaîne.
   void send(Uint8List rgb);
 }
-
-/// Résolution d'un nom en adresse IPv4 ; `null` si impossible.
-typedef HostResolver = Future<InternetAddress?> Function(String host);
 
 /// Envoie les images à WLED en DDP.
 ///
@@ -163,21 +161,4 @@ final class DdpSender implements LedSink {
   }
 
   static void _silent(LocalizedText message) {}
-}
-
-/// Résout [host] en adresse IPv4 (WLED sur ESP32 est en IPv4).
-Future<InternetAddress?> resolveIPv4(String host) async {
-  final literal = InternetAddress.tryParse(host);
-  if (literal != null) {
-    return literal.type == InternetAddressType.IPv4 ? literal : null;
-  }
-  try {
-    final found = await InternetAddress.lookup(
-      host,
-      type: InternetAddressType.IPv4,
-    );
-    return found.firstOrNull;
-  } on SocketException {
-    return null;
-  }
 }

@@ -1,13 +1,15 @@
 // BuildBeacon Hub — Le Hub : config → plugins → image des LED → WLED.
-// Version 1.3 (2026-11-12) — vérification de WLED en arrière-plan : démarrage et enregistrement immédiats.
+// Version 1.4 (2026-11-12) — vérification de WLED en arrière-plan ; nom résolu comme pour DDP (mDNS dans Docker).
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:buildbeacon_plugin_github/buildbeacon_plugin_github.dart';
 import 'package:http/http.dart' as http;
 
 import 'output/ddp_sender.dart';
+import 'output/host_resolver.dart';
 import 'output/led_output_loop.dart';
 import 'output/wled_client.dart';
 import 'source_manager.dart';
@@ -39,15 +41,18 @@ final class Hub {
     Map<String, String> environment = const {},
     LedOutputOpener openOutput = Hub.openDdp,
     FrameRenderer renderer = const FrameRenderer(),
+    HostResolver resolve = resolveIPv4,
     void Function(LocalizedText message)? log,
   }) : _http = httpClient,
        _environment = environment,
        _openOutputFor = openOutput,
        _renderer = renderer,
+       _resolve = resolve,
        _log = log ?? _silent;
 
   final PluginRegistry plugins;
   final http.Client _http;
+  final HostResolver _resolve;
   final Map<String, String> _environment;
   final LedOutputOpener _openOutputFor;
   final FrameRenderer _renderer;
@@ -189,8 +194,16 @@ final class Hub {
   Future<WledStatus> _checkWled() async {
     final wled = _config.wled;
     final expected = _config.ledCount;
-    final client = WledClient(host: wled.host, port: wled.port, client: _http);
     try {
+      // Même résolution que la sortie DDP : un nom .local répond aussi dans
+      // un conteneur Docker, sans démon mDNS.
+      final address = await _resolve(wled.host);
+      if (address == null) throw const SocketException('name not found');
+      final client = WledClient(
+        host: address.address,
+        port: wled.port,
+        client: _http,
+      );
       final info = await client.info();
       _log(
         LocalizedText.build(

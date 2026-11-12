@@ -1,0 +1,28 @@
+# BuildBeacon — le Hub dans Docker (Linux : mini PC, serveur, Raspberry Pi).
+# Version du fichier : 1.0 (2026-11-12)
+#
+#   docker compose up -d --build      puis http://<adresse de la machine>:8080
+#   docker compose logs -f            journal du Hub
+#
+# Secrets et options dans .env (copie de .env.example) : BB_GITHUB_TOKEN,
+# BB_API_TOKEN, BB_LANG=fr, BB_PORT…
+services:
+  hub:
+    build: hub
+    image: buildbeacon-hub
+    container_name: buildbeacon
+    restart: unless-stopped
+    # Réseau de la machine : flux DDP (UDP) vers WLED et nom buildbeacon.local
+    # (mDNS) sur le réseau local ; interface sur le port 8080 (BB_PORT).
+    network_mode: host
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      # config.json, créé au premier démarrage, réglé depuis l'interface.
+      - buildbeacon-data:/data
+      # Heure locale dans le journal.
+      - /etc/localtime:/etc/localtime:ro
+
+volumes:
+  buildbeacon-data:
