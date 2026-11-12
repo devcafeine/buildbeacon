@@ -1,4 +1,4 @@
-<!-- BuildBeacon — contributing guide (English). Version 1.8 (2026-11-12) — publishing a version. -->
+<!-- BuildBeacon — contributing guide (English). Version 1.9 (2026-11-12) — ui-build skipped when up to date, run by mise run hub. -->
 # Contributing to BuildBeacon
 
 [Version française](CONTRIBUTING.fr.md)
@@ -41,7 +41,7 @@ Useful tasks (`mise tasks` lists them all):
 | `mise run format` | format the code |
 | `mise run test` | tests of every package |
 | `mise run hub` | run the Hub with `data/config.json` (created on the first start, or copy `config.example.json`) and its web interface on http://localhost:8080 |
-| `mise run ui-build` | build the web interface (Flutter Web), served by `mise run hub` |
+| `mise run ui-build` | build the web interface (Flutter Web) if its sources changed; `mise run hub` runs it first |
 | `mise run ui-dev` | web interface with hot reload on http://localhost:8081, next to `mise run hub` |
 | `mise run simulator -- --open` | fake WLED in a web page, to work without hardware |
 | `mise run test-pattern -- --host 127.0.0.1` | test pattern towards the simulator |
