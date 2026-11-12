@@ -1,12 +1,12 @@
 // BuildBeacon Hub — Web simulator: the page (embedded HTML, CSS and JavaScript).
-// Version 1.5 (2026-11-12) — comments in English.
+// Version 1.6 (2026-11-12) — the page follows layout changes (`layout` event).
 //
 // Embedded in the Dart code so that the compiled executable is self-contained.
 
 /// Simulator page, served on `/`. It reads `/layout` (layout) and receives
 /// the frames through `/events` (Server-Sent Events).
 const simulatorPage = r'''<!doctype html>
-<!-- BuildBeacon Hub — WLED simulator page. Version 1.4 (2026-11-11) -->
+<!-- BuildBeacon Hub — WLED simulator page. Version 1.5 (2026-11-12) — follows layout changes. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -466,8 +466,13 @@ function applyLanguage() {
   for (const button of document.querySelectorAll(".lang button")) {
     button.setAttribute("aria-pressed", String(button.dataset.lang === lang));
   }
-  $("layout-source").textContent = layout.tiles.length ? t().layoutConfig(layout.tiles.length) : t().layoutDefault;
   // Default tile names depend on the language.
+  applyLayout();
+}
+
+// Draws the wall again: layout changed (config.json saved) or language changed.
+function applyLayout() {
+  $("layout-source").textContent = layout.tiles.length ? t().layoutConfig(layout.tiles.length) : t().layoutDefault;
   builtKey = "";
   if (frame) ensureBuilt(frame.length / 6);
   else if (layout.tiles.length) ensureBuilt(0);
@@ -510,6 +515,12 @@ async function start() {
   const events = new EventSource("events");
   events.addEventListener("open", () => { connected = true; updateStatus(); });
   events.addEventListener("error", () => { connected = false; updateStatus(); });
+  // Sent on connection and every time config.json changes: tiles added,
+  // moved or renamed in the web interface show up without a reload.
+  events.addEventListener("layout", (e) => {
+    layout = JSON.parse(e.data);
+    applyLayout();
+  });
   events.addEventListener("frame", (e) => {
     const data = JSON.parse(e.data);
     const age = data.age_ms || 0;

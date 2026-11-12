@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: web simulator (page, layout, SSE stream).
-// Version 1.4 (2026-11-12) — test names in English.
+// Version 1.5 (2026-11-12) — layout pushed to the open pages.
 
 import 'dart:async';
 import 'dart:convert';
@@ -111,6 +111,70 @@ void main() {
         {'rank': 1, 'kind': 'project', 'label': 'App', 'q': 0, 'r': 0},
         {'rank': 2, 'kind': 'project', 'label': 'bambu', 'q': 1, 'r': 1},
       ]);
+    },
+  );
+
+  /// Reads the SSE stream and returns the data of the next [name] event.
+  Future<Map<String, Object?>> nextEvent(
+    Stream<String> lines,
+    String name,
+  ) async {
+    var wanted = false;
+    await for (final line in lines) {
+      if (line.startsWith('event: ')) {
+        wanted = line == 'event: $name';
+      } else if (wanted && line.startsWith('data: ')) {
+        return jsonDecode(line.substring(6)) as Map<String, Object?>;
+      }
+    }
+    throw StateError('stream ended without a $name event');
+  }
+
+  test(
+    'layout changed: sent to the open pages and served on /layout',
+    () async {
+      final response = await get('/events');
+      final lines = response
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .asBroadcastStream();
+
+      // On connection: the current layout.
+      final first = await nextEvent(
+        lines,
+        'layout',
+      ).timeout(const Duration(seconds: 5));
+      expect(first['tiles'], hasLength(3));
+
+      final moved = Config(
+        tiles: [
+          ..._config.tiles,
+          Tile(
+            id: 'site',
+            label: 'Site',
+            kind: TileKind.project,
+            chainIndex: 3,
+            pos: const HexPos(1, 0),
+          ),
+        ],
+      );
+      final layout = simulatorLayout(config: moved, ddpPort: 4048);
+      web.updateLayout(layout);
+      final second = await nextEvent(
+        lines,
+        'layout',
+      ).timeout(const Duration(seconds: 5));
+      expect(second['tiles'], hasLength(4));
+      expect((second['tiles']! as List).last, {
+        'rank': 3,
+        'kind': 'project',
+        'label': 'Site',
+        'q': 1,
+        'r': 0,
+      });
+
+      final served = await utf8.decodeStream(await get('/layout'));
+      expect(jsonDecode(served), layout);
     },
   );
 
