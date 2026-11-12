@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: LED frame computation.
-// Version 1.4 (2026-11-12) — comments in English.
+// Version 1.5 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';
@@ -63,7 +63,7 @@ void main() {
   final grey = palette[Status.unknown];
   final orange = palette[Status.running];
 
-  group('états stables', () {
+  group('steady states', () {
     late LedFrame frame;
 
     setUp(() {
@@ -75,38 +75,38 @@ void main() {
       }, Duration.zero);
     });
 
-    test('taille = 3 + 9·2', () {
+    test('size = 3 + 9·2', () {
       expect(frame.length, 21);
     });
 
-    test('master : état global de sa source sur les 3 LED', () {
+    test('master: overall status of its source on all 3 LEDs', () {
       expect(_at(frame, [0, 1, 2]), everyElement(red));
     });
 
-    test('ambiance = run le plus récent, sur les LED 3, 4, 10, 11', () {
+    test('ambient = most recent run, on LEDs 3, 4, 10, 11', () {
       expect(_at(frame, [3, 4, 10, 11]), everyElement(green));
     });
 
-    test('historique : point n° 1 (LED 9) = run le plus récent, '
-        'points sans run en gris', () {
+    test('history: dot no. 1 (LED 9) = most recent run, '
+        'dots without a run in grey', () {
       expect(_at(frame, [9, 8, 7, 6, 5]), [green, red, blue, grey, grey]);
     });
 
-    test('zone sans action : éteinte', () {
+    test('zone without an action: off', () {
       expect(_at(frame, [14, 15, 16, 17, 18]), everyElement(Rgb.black));
     });
 
-    test('ambiance de la tuile n° 2 sur les LED 12, 13, 19, 20', () {
+    test('ambient zone of tile no. 2 on LEDs 12, 13, 19, 20', () {
       expect(_at(frame, [12, 13, 19, 20]), everyElement(red));
     });
   });
 
-  test('source pas encore lue : inconnu', () {
+  test('source not read yet: unknown', () {
     final frame = renderer.render(_config(), const {}, Duration.zero);
     expect(_at(frame, [3, 4, 10, 11, 9, 8, 7, 6, 5]), everyElement(grey));
   });
 
-  test('les zones de même source partagent un seul état', () {
+  test('zones with the same source share a single state', () {
     final sameSource = SourceConfig(
       type: 'github',
       settings: {'workflow': 'ci.yml', 'repo': ' acme/app '},
@@ -114,27 +114,21 @@ void main() {
     expect(sameSource.key, _app.key);
   });
 
-  group('pulsation', () {
+  group('pulse', () {
     final states = {
       _app.key: const SourceState(history: [Status.running, Status.success]),
     };
 
-    test(
-      'creux à t = 0, maximum à mi-période, creux à nouveau à 1 période',
-      () {
-        expect(renderer.pulseLevel(Duration.zero), closeTo(0.15, 1e-9));
-        expect(
-          renderer.pulseLevel(const Duration(seconds: 1)),
-          closeTo(1, 1e-9),
-        );
-        expect(
-          renderer.pulseLevel(const Duration(seconds: 2)),
-          closeTo(0.15, 1e-9),
-        );
-      },
-    );
+    test('trough at t = 0, peak at half period, trough again at 1 period', () {
+      expect(renderer.pulseLevel(Duration.zero), closeTo(0.15, 1e-9));
+      expect(renderer.pulseLevel(const Duration(seconds: 1)), closeTo(1, 1e-9));
+      expect(
+        renderer.pulseLevel(const Duration(seconds: 2)),
+        closeTo(0.15, 1e-9),
+      );
+    });
 
-    test('le run en cours pulse, les runs terminés restent fixes', () {
+    test('the in-progress run pulses, completed runs stay steady', () {
       final low = renderer.render(_config(), states, Duration.zero);
       final high = renderer.render(
         _config(),
@@ -149,7 +143,7 @@ void main() {
       expect(high[8], green);
     });
 
-    test('« en file » pulse aussi', () {
+    test('"queued" pulses too', () {
       expect(
         renderer.colorFor(palette, (
           status: Status.queued,
@@ -160,12 +154,12 @@ void main() {
     });
   });
 
-  group('identifier', () {
+  group('identify', () {
     final states = {
       _app.key: const SourceState(history: [Status.success]),
     };
 
-    test('la tuile clignote en blanc, les autres sont inchangées', () {
+    test('the tile blinks white, the others are unchanged', () {
       final on = renderer.render(
         _config(),
         states,
@@ -190,7 +184,7 @@ void main() {
       expect(_at(on, [12, 13, 19, 20]), everyElement(grey));
     });
 
-    test('la master peut être identifiée', () {
+    test('the master tile can be identified', () {
       final frame = renderer.render(
         _config(),
         states,
@@ -201,7 +195,7 @@ void main() {
     });
   });
 
-  test('une tuile au rang invalide est ignorée sans erreur', () {
+  test('a tile at an invalid chain position is ignored without error', () {
     final config = Config(
       tiles: [
         Tile(
@@ -222,7 +216,7 @@ void main() {
     expect(renderer.render(config, const {}, Duration.zero).length, 3);
   });
 
-  test('octets DDP dans l\'ordre R, G, B', () {
+  test('DDP bytes in R, G, B order', () {
     final frame = LedFrame(2)..[1] = const Rgb(1, 2, 3);
     expect(frame.toRgbBytes(), [0, 0, 0, 1, 2, 3]);
   });

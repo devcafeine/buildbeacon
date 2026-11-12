@@ -1,5 +1,5 @@
 // BuildBeacon Hub — SDK tests: typed access to settings.
-// Version 1.2 (2026-11-12) — comments in English.
+// Version 1.3 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 import 'package:test/test.dart';
@@ -12,14 +12,14 @@ void main() {
     'tls': true,
   });
 
-  test('lit chaque type', () {
+  test('reads each type', () {
     expect(settings.text('repo'), 'acme/app');
     expect(settings.integer('port'), 8883);
     expect(settings.number('threshold'), 2.0);
     expect(settings.flag('tls'), isTrue);
   });
 
-  test('réglages facultatifs absents : null ou valeur par défaut', () {
+  test('missing optional settings: null or default value', () {
     expect(settings.optionalText('branch'), isNull);
     expect(settings.optionalInteger('delay'), isNull);
     expect(settings.optionalNumber('margin'), isNull);
@@ -27,7 +27,7 @@ void main() {
     expect(settings.flag('verbose', orElse: true), isTrue);
   });
 
-  test('réglage obligatoire absent : erreur du plugin, message explicite', () {
+  test('missing required setting: plugin error, explicit message', () {
     expect(
       () => settings.text('branch'),
       throwsA(
@@ -40,7 +40,7 @@ void main() {
     );
   });
 
-  test('mauvais type : erreur du plugin', () {
+  test('wrong type: plugin error', () {
     expect(
       () => settings.text('port'),
       throwsA(
@@ -54,7 +54,7 @@ void main() {
     expect(() => settings.optionalInteger('repo'), throwsStateError);
   });
 
-  test('valeurs brutes non modifiables', () {
+  test('raw values are unmodifiable', () {
     expect(() => settings.values['repo'] = 'x', throwsUnsupportedError);
   });
 }

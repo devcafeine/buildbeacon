@@ -1,5 +1,5 @@
 // BuildBeacon Hub — SDK tests: plugin test harness (testing.dart).
-// Version 1.2 (2026-11-12) — comments in English.
+// Version 1.3 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_plugin_sdk/buildbeacon_plugin_sdk.dart';
 import 'package:buildbeacon_plugin_sdk/testing.dart';
@@ -56,31 +56,28 @@ void main() {
   const plugin = _PingPlugin();
   const settings = {'url': 'https://acme.fr/sante'};
 
-  test(
-    'firstState : premier état, avec HTTP simulé, secret et horloge',
-    () async {
-      final requests = <http.Request>[];
-      final state = await firstState(
-        plugin,
-        settings,
-        context: fakeContext(
-          secrets: {'BB_PING_TOKEN': 'jeton'},
-          clock: () => DateTime(2026, 11, 11, 18),
-          respond: (request) {
-            requests.add(request);
-            return http.Response('ok', 200);
-          },
-        ),
-      );
+  test('firstState: first state, with fake HTTP, secret and clock', () async {
+    final requests = <http.Request>[];
+    final state = await firstState(
+      plugin,
+      settings,
+      context: fakeContext(
+        secrets: {'BB_PING_TOKEN': 'jeton'},
+        clock: () => DateTime(2026, 11, 11, 18),
+        respond: (request) {
+          requests.add(request);
+          return http.Response('ok', 200);
+        },
+      ),
+    );
 
-      expect(state.status, Status.success);
-      expect(state.updatedAt, DateTime(2026, 11, 11, 18));
-      expect(requests.single.url.toString(), 'https://acme.fr/sante');
-      expect(requests.single.headers['Authorization'], 'Bearer jeton');
-    },
-  );
+    expect(state.status, Status.success);
+    expect(state.updatedAt, DateTime(2026, 11, 11, 18));
+    expect(requests.single.url.toString(), 'https://acme.fr/sante');
+    expect(requests.single.headers['Authorization'], 'Bearer jeton');
+  });
 
-  test('firstStates : plusieurs lectures avec un intervalle court', () async {
+  test('firstStates: several reads with a short interval', () async {
     var calls = 0;
     final states = await firstStates(
       plugin,
@@ -94,18 +91,15 @@ void main() {
     expect(states.map((s) => s.status), [Status.success, Status.failure]);
   });
 
-  test(
-    'sans réponse simulée, une requête devient une erreur lisible',
-    () async {
-      final state = await firstState(plugin, settings);
-      expect(
-        state.error?.resolve('en'),
-        contains('unexpected HTTP request: GET https://acme.fr/sante'),
-      );
-    },
-  );
+  test('without a fake response, a request becomes a readable error', () async {
+    final state = await firstState(plugin, settings);
+    expect(
+      state.error?.resolve('en'),
+      contains('unexpected HTTP request: GET https://acme.fr/sante'),
+    );
+  });
 
-  test('réglages invalides : refusés avant de lancer le plugin', () {
+  test('invalid settings: rejected before starting the plugin', () {
     expect(
       () => firstState(plugin, {}),
       throwsA(

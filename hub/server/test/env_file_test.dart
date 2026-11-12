@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: reading the .env file.
-// Version 1.1 (2026-11-12) — comments in English.
+// Version 1.2 (2026-11-12) — test names in English.
 
 import 'dart:io';
 
@@ -7,7 +7,7 @@ import 'package:buildbeacon_hub/buildbeacon_hub.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('lignes NOM=valeur, commentaires, guillemets, export', () {
+  test('NAME=value lines, comments, quotes, export', () {
     final values = parseEnvFile('''
 # Jeton GitHub
 BB_GITHUB_TOKEN=github_pat_abc
@@ -30,7 +30,7 @@ not a line
   });
 
   test(
-    'l\'environnement du processus a priorité, valeurs vides ignorées',
+    'the process environment takes precedence, empty values ignored',
     () async {
       final dir = await Directory.systemTemp.createTemp('bb-env');
       addTearDown(() => dir.delete(recursive: true));
@@ -47,14 +47,11 @@ not a line
     },
   );
 
-  test(
-    'fichier .env absent : seulement l\'environnement du processus',
-    () async {
-      final env = await loadEnvironment(
-        envFile: '/nowhere/.env',
-        processEnvironment: {'A': '1'},
-      );
-      expect(env, {'A': '1'});
-    },
-  );
+  test('missing .env file: only the process environment', () async {
+    final env = await loadEnvironment(
+      envFile: '/nowhere/.env',
+      processEnvironment: {'A': '1'},
+    );
+    expect(env, {'A': '1'});
+  });
 }

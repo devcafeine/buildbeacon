@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: reading, writing and validating config.json.
-// Version 1.4 (2026-11-12) — comments in English.
+// Version 1.5 (2026-11-12) — test names in English.
 
 import 'dart:convert';
 
@@ -52,10 +52,10 @@ Matcher _formatError(Object fr, [Object? en]) => throwsA(
 );
 
 void main() {
-  group('lecture', () {
+  group('reading', () {
     final config = _parse(_example);
 
-    test('réglages globaux, avec valeurs par défaut', () {
+    test('global settings, with defaults', () {
       expect(config.wled.host, '192.168.1.50');
       expect(config.wled.port, 80);
       expect(config.wled.ddpPort, 4048);
@@ -63,12 +63,12 @@ void main() {
       expect(config.pollSeconds, 45);
     });
 
-    test('palette : surcharge partielle, clés inconnues ignorées', () {
+    test('palette: partial override, unknown keys ignored', () {
       expect(config.palette[Status.success], const Rgb(0, 255, 64));
       expect(config.palette[Status.failure], Palette.defaults[Status.failure]);
     });
 
-    test('tuiles, zones et sources', () {
+    test('tiles, zones and sources', () {
       expect(config.tiles.map((t) => t.id), ['master', 'app', 'site']);
       expect(config.tiles[0].zones, isEmpty);
 
@@ -84,12 +84,12 @@ void main() {
       expect(site.settings, {'repo': 'acme/site', 'branch': 'main'});
     });
 
-    test('config valide, 21 LED', () {
+    test('valid config, 21 LEDs', () {
       expect(config.validate(), isEmpty);
       expect(config.ledCount, 21);
     });
 
-    test('objet vide : config par défaut (luminosité 50 %)', () {
+    test('empty object: default config (brightness 50%)', () {
       final empty = Config.fromJson(const {});
       expect(empty.wled.host, 'buildbeacon.local');
       expect(empty.wled.brightness, 128);
@@ -98,14 +98,14 @@ void main() {
     });
   });
 
-  group('aller-retour JSON', () {
-    test('lire(écrire(config)) == config', () {
+  group('JSON round trip', () {
+    test('read(write(config)) == config', () {
       final first = _parse(_example).toJson();
       final second = _parse(jsonEncode(first)).toJson();
       expect(second, first);
     });
 
-    test('les zones sans action sont écrites à null', () {
+    test('zones without an action are written as null', () {
       final json = _parse(_example).toJson();
       final tiles = json['tiles']! as List<Object?>;
       final master = tiles[0]! as Map<String, Object?>;
@@ -114,7 +114,7 @@ void main() {
       expect((site['zones']! as Map<String, Object?>)['dots'], isNull);
     });
 
-    test('config initiale : la master seule, valide', () {
+    test('initial config: master tile only, valid', () {
       final initial = Config.initial();
       expect(initial.validate(), isEmpty);
       expect(initial.ledCount, 3);
@@ -122,40 +122,37 @@ void main() {
     });
   });
 
-  group('erreurs de format', () {
-    test('version future refusée', () {
+  group('format errors', () {
+    test('future version rejected', () {
       expect(
         () => Config.fromJson(const {'version': 99}),
         _formatError(contains('version 99'), contains('version 99')),
       );
     });
 
-    test(
-      'mode inconnu : le numéro de tuile est indiqué, en français et en anglais',
-      () {
-        final json = {
-          'tiles': [
-            _tileJson({
-              'zones': {
-                'ambient': {
-                  'source': {'type': 'github', 'repo': 'a/b'},
-                  'mode': 'rainbow',
-                },
+    test('unknown mode: tile number given, in French and English', () {
+      final json = {
+        'tiles': [
+          _tileJson({
+            'zones': {
+              'ambient': {
+                'source': {'type': 'github', 'repo': 'a/b'},
+                'mode': 'rainbow',
               },
-            }),
-          ],
-        };
-        expect(
-          () => Config.fromJson(json),
-          _formatError(
-            'Tuile n° 1 : Mode d\'affichage inconnu : rainbow',
-            'Tile #1: Unknown display mode: rainbow',
-          ),
-        );
-      },
-    );
+            },
+          }),
+        ],
+      };
+      expect(
+        () => Config.fromJson(json),
+        _formatError(
+          'Tuile n° 1 : Mode d\'affichage inconnu : rainbow',
+          'Tile #1: Unknown display mode: rainbow',
+        ),
+      );
+    });
 
-    test('champ obligatoire manquant', () {
+    test('missing required field', () {
       expect(
         () => Tile.fromJson(const {'id': 'x', 'kind': 'project'}),
         _formatError(
@@ -165,7 +162,7 @@ void main() {
       );
     });
 
-    test('couleur mal formée', () {
+    test('malformed color', () {
       expect(() => Rgb.parse('#12345'), throwsFormatException);
       expect(() => Rgb.parse('-00001'), throwsFormatException);
       expect(Rgb.parse('ff8000'), const Rgb(255, 128, 0));
@@ -186,7 +183,7 @@ void main() {
       ],
     });
 
-    test('deux tuiles au même rang de chaîne', () {
+    test('two tiles at the same chain position', () {
       final config = withTiles([
         _tileJson({
           'id': 'a',
@@ -205,7 +202,7 @@ void main() {
       ]);
     });
 
-    test('deux tuiles à la même place, identifiant en double', () {
+    test('two tiles at the same place, duplicate id', () {
       final config = withTiles([
         _tileJson({'id': 'a', 'chain_index': 1}),
         _tileJson({'id': 'a', 'chain_index': 2}),
@@ -219,28 +216,31 @@ void main() {
       );
     });
 
-    test('master hors de la tête de chaîne, tuile projet au rang 0', () {
-      final config = Config.fromJson({
-        'tiles': [
-          {
-            'id': 'master',
-            'kind': 'master',
-            'chain_index': 1,
-            'pos': {'q': 9, 'r': 9},
-          },
-          _tileJson({'chain_index': 0}),
-        ],
-      });
-      expect(
-        config.validate().resolveAll('fr'),
-        unorderedEquals([
-          contains('position 0'),
-          contains('position de chaîne ≥ 1'),
-        ]),
-      );
-    });
+    test(
+      'master tile not at the head of the chain, project tile at position 0',
+      () {
+        final config = Config.fromJson({
+          'tiles': [
+            {
+              'id': 'master',
+              'kind': 'master',
+              'chain_index': 1,
+              'pos': {'q': 9, 'r': 9},
+            },
+            _tileJson({'chain_index': 0}),
+          ],
+        });
+        expect(
+          config.validate().resolveAll('fr'),
+          unorderedEquals([
+            contains('position 0'),
+            contains('position de chaîne ≥ 1'),
+          ]),
+        );
+      },
+    );
 
-    test('il faut exactement une master', () {
+    test('exactly one master tile required', () {
       final config = Config.fromJson({
         'tiles': [_tileJson({})],
       });
@@ -249,47 +249,44 @@ void main() {
       ]);
     });
 
-    test(
-      'historique impossible en ambiance, zone points absente de la master',
-      () {
-        final action = {
-          'source': {'type': 'github', 'repo': 'acme/app'},
-          'mode': 'history',
-        };
-        final config = Config.fromJson({
-          'tiles': [
-            {
-              'id': 'master',
-              'kind': 'master',
-              'chain_index': 0,
-              'pos': {'q': 9, 'r': 9},
-              'zones': {'dots': action},
-            },
-            _tileJson({
-              'label': 'App',
-              'zones': {'ambient': action},
-            }),
-          ],
-        });
-        expect(
-          config.validate().resolveAll('fr'),
-          unorderedEquals([
-            'Tuile « master » : pas de zone « points » sur une tuile master',
-            'Tuile « App » : mode « historique » impossible dans la zone '
-                'ambiance',
-          ]),
-        );
-        expect(
-          config.validate().resolveAll('en'),
-          unorderedEquals([
-            'Tile "master": no dots zone on a master tile',
-            'Tile "App": "history" mode is not available in the ambient zone',
-          ]),
-        );
-      },
-    );
+    test('no history in the ambient zone, no dots zone on the master tile', () {
+      final action = {
+        'source': {'type': 'github', 'repo': 'acme/app'},
+        'mode': 'history',
+      };
+      final config = Config.fromJson({
+        'tiles': [
+          {
+            'id': 'master',
+            'kind': 'master',
+            'chain_index': 0,
+            'pos': {'q': 9, 'r': 9},
+            'zones': {'dots': action},
+          },
+          _tileJson({
+            'label': 'App',
+            'zones': {'ambient': action},
+          }),
+        ],
+      });
+      expect(
+        config.validate().resolveAll('fr'),
+        unorderedEquals([
+          'Tuile « master » : pas de zone « points » sur une tuile master',
+          'Tuile « App » : mode « historique » impossible dans la zone '
+              'ambiance',
+        ]),
+      );
+      expect(
+        config.validate().resolveAll('en'),
+        unorderedEquals([
+          'Tile "master": no dots zone on a master tile',
+          'Tile "App": "history" mode is not available in the ambient zone',
+        ]),
+      );
+    });
 
-    test('sans registre de plugins, les réglages ne sont pas vérifiés', () {
+    test('without a plugin registry, settings are not checked', () {
       final config = withTiles([
         _tileJson({
           'label': 'App',
@@ -307,7 +304,7 @@ void main() {
       expect(config.validate(), isEmpty);
     });
 
-    test('scrutation trop rapide, luminosité hors limites', () {
+    test('polling too fast, brightness out of range', () {
       final config = Config.fromJson({
         'poll_seconds': 2,
         'wled': {'brightness': 300},
@@ -325,7 +322,7 @@ void main() {
   });
 
   group('source', () {
-    test('réglages à plat en JSON, textes nettoyés, vides retirés', () {
+    test('flat settings in JSON, text trimmed, empty values removed', () {
       final source = SourceConfig.fromJson(const {
         'type': ' github ',
         'repo': ' acme/app ',
@@ -337,7 +334,7 @@ void main() {
       expect(source.toJson(), {'type': 'github', 'repo': 'acme/app'});
     });
 
-    test('la clé ne dépend pas de l\'ordre des réglages', () {
+    test('key does not depend on settings order', () {
       final a = SourceConfig(
         type: 'github',
         settings: {'repo': 'acme/app', 'branch': 'main'},
@@ -349,7 +346,7 @@ void main() {
       expect(a.key, b.key);
     });
 
-    test('la clé distingue le type et les réglages', () {
+    test('key distinguishes type and settings', () {
       SourceConfig github(Map<String, Object?> settings) =>
           SourceConfig(type: 'github', settings: settings);
       final keys = {

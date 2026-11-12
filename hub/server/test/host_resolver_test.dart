@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: resolving the WLED host name (system, direct mDNS).
-// Version 1.1 (2026-11-12) — comments in English.
+// Version 1.2 (2026-11-12) — test names in English.
 
 import 'dart:async';
 import 'dart:io';
@@ -29,7 +29,7 @@ Uint8List _answer(Uint8List query, List<int> ip, {bool sameName = true}) {
 }
 
 void main() {
-  group('requête mDNS directe', () {
+  group('direct mDNS query', () {
     late RawDatagramSocket responder;
     final questions = <Uint8List>[];
 
@@ -52,7 +52,7 @@ void main() {
     setUp(questions.clear);
     tearDown(() => responder.close());
 
-    test('question A pour le nom, réponse lue (nom compressé)', () async {
+    test('A question for the name, answer read (compressed name)', () async {
       await respond();
       final address = await queryMdnsIPv4(
         'BuildBeacon.local',
@@ -62,12 +62,12 @@ void main() {
       expect(address?.address, '192.168.1.50');
 
       final query = questions.first;
-      expect(query.sublist(2, 6), [0, 0, 0, 1], reason: 'requête, 1 question');
+      expect(query.sublist(2, 6), [0, 0, 0, 1], reason: 'query, 1 question');
       expect(String.fromCharCodes(query.sublist(13, 24)), 'buildbeacon');
       expect(query.sublist(query.length - 4), [0, 1, 0, 1], reason: 'A, IN');
     });
 
-    test('réponse pour un autre nom : ignorée', () async {
+    test('answer for another name: ignored', () async {
       await respond(sameName: false);
       final address = await queryMdnsIPv4(
         'buildbeacon.local',
@@ -79,7 +79,7 @@ void main() {
     });
 
     test(
-      'pas de réponse : null après le délai, question reposée une fois',
+      'no answer: null after the timeout, question asked again once',
       () async {
         await respond(silent: true);
         final watch = Stopwatch()..start();
@@ -96,7 +96,7 @@ void main() {
     );
   });
 
-  test('paquets malformés ou questions : ignorés sans erreur', () {
+  test('malformed packets or questions: ignored without error', () {
     final query = encodeMdnsQuery('buildbeacon.local', id: 7);
     expect(decodeMdnsAnswer(query, 'buildbeacon.local'), isNull);
     expect(decodeMdnsAnswer(Uint8List(5), 'buildbeacon.local'), isNull);
@@ -114,7 +114,7 @@ void main() {
     );
   });
 
-  group('ordre de résolution', () {
+  group('resolution order', () {
     final asked = <String>[];
     Future<InternetAddress?> fakeMdns(String name) async {
       asked.add(name);
@@ -123,7 +123,7 @@ void main() {
 
     setUp(asked.clear);
 
-    test('adresse IP : telle quelle, sans requête', () async {
+    test('IP address: as is, no query', () async {
       expect(
         (await resolveIPv4('192.168.1.7', mdns: fakeMdns))?.address,
         '192.168.1.7',
@@ -132,7 +132,7 @@ void main() {
       expect(asked, isEmpty);
     });
 
-    test('nom connu du système : sans mDNS', () async {
+    test('name known to the system: no mDNS', () async {
       final address = await resolveIPv4(
         'buildbeacon.local',
         mdns: fakeMdns,
@@ -142,7 +142,7 @@ void main() {
       expect(asked, isEmpty);
     });
 
-    test('nom .local inconnu du système : requête mDNS', () async {
+    test('.local name unknown to the system: mDNS query', () async {
       final address = await resolveIPv4(
         'tiles-test.local',
         mdns: fakeMdns,
@@ -152,7 +152,7 @@ void main() {
       expect(asked, ['tiles-test.local']);
     });
 
-    test('autre nom inconnu : pas de mDNS', () async {
+    test('other unknown name: no mDNS', () async {
       expect(
         await resolveIPv4(
           'tiles.invalid',

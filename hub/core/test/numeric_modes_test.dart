@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: numeric indicators (thresholds and gauge modes).
-// Version 1.3 (2026-11-12) — comments in English.
+// Version 1.4 (2026-11-12) — test names in English.
 
 import 'dart:convert';
 
@@ -50,8 +50,8 @@ Matcher _closeToAll(List<double> expected) => pairwiseCompare<double, double>(
 );
 
 void main() {
-  group('seuils', () {
-    test('alerte au-dessus (température de buse)', () {
+  group('thresholds', () {
+    test('alert above (nozzle temperature)', () {
       const t = Thresholds(warning: 240, failure: 260);
       expect([220, 240, 259, 260, 300].map(t.evaluate), [
         Status.success,
@@ -62,7 +62,7 @@ void main() {
       ]);
     });
 
-    test('alerte en dessous (filament restant, ventes du jour)', () {
+    test('alert below (remaining filament, daily sales)', () {
       const t = Thresholds(
         warning: 200,
         failure: 50,
@@ -77,12 +77,12 @@ void main() {
       ]);
     });
 
-    test('un seul seuil suffit', () {
+    test('a single threshold is enough', () {
       const t = Thresholds(failure: 100);
       expect([99, 100].map(t.evaluate), [Status.success, Status.failure]);
     });
 
-    test('mode thresholds : toute la zone prend la couleur de la mesure', () {
+    test('thresholds mode: the whole zone takes the metric color', () {
       final leds = FrameRenderer.zoneOutputs(
         _action(
           DisplayMode.thresholds,
@@ -95,7 +95,7 @@ void main() {
       expect(leds, everyElement((status: Status.warning, intensity: 1.0)));
     });
 
-    test('sans « metric » : la première mesure de la source', () {
+    test('without "metric": first metric of the source', () {
       final leds = FrameRenderer.zoneOutputs(
         _action(
           DisplayMode.thresholds,
@@ -107,7 +107,7 @@ void main() {
       expect(_statuses(leds), everyElement(Status.failure));
     });
 
-    test('mesure absente ou source pas encore lue : inconnu', () {
+    test('missing metric or source not read yet: unknown', () {
       final action = _action(
         DisplayMode.thresholds,
         metric: 'humidity',
@@ -122,8 +122,8 @@ void main() {
     });
   });
 
-  group('jauge', () {
-    test('62 % sur 5 LED : 3 pleines, la 4e à 10 %, la 5e éteinte', () {
+  group('gauge', () {
+    test('62% on 5 LEDs: 3 full, 4th at 10%, 5th off', () {
       final leds = FrameRenderer.zoneOutputs(
         _action(DisplayMode.gauge, metric: 'progress'),
         _printing,
@@ -132,7 +132,7 @@ void main() {
       expect(_intensities(leds), _closeToAll([1, 1, 1, 0.1, 0]));
     });
 
-    test('couleur = état de la source (impression en cours → pulse)', () {
+    test('color = source status (print running → pulses)', () {
       final leds = FrameRenderer.zoneOutputs(
         _action(DisplayMode.gauge, metric: 'progress'),
         _printing,
@@ -141,7 +141,7 @@ void main() {
       expect(_statuses(leds), everyElement(Status.running));
     });
 
-    test('avec des seuils, la couleur suit la valeur', () {
+    test('with thresholds, color follows the value', () {
       final leds = FrameRenderer.zoneOutputs(
         _action(
           DisplayMode.gauge,
@@ -155,7 +155,7 @@ void main() {
       expect(_statuses(leds), everyElement(Status.success));
     });
 
-    test('les bornes de l\'action priment sur celles de la source', () {
+    test('action bounds take precedence over source bounds', () {
       const state = SourceState(
         status: Status.success,
         metrics: {'sales': Metric(25, min: 0, max: 100)},
@@ -168,7 +168,7 @@ void main() {
       expect(_intensities(leds), _closeToAll([1, 1, 0.5, 0, 0]));
     });
 
-    test('sans bornes : 0 – 100', () {
+    test('without bounds: 0 – 100', () {
       const state = SourceState(metrics: {'x': Metric(40)});
       final leds = FrameRenderer.zoneOutputs(
         _action(DisplayMode.gauge),
@@ -178,7 +178,7 @@ void main() {
       expect(_intensities(leds), _closeToAll([1, 1, 0, 0, 0]));
     });
 
-    test('valeur hors bornes : ramenée dans la jauge', () {
+    test('out-of-bounds value: clamped to the gauge', () {
       for (final (value, expected) in [(150.0, 1.0), (-5.0, 0.0)]) {
         final state = SourceState(metrics: {'x': Metric(value)});
         final leds = FrameRenderer.zoneOutputs(
@@ -190,7 +190,7 @@ void main() {
       }
     });
 
-    test('mesure absente : toute la zone en gris inconnu', () {
+    test('missing metric: whole zone in unknown grey', () {
       final leds = FrameRenderer.zoneOutputs(
         _action(DisplayMode.gauge, metric: 'progress'),
         SourceState.unknown,
@@ -199,7 +199,7 @@ void main() {
       expect(leds, everyElement((status: Status.unknown, intensity: 1.0)));
     });
 
-    test('rendu : LED partielle atténuée, LED vide éteinte', () {
+    test('rendering: partial LED dimmed, empty LED off', () {
       final config = Config(
         tiles: [
           Tile(
@@ -254,7 +254,7 @@ void main() {
           ],
         }).validate().resolveAll('fr');
 
-    test('seuils dans le mauvais ordre', () {
+    test('thresholds in the wrong order', () {
       expect(
         issues('dots', {
           'mode': 'thresholds',
@@ -266,20 +266,20 @@ void main() {
       );
     });
 
-    test('mode thresholds sans seuil', () {
+    test('thresholds mode without a threshold', () {
       expect(issues('ambient', {'mode': 'thresholds'}), [
         'Tuile « Bambu » : ambiance : le mode seuils demande au moins un '
             'seuil (warning ou failure)',
       ]);
     });
 
-    test('pas de jauge sur l\'ambiance (LED non contiguës)', () {
+    test('no gauge on the ambient zone (non-contiguous LEDs)', () {
       expect(issues('ambient', {'mode': 'gauge'}), [
         contains('mode « jauge » impossible dans la zone ambiance'),
       ]);
     });
 
-    test('jauge : max ≤ min', () {
+    test('gauge: max ≤ min', () {
       expect(
         issues('dots', {
           'mode': 'gauge',
@@ -289,7 +289,7 @@ void main() {
       );
     });
 
-    test('direction de seuil inconnue : erreur de format', () {
+    test('unknown threshold direction: format error', () {
       expect(
         () => issues('dots', {
           'mode': 'thresholds',
@@ -302,7 +302,7 @@ void main() {
     });
   });
 
-  test('aller-retour JSON des options', () {
+  test('JSON round trip of options', () {
     final json = {
       'source': {'type': 'printer', 'name': 'workshop'},
       'mode': 'gauge',

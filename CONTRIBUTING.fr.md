@@ -1,4 +1,4 @@
-<!-- BuildBeacon — guide de contribution (français). Version 1.6 (2026-11-12) — commentaires et commits en anglais. -->
+<!-- BuildBeacon — guide de contribution (français). Version 1.7 (2026-11-12) — noms des tests en anglais. -->
 # Participer à BuildBeacon
 
 [English version](CONTRIBUTING.md)
@@ -55,8 +55,8 @@ Tâches utiles (`mise tasks` les liste toutes) :
 
 - **Identifiants en anglais** : code, valeurs de `config.json`, options en ligne de commande,
   noms de fichiers.
-- **Commentaires du code et messages de commit en anglais**, pour que tout le monde puisse
-  lire le code.
+- **Commentaires du code, noms des tests et messages de commit en anglais**, pour que tout
+  le monde puisse lire le code.
 - **Les textes affichés à l'utilisateur sont traduits** (anglais et français) : en Dart, ce
   sont des `LocalizedText` ; l'interface web utilise des fichiers ARB
   (`hub/ui/lib/l10n/app_<langue>.arb`, générés par `mise run get`) ; la page du simulateur a

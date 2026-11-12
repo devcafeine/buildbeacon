@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: commissioning test pattern.
-// Version 1.2 (2026-11-12) — comments in English.
+// Version 1.3 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';
@@ -17,12 +17,12 @@ void main() {
   Duration s(double seconds) =>
       Duration(microseconds: (seconds * 1000000).round());
 
-  test('master + 2 tuiles : 21 LED', () {
+  test('master + 2 tiles: 21 LEDs', () {
     expect(pattern.ledCount, 21);
     expect(pattern.frameAt(Duration.zero).length, 21);
   });
 
-  test('phase 1 : chaque tuile de la couleur de son rang', () {
+  test('phase 1: each tile in the color of its chain position', () {
     final frame = pattern.frameAt(s(1));
     expect(pattern.phaseAt(s(1)), TestPatternPhase.ranks);
     expect(at(frame, [0, 1, 2]), everyElement(Rgb.white));
@@ -30,7 +30,7 @@ void main() {
     expect(at(frame, [for (var i = 12; i <= 20; i++) i]), everyElement(green));
   });
 
-  test('phase 2 : le point avance de gauche à droite', () {
+  test('phase 2: the dot moves from left to right', () {
     // Start: dot #1 of each tile (LEDs 9 and 18), LED 0 of the master tile.
     final start = pattern.frameAt(s(5));
     expect(pattern.phaseAt(s(5)), TestPatternPhase.dots);
@@ -49,7 +49,7 @@ void main() {
     ]);
   });
 
-  test('phase 3 : seulement les rubans du haut et du bas', () {
+  test('phase 3: only the top and bottom strips', () {
     final frame = pattern.frameAt(s(11));
     expect(pattern.phaseAt(s(11)), TestPatternPhase.ambient);
     expect(at(frame, [3, 4, 10, 11]), everyElement(red));
@@ -57,12 +57,12 @@ void main() {
     expect(at(frame, [0, 1, 2]), everyElement(off));
   });
 
-  test('le cycle recommence', () {
+  test('the cycle starts over', () {
     expect(pattern.phaseAt(s(15)), TestPatternPhase.ranks);
     expect(TestPattern.colorOf(7), TestPattern.colorOf(1));
   });
 
-  test('descriptions des phases en français et en anglais', () {
+  test('phase descriptions in French and English', () {
     expect(
       TestPatternPhase.dots.description.resolve('fr'),
       startsWith('Sens des points'),

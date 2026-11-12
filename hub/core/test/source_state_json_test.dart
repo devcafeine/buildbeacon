@@ -1,11 +1,11 @@
 // BuildBeacon Hub — Tests: source state ↔ JSON.
-// Version 1.1 (2026-11-12) — comments in English.
+// Version 1.2 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('aller-retour complet', () {
+  test('full round trip', () {
     final state = SourceState(
       status: Status.running,
       history: const [Status.running, Status.success, Status.failure],
@@ -36,7 +36,7 @@ void main() {
     expect(SourceStateJson.encode(back), json);
   });
 
-  test('état jamais lu', () {
+  test('state never read', () {
     final json = SourceStateJson.encode(SourceState.unknown);
     expect(json, {
       'status': 'unknown',
@@ -48,7 +48,7 @@ void main() {
     expect(SourceStateJson.decode(json).status, Status.unknown);
   });
 
-  test('lecture tolérante : valeurs inconnues ou mal formées ignorées', () {
+  test('lenient reading: unknown or malformed values ignored', () {
     final state = SourceStateJson.decode({
       'status': 'exploded',
       'history': ['success', 'later', 3],

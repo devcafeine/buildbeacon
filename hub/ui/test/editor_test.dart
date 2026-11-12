@@ -1,5 +1,5 @@
 // BuildBeacon UI — Tests: draft, chain, saving, changes coming from the Hub.
-// Version 1.1 (2026-11-12) — comments in English.
+// Version 1.2 (2026-11-12) — test names in English.
 
 import 'package:buildbeacon_core/buildbeacon_core.dart';
 import 'package:buildbeacon_ui/src/api/hub_events.dart';
@@ -27,32 +27,36 @@ void main() {
     for (final t in editor.draft!.tiles) t.id: t.chainIndex,
   };
 
-  test('chargement : configuration et plugins, rien à enregistrer', () {
+  test('loading: configuration and plugins, nothing to save', () {
     expect(editor.loadError, isNull);
     expect(editor.draft!.tiles, hasLength(3));
     expect(editor.plugins.map((p) => p.type), ['github', 'printer']);
     expect(editor.dirty, isFalse);
   });
 
-  group('tuiles', () {
-    test('ajout : en bout de chaîne, sélectionnée', () {
+  group('tiles', () {
+    test('add: at the end of the chain, selected', () {
       final id = editor.addTile(const HexPos(1, 0));
       expect(id, 'tile-3');
       expect(editor.selectedTileId, 'tile-3');
       expect(chain()['tile-3'], 3);
       expect(editor.dirty, isTrue);
-      expect(editor.addTile(const HexPos(1, 0)), isNull, reason: 'case prise');
+      expect(editor.addTile(const HexPos(1, 0)), isNull, reason: 'cell taken');
     });
 
-    test('retrait : les suivantes remontent ; annulation possible', () {
+    test('remove: the following tiles move up; can be undone', () {
       final before = editor.removeTile('app');
       expect(chain(), {'master': 0, 'site': 1});
       editor.restore(before!);
       expect(editor.dirty, isFalse);
-      expect(editor.removeTile('master'), isNull, reason: 'la master reste');
+      expect(
+        editor.removeTile('master'),
+        isNull,
+        reason: 'the master tile stays',
+      );
     });
 
-    test('déplacement : vers une case libre, ou échange de places', () {
+    test('move: to a free cell, or swap places', () {
       editor.moveTile('site', const HexPos(2, 0));
       expect(editor.draft!.tile('site')!.pos, const HexPos(2, 0));
       editor.moveTile('site', const HexPos(0, 0));
@@ -60,13 +64,13 @@ void main() {
       expect(editor.draft!.tile('app')!.pos, const HexPos(2, 0));
     });
 
-    test('ordre de la chaîne', () {
+    test('chain order', () {
       editor.addTile(const HexPos(1, 0));
       editor.moveInChain(2, 0);
       expect(chain(), {'master': 0, 'app': 2, 'site': 3, 'tile-3': 1});
     });
 
-    test('identifiant : vide ou déjà pris refusé ; la sélection suit', () {
+    test('id: empty or already taken is rejected; the selection follows', () {
       editor.select('app');
       expect(editor.renameTile('app', 'site'), isFalse);
       expect(editor.renameTile('app', '  '), isFalse);
@@ -76,7 +80,7 @@ void main() {
     });
 
     test(
-      'zone allumée : même source que l\'autre zone, historique sur les points',
+      'zone turned on: same source as the other zone, history on the dots',
       () {
         final site = editor.draft!.tile('site')!;
         final dots = editor.defaultAction(site, ZoneName.dots);
@@ -94,8 +98,8 @@ void main() {
     );
   });
 
-  group('validation et enregistrement', () {
-    test('problèmes signalés par le Hub au fil de la saisie', () async {
+  group('validation and saving', () {
+    test('issues reported by the Hub while typing', () async {
       editor.setZone(
         'site',
         ZoneName.ambient,
@@ -115,7 +119,7 @@ void main() {
       expect(editor.dirty, isFalse);
     });
 
-    test('enregistré : le brouillon devient la configuration du Hub', () async {
+    test('saved: the draft becomes the Hub configuration', () async {
       editor.updateTile('app', (t) => t.copyWith(label: 'Frontend'));
       expect(await editor.save(), SaveResult.saved);
       expect(editor.dirty, isFalse);
@@ -126,7 +130,7 @@ void main() {
       );
     });
 
-    test('refusé (422) : problèmes affichés, brouillon gardé', () async {
+    test('rejected (422): issues shown, draft kept', () async {
       editor.setZone(
         'site',
         ZoneName.dots,
@@ -140,7 +144,7 @@ void main() {
       expect(editor.issues, hasLength(1));
     });
 
-    test('jeton exigé', () async {
+    test('token required', () async {
       hub = FakeHub(apiToken: 'secret');
       final protected = EditorController(
         hub.api(),
@@ -155,8 +159,8 @@ void main() {
     });
   });
 
-  group('événements du Hub', () {
-    test('état en direct', () async {
+  group('Hub events', () {
+    test('live state', () async {
       hub.sendState(stateJson(identifying: ['app']));
       await settle();
       expect(editor.link, HubLink.live);
@@ -172,7 +176,7 @@ void main() {
     });
 
     test(
-      'configuration changée ailleurs, sans modification en cours : adoptée',
+      'configuration changed elsewhere, no edits in progress: adopted',
       () async {
         hub.sendConfig(configJson(label: 'Changed'));
         await settle();
@@ -182,41 +186,35 @@ void main() {
       },
     );
 
-    test(
-      'changée ailleurs pendant la saisie : proposée, pas imposée',
-      () async {
-        editor.setPollSeconds(300);
-        hub.sendConfig(configJson(brightness: 60));
-        await settle();
-        expect(editor.remoteConfig, isNotNull);
-        expect(editor.draft!.pollSeconds, 300);
+    test('changed elsewhere while editing: offered, not forced', () async {
+      editor.setPollSeconds(300);
+      hub.sendConfig(configJson(brightness: 60));
+      await settle();
+      expect(editor.remoteConfig, isNotNull);
+      expect(editor.draft!.pollSeconds, 300);
 
-        editor.keepMine();
-        expect(editor.saved!.wled.brightness, 60);
-        expect(editor.draft!.wled.brightness, 128);
-        expect(editor.dirty, isTrue);
+      editor.keepMine();
+      expect(editor.saved!.wled.brightness, 60);
+      expect(editor.draft!.wled.brightness, 128);
+      expect(editor.dirty, isTrue);
 
-        hub.sendConfig(configJson(brightness: 70));
-        await settle();
-        editor.loadRemote();
-        expect(editor.draft!.wled.brightness, 70);
-        expect(editor.dirty, isFalse);
-      },
-    );
+      hub.sendConfig(configJson(brightness: 70));
+      await settle();
+      editor.loadRemote();
+      expect(editor.draft!.wled.brightness, 70);
+      expect(editor.dirty, isFalse);
+    });
 
-    test(
-      'notre propre enregistrement revenu par le flux : rien à proposer',
-      () async {
-        editor.setPollSeconds(300);
-        hub.sendConfig(editor.draft!.toJson());
-        await settle();
-        expect(editor.remoteConfig, isNull);
-        expect(editor.dirty, isFalse);
-      },
-    );
+    test('our own save echoed back by the stream: nothing to offer', () async {
+      editor.setPollSeconds(300);
+      hub.sendConfig(editor.draft!.toJson());
+      await settle();
+      expect(editor.remoteConfig, isNull);
+      expect(editor.dirty, isFalse);
+    });
   });
 
-  test('Hub injoignable au chargement', () async {
+  test('Hub unreachable on load', () async {
     final down = FakeHub()..reachable = false;
     final failed = EditorController(down.api());
     addTearDown(failed.dispose);

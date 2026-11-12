@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: Hub service (file reload, saving).
-// Version 1.1 (2026-11-12) — comments in English.
+// Version 1.2 (2026-11-12) — test names in English.
 
 import 'dart:async';
 import 'dart:convert';
@@ -100,21 +100,21 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  group('rechargement du fichier', () {
-    test('fichier identique (ex. enregistré par l\'API) : ignoré', () async {
+  group('file reload', () {
+    test('identical file (e.g. saved by the API): ignored', () async {
       await service.reloadFromDisk();
       expect(plugin.names, ['a']);
       expect(logs, isEmpty);
     });
 
-    test('nouvelle version valide : appliquée', () async {
+    test('valid new version: applied', () async {
       File(path).writeAsStringSync(jsonEncode(_configJson('b')));
       await service.reloadFromDisk();
       expect(plugin.names, ['a', 'b']);
       expect(logs, ['Configuration rechargée']);
     });
 
-    test('version invalide : refusée, la précédente gardée', () async {
+    test('invalid version: rejected, previous one kept', () async {
       File(path).writeAsStringSync(jsonEncode(_configJson('b', poll: 1)));
       await service.reloadFromDisk();
       expect(plugin.names, ['a']);
@@ -122,7 +122,7 @@ void main() {
       expect(logs.last, contains('trop court'));
     });
 
-    test('fichier illisible : la précédente gardée', () async {
+    test('unreadable file: previous one kept', () async {
       File(path).writeAsStringSync('{ pas du JSON');
       await service.reloadFromDisk();
       expect(plugin.names, ['a']);
@@ -130,7 +130,7 @@ void main() {
     });
   });
 
-  test('enregistrement impossible : rien n\'est appliqué', () async {
+  test('save fails: nothing is applied', () async {
     // The config path is a non-empty directory: the rename fails.
     final blocked = Directory('${dir.path}/blocked')..createSync();
     File('${blocked.path}/x').writeAsStringSync('x');
@@ -141,7 +141,7 @@ void main() {
     expect(plugin.names, ['a']);
   });
 
-  test('écriture atomique : JSON lisible, aucun fichier temporaire', () async {
+  test('atomic write: readable JSON, no temporary file', () async {
     final config = Config.fromJson(_configJson('c'));
     await writeConfigFile(path, config);
 

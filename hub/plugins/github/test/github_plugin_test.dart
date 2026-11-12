@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: GitHub plugin (conformance, settings, connection).
-// Version 1.3 (2026-11-12) — comments in English.
+// Version 1.4 (2026-11-12) — test names in English.
 
 import 'dart:convert';
 
@@ -12,26 +12,26 @@ import 'package:test/test.dart';
 void main() {
   const plugin = GithubPlugin();
 
-  test('respecte les règles du Hub', () {
+  test('follows the Hub rules', () {
     expect(conformanceIssues(plugin), isEmpty);
   });
 
-  test('fournit un historique, pas de mesure ; jeton facultatif', () {
+  test('provides history, no metrics; optional token', () {
     expect(plugin.providesHistory, isTrue);
     expect(plugin.metrics, isEmpty);
     expect(plugin.secrets.single.env, 'BB_GITHUB_TOKEN');
     expect(plugin.secrets.single.required, isFalse);
   });
 
-  test('libellés en français et en anglais', () {
+  test('labels in French and English', () {
     final repo = plugin.settings.first.label;
     expect(repo.resolve('fr'), 'Dépôt');
     expect(repo.resolve('en'), 'Repository');
     expect(plugin.description.resolve('fr'), startsWith('État des derniers'));
   });
 
-  group('réglages', () {
-    test('dépôt, workflow et branche corrects', () {
+  group('settings', () {
+    test('valid repository, workflow and branch', () {
       expect(
         settingsIssues(plugin, {
           'repo': 'acme/app',
@@ -42,13 +42,13 @@ void main() {
       );
     });
 
-    test('dépôt obligatoire', () {
+    test('repository required', () {
       final issues = settingsIssues(plugin, {'workflow': 'ci.yml'});
       expect(issues.resolveAll('fr'), ['« Dépôt » est obligatoire']);
       expect(issues.resolveAll('en'), ['"Repository" is required']);
     });
 
-    test('URL collée à la place de owner/repo', () {
+    test('URL pasted instead of owner/repo', () {
       expect(
         settingsIssues(plugin, {
           'repo': 'https://github.com/acme/app',
@@ -57,7 +57,7 @@ void main() {
       );
     });
 
-    test('faute de frappe dans un réglage', () {
+    test('typo in a setting', () {
       expect(
         settingsIssues(plugin, {
           'repo': 'acme/app',
@@ -68,7 +68,7 @@ void main() {
     });
   });
 
-  test('connexion : premier état lu tout de suite, avec le jeton', () async {
+  test('connection: first state read immediately, with the token', () async {
     final requests = <http.Request>[];
     final state = await firstState(
       plugin,

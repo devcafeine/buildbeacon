@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Tests: reading config.json and first start.
-// Version 1.1 (2026-11-12) — comments in English.
+// Version 1.2 (2026-11-12) — test names in English.
 
 import 'dart:convert';
 import 'dart:io';
@@ -14,9 +14,9 @@ void main() {
   setUp(() async => dir = await Directory.systemTemp.createTemp('bb-config'));
   tearDown(() => dir.delete(recursive: true));
 
-  group('premier démarrage', () {
+  group('first start', () {
     test(
-      'fichier absent : créé avec la master seule, dossier compris',
+      'missing file: created with the master tile only, folder included',
       () async {
         final path = '${dir.path}/data/config.json';
         final (:config, :created) = await readOrCreateConfigFile(path);
@@ -30,7 +30,7 @@ void main() {
       },
     );
 
-    test('fichier présent : lu, pas recréé', () async {
+    test('existing file: read, not recreated', () async {
       final path = '${dir.path}/config.json';
       final mine = Config.initial().toJson()..['poll_seconds'] = 300;
       File(path).writeAsStringSync(jsonEncode(mine));
@@ -40,7 +40,7 @@ void main() {
       expect(config.pollSeconds, 300);
     });
 
-    test('fichier illisible : erreur, jamais remplacé', () async {
+    test('unreadable file: error, never replaced', () async {
       final path = '${dir.path}/config.json';
       File(path).writeAsStringSync('{ pas du JSON');
 
@@ -51,7 +51,7 @@ void main() {
       expect(File(path).readAsStringSync(), '{ pas du JSON');
     });
 
-    test('chemin occupé par un dossier : erreur, rien de créé', () async {
+    test('path taken by a folder: error, nothing created', () async {
       final path = '${dir.path}/config.json';
       Directory(path).createSync();
       await expectLater(
@@ -61,7 +61,7 @@ void main() {
     });
   });
 
-  test('lecture : fichier absent signalé avec son chemin', () async {
+  test('read: missing file reported with its path', () async {
     final path = '${dir.path}/absent.json';
     await expectLater(
       readConfigFile(path),
