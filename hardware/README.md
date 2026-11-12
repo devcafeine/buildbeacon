@@ -1,4 +1,4 @@
-<!-- BuildBeacon — hardware (English). Version 1.3 (2026-11-12) — parameter sets from the web interface -->
+<!-- BuildBeacon — hardware (English). Version 1.4 (2026-11-12) — model v1.2 (comments in English) -->
 # BuildBeacon — hardware
 
 [Version française](README.fr.md)
@@ -14,7 +14,7 @@ Everything you need to build the tiles: parametric 3D models (OpenSCAD) and circ
 
 ```
 hardware/
-  cad/buildbeacon_tile_v1.1.scad      tiles, back plates, stand, Skådis clips… (OpenSCAD)
+  cad/buildbeacon_tile_v1.2.scad      tiles, back plates, stand, Skådis clips… (OpenSCAD)
   pcb/buildbeacon_tuile_v1.2.kicad_pcb    project tile board (9 LEDs)
   pcb/buildbeacon_master_v1.2.kicad_pcb   master tile board (ESP32-C3 + 3 LEDs)
   pcb/gen_buildbeacon_pcb_v1.2.py     Python script that generates both boards
@@ -181,14 +181,13 @@ printed on the back of the board).
 
 ## 3D models
 
-A single parametric file: [`cad/buildbeacon_tile_v1.1.scad`](cad/buildbeacon_tile_v1.1.scad),
+A single parametric file: [`cad/buildbeacon_tile_v1.2.scad`](cad/buildbeacon_tile_v1.2.scad),
 to open in [OpenSCAD](https://openscad.org/) (2021 or later). Set the parameters in the
-**Customizer**, pick the part with `part`, render (**F6**) and export to STL. Comments in the
-file are in French.
+**Customizer**, pick the part with `part`, render (**F6**) and export to STL.
 
 **From the web interface of the Hub**: the **3D printing** tab lists the parts of your wall
 (a shell per tile with its name, the back plates, the dog bones) and downloads
-`buildbeacon_tile_v1.1.json`, one parameter set per part. Put it next to the `.scad` file:
+`buildbeacon_tile_v1.2.json`, one parameter set per part. Put it next to the `.scad` file:
 the Customizer offers the sets in its list, ready to render; the tab also gives the
 commands that render every part at once (`openscad -p … -P <set> -o <set>.stl`).
 
