@@ -1,6 +1,7 @@
 // BuildBeacon Hub — Tests : envoi et réception DDP en UDP sur la boucle locale.
-// Version 1.1 (2026-11-11) — avertissements traduits.
+// Version 1.2 (2026-11-12) — ouverture sans attendre la résolution du nom.
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -56,6 +57,27 @@ void main() {
       expect((await resolveIPv4('192.168.1.50'))?.address, '192.168.1.50');
       expect((await resolveIPv4('localhost'))?.address, '127.0.0.1');
       expect(await resolveIPv4('::1'), isNull);
+    });
+
+    test('ouverture immédiate : une IP sert tout de suite, un nom se résout '
+        'en arrière-plan', () async {
+      final resolved = Completer<InternetAddress?>();
+      final byName = await DdpSender.open(
+        host: 'buildbeacon.local',
+        resolve: (_) => resolved.future,
+      ).timeout(const Duration(seconds: 1));
+      expect(byName.address, isNull);
+      resolved.complete(InternetAddress('192.168.1.50'));
+      await pumpEventQueue();
+      expect(byName.address?.address, '192.168.1.50');
+      await byName.close();
+
+      final byIp = await DdpSender.open(
+        host: '192.168.1.51',
+        resolve: (_) => Completer<InternetAddress?>().future,
+      );
+      expect(byIp.address?.address, '192.168.1.51');
+      await byIp.close();
     });
 
     test(

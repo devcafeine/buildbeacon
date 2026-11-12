@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Programme principal : config.json → plugins → image des LED → WLED, et API REST.
-// Version 1.1 (2026-11-11) — API REST (--port, --listen, --web, BB_API_TOKEN) ; rechargement par le service du Hub.
+// Version 1.2 (2026-11-12) — premier démarrage sans config.json : créé avec la master seule.
 
 import 'dart:async';
 import 'dart:io';
@@ -23,7 +23,8 @@ Usage: mise run hub [-- options]          (at the repository root: uses
        dart run bin/hub.dart [options]    (in hub/server)
 
 Options:
-  --config <file>     configuration (default: BB_CONFIG, otherwise /data/config.json)
+  --config <file>     configuration (default: BB_CONFIG, otherwise /data/config.json);
+                      created with the master tile only if missing
   --env-file <file>   variables file such as .env (optional; real environment
                       variables take precedence)
   --port <n>          HTTP port of the API (default: BB_PORT, otherwise 8080)
@@ -45,7 +46,8 @@ Usage : mise run hub [-- options]          (à la racine du dépôt : utilise
         dart run bin/hub.dart [options]    (dans hub/server)
 
 Options :
-  --config <fichier>    configuration (défaut : BB_CONFIG, sinon /data/config.json)
+  --config <fichier>    configuration (défaut : BB_CONFIG, sinon /data/config.json) ;
+                        créée avec la tuile master seule si elle n'existe pas
   --env-file <fichier>  fichier de variables comme .env (facultatif ; les vraies
                         variables d'environnement ont priorité)
   --port <n>            port HTTP de l'API (défaut : BB_PORT, sinon 8080)
@@ -90,15 +92,24 @@ Future<void> main(List<String> args) async {
   final apiToken = environment['BB_API_TOKEN'];
 
   final plugins = builtinPlugins();
-  final Config config;
+  // Premier démarrage : pas de config.json → la master seule, à régler
+  // depuis l'interface. Un fichier présent mais invalide n'est jamais remplacé.
+  final ({Config config, bool created}) loaded;
   try {
-    config = await readConfigFile(configPath);
+    loaded = await readOrCreateConfigFile(configPath);
   } on LocalizedFormatException catch (e) {
+    fail(e.text.resolve(l));
+  } on FileSystemException catch (e) {
+    final reason = e.osError?.message ?? e.message;
     fail(
-      '${e.text.resolve(l)}\n'
-      '${tr(l, en: 'To start: copy config.example.json to $configPath.', fr: 'Pour commencer : copier config.example.json vers $configPath.')}',
+      tr(
+        l,
+        en: 'Cannot create $configPath ($reason)',
+        fr: 'Impossible de créer $configPath ($reason)',
+      ),
     );
   }
+  final config = loaded.config;
   final issues = config.validate(plugins: plugins);
   if (issues.isNotEmpty) {
     fail(
@@ -192,6 +203,26 @@ Future<void> main(List<String> args) async {
       ),
     ),
   );
+
+  if (loaded.created) {
+    final url = 'http://$shown:${server.port}';
+    log(
+      LocalizedText.build(
+        (l) => tr(
+          l,
+          en:
+              'No configuration yet: $configPath created with the master tile '
+              'only. Add and set up the tiles from the web interface ($url), '
+              'or start from config.example.json (three public repositories).',
+          fr:
+              'Pas encore de configuration : $configPath créé avec la tuile '
+              'master seule. Ajoutez et réglez les tuiles depuis l\'interface '
+              'web ($url), ou partez de config.example.json (trois dépôts '
+              'publics).',
+        ),
+      ),
+    );
+  }
 
   // Rechargement à chaud : surveiller le dossier, car beaucoup d'éditeurs
   // remplacent le fichier au lieu de le réécrire. Une configuration que l'API

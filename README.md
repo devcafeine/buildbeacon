@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.4 (2026-11-11) — web interface. -->
+<!-- BuildBeacon — README (English). Version 1.5 (2026-11-12) — first start without config.json. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -79,19 +79,15 @@ mise run test-pattern -- --host 127.0.0.1       # terminal 2: sends a test patte
 Options: `mise run simulator -- --help`. Add `--config <config.json>` to see your real
 layout, `--terminal` to draw in the terminal.
 
-### Run the Hub with public repositories
-
-[`config.example.json`](config.example.json) follows three public projects — BuildBeacon
-itself (master tile), WLED and mise — and needs no token.
+### Run the Hub
 
 ```sh
-mkdir -p data && cp config.example.json data/config.json
-mise run ui-build                                             # once: the web interface
-mise run simulator -- --open --config "$PWD/data/config.json" # terminal 1, without hardware
-mise run hub                                                  # terminal 2
+mise run ui-build   # once: the web interface
+mise run hub        # then open http://localhost:8080
 ```
 
-Then open **http://localhost:8080**: the wall drawn at its real place, with the live
+On its first start, the Hub creates `data/config.json` with the master tile only. Then open
+**http://localhost:8080**: the wall drawn at its real place, with the live
 colors. Select a tile to choose the source and the display mode of each zone; add a tile
 with a **+**, move it by dragging it, set the chain order, WLED, the brightness and the
 colors. Your changes are previewed on the wall and checked by the Hub as you type; nothing
@@ -99,9 +95,21 @@ reaches the LEDs before you **save**. Language: English or French (menu, or `?la
 
 ![The web interface: the wall and the settings of a tile](docs/images/web-ui_en_v1.0.png)
 
-Without tiles, set `"host": "127.0.0.1"` in the `wled` section of `data/config.json`
-so the Hub sends to the simulator. The Hub reloads `data/config.json` as soon as you save
-it, and refuses an invalid version (the previous one is kept).
+To start from an example instead: [`config.example.json`](config.example.json) follows
+three public projects — BuildBeacon itself (master tile), WLED and mise — and needs no
+token. Copy it before starting the Hub: `mkdir -p data && cp config.example.json
+data/config.json`.
+
+**Without tiles**, the simulator plays the part of WLED in a web page: in the interface,
+**Settings** tab, set the WLED address to `127.0.0.1` and save, then in another terminal:
+
+```sh
+mise run simulator -- --open --config "$PWD/data/config.json"
+```
+
+The simulator reads the layout when it starts: restart it after adding tiles to see them
+at their place. The Hub reloads `data/config.json` as soon as it is saved, from the
+interface or by hand, and refuses an invalid version (the previous one is kept).
 
 The Hub also serves its REST API on http://localhost:8080/api (`--port` to change it):
 
@@ -127,9 +135,9 @@ private repositories.
    - *Sync Interfaces*: "Receive UDP realtime" enabled (default).
 2. Check the wiring and find the chain order:
    `mise run test-pattern -- --host buildbeacon.local` (or the IP of WLED).
-3. Describe your tiles in `data/config.json` (`chain_index` = wiring order, `pos` = place
-   on the wall) and run `mise run hub`. At startup, the Hub checks WLED (LED count) and
-   sets its brightness.
+3. Run `mise run hub` and describe your tiles in the web interface: their place on the wall
+   (drag them) and the wiring order (**Chain** tab; *identify* makes a tile blink). The
+   Hub checks WLED (LED count) and sets its brightness.
 
 ## Where can the Hub run?
 

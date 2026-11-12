@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Lecture et écriture de config.json.
-// Version 1.2 (2026-11-11) — écriture atomique (API) ; chemin cité une seule fois dans les erreurs.
+// Version 1.3 (2026-11-12) — premier démarrage : fichier absent créé avec la master seule.
 
 import 'dart:convert';
 import 'dart:io';
@@ -49,6 +49,24 @@ Future<Config> readConfigFile(String path) async {
   } on LocalizedFormatException catch (e) {
     throw inFile(e.text);
   }
+}
+
+/// Configuration du fichier [path] ; s'il n'existe pas (premier démarrage),
+/// il est créé avec la configuration de départ, la master seule
+/// ([Config.initial]), à régler ensuite depuis l'interface web.
+///
+/// Un fichier présent mais illisible ou refusé n'est jamais remplacé : même
+/// erreur que [readConfigFile]. Un dossier impossible à créer lève une
+/// [FileSystemException].
+Future<({Config config, bool created})> readOrCreateConfigFile(
+  String path,
+) async {
+  if (await FileSystemEntity.type(path) == FileSystemEntityType.notFound) {
+    final config = Config.initial();
+    await writeConfigFile(path, config);
+    return (config: config, created: true);
+  }
+  return (config: await readConfigFile(path), created: false);
 }
 
 /// Enregistre [config] dans [path] de façon atomique : écriture d'un fichier

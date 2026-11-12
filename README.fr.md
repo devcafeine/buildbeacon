@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (français). Version 1.4 (2026-11-11) — interface web. -->
+<!-- BuildBeacon — README (français). Version 1.5 (2026-11-12) — premier démarrage sans config.json. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -81,18 +81,14 @@ mise run test-pattern -- --host 127.0.0.1       # terminal 2 : envoie une mire
 Options : `mise run simulator -- --help`. Ajouter `--config <config.json>` pour voir votre
 vraie disposition, `--terminal` pour dessiner dans le terminal.
 
-### Lancer le Hub avec des dépôts publics
-
-[`config.example.json`](config.example.json) suit trois projets publics — BuildBeacon
-lui-même (tuile master), WLED et mise — et ne demande pas de jeton.
+### Lancer le Hub
 
 ```sh
-mkdir -p data && cp config.example.json data/config.json
-mise run ui-build                                             # une fois : l'interface web
-mise run simulator -- --open --config "$PWD/data/config.json" # terminal 1, sans matériel
-mise run hub                                                  # terminal 2
+mise run ui-build   # une fois : l'interface web
+mise run hub        # puis ouvrir http://localhost:8080
 ```
 
+À son premier démarrage, le Hub crée `data/config.json` avec la tuile master seule.
 Ouvrez ensuite **http://localhost:8080** : le mur dessiné à sa vraie place, avec les
 couleurs en direct. Touchez une tuile pour choisir la source et le mode d'affichage de
 chaque zone ; ajoutez une tuile avec un **+**, déplacez-la en la faisant glisser, réglez
@@ -102,10 +98,22 @@ d'**enregistrer**. Langue : français ou anglais (menu, ou `?lang=en`).
 
 ![L'interface web : le mur et les réglages d'une tuile](docs/images/web-ui_fr_v1.0.png)
 
-Sans tuiles, mettez `"host": "127.0.0.1"` dans la section `wled` de
-`data/config.json` pour que le Hub envoie au simulateur. Le Hub recharge
-`data/config.json` dès que vous l'enregistrez, et refuse une version invalide (la
-précédente est gardée).
+Pour partir plutôt d'un exemple : [`config.example.json`](config.example.json) suit trois
+projets publics — BuildBeacon lui-même (tuile master), WLED et mise — et ne demande pas de
+jeton. Copiez-le avant de lancer le Hub : `mkdir -p data && cp config.example.json
+data/config.json`.
+
+**Sans tuiles**, le simulateur joue le rôle de WLED dans une page web : dans l'interface,
+onglet **Réglages**, mettez l'adresse WLED à `127.0.0.1` et enregistrez, puis dans un autre
+terminal :
+
+```sh
+mise run simulator -- --open --config "$PWD/data/config.json"
+```
+
+Le simulateur lit la disposition à son lancement : relancez-le après avoir ajouté des tuiles
+pour les voir à leur place. Le Hub recharge `data/config.json` dès qu'il est enregistré,
+depuis l'interface ou à la main, et refuse une version invalide (la précédente est gardée).
 
 Le Hub sert aussi son API REST sur http://localhost:8080/api (`--port` pour en changer) :
 
@@ -131,9 +139,9 @@ un jeton (`cp .env.example .env`, puis remplir `BB_GITHUB_TOKEN`), vous pouvez d
    - *Sync Interfaces* : « Receive UDP realtime » activé (par défaut).
 2. Vérifier le câblage et relever l'ordre de chaînage :
    `mise run test-pattern -- --host buildbeacon.local` (ou l'IP de WLED).
-3. Décrire vos tuiles dans `data/config.json` (`chain_index` = ordre de câblage, `pos` =
-   place au mur) et lancer `mise run hub`. Au démarrage, le Hub vérifie WLED (nombre de
-   LED) et règle sa luminosité.
+3. Lancer `mise run hub` et décrire vos tuiles dans l'interface web : leur place au mur (en
+   les faisant glisser) et l'ordre de câblage (onglet **Chaîne** ; *identifier* fait
+   clignoter une tuile). Le Hub vérifie WLED (nombre de LED) et règle sa luminosité.
 
 ## Sur quel matériel le Hub tourne-t-il ?
 

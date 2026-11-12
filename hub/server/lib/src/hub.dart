@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Le Hub : config → plugins → image des LED → WLED.
-// Version 1.2 (2026-11-11) — pour l'API : identifier une tuile, signal de changement, état de WLED, image courante.
+// Version 1.3 (2026-11-12) — vérification de WLED en arrière-plan : démarrage et enregistrement immédiats.
 
 import 'dart:async';
 
@@ -145,7 +145,9 @@ final class Hub {
       elapsed: () => _clock.elapsed,
       log: _log,
     )..start();
-    await checkWled();
+    // En arrière-plan : un WLED absent du réseau met plusieurs secondes à
+    // répondre (nom mDNS, délai) ; le résultat arrive par [changes].
+    unawaited(checkWled());
   }
 
   /// Passe à une nouvelle configuration, déjà validée.
@@ -166,19 +168,23 @@ final class Hub {
     if (wled.host != previous.host ||
         wled.port != previous.port ||
         wled.brightness != previous.brightness) {
-      await checkWled();
+      unawaited(checkWled());
     }
   }
 
   /// Vérifie WLED par son API JSON (connexion, nombre de LED) et règle la
   /// luminosité. Une API injoignable n'empêche pas l'envoi des couleurs en
   /// DDP (simulateur, réseau filtré) : elle est seulement signalée.
-  Future<WledStatus> checkWled() async {
+  Future<WledStatus> checkWled() => lastWledCheck = () async {
     final status = await _checkWled();
     _wled = status;
     _notify();
     return status;
-  }
+  }();
+
+  /// Dernière vérification de WLED lancée (au démarrage, à l'enregistrement
+  /// d'une configuration qui touche WLED, ou demandée par l'API).
+  Future<WledStatus>? lastWledCheck;
 
   Future<WledStatus> _checkWled() async {
     final wled = _config.wled;

@@ -1,5 +1,5 @@
 // BuildBeacon Hub — Envoi des images à WLED en DDP (UDP).
-// Version 1.1 (2026-11-11) — messages du journal traduits (LocalizedText).
+// Version 1.2 (2026-11-12) — un nom se résout en arrière-plan : ouverture immédiate.
 
 import 'dart:async';
 import 'dart:io';
@@ -21,9 +21,10 @@ typedef HostResolver = Future<InternetAddress?> Function(String host);
 /// Envoie les images à WLED en DDP.
 ///
 /// [host] peut être un nom mDNS (`buildbeacon.local`), un nom DNS ou une
-/// adresse IPv4. Il est résolu à l'ouverture puis toutes les `refresh` :
-/// l'adresse d'un ESP32 peut changer. En cas d'échec, la dernière adresse
-/// connue est gardée ; sans adresse, rien n'est envoyé.
+/// adresse IPv4. Une adresse sert tout de suite ; un nom est résolu en
+/// arrière-plan (plusieurs secondes pour un nom mDNS absent du réseau), puis
+/// toutes les `refresh` : l'adresse d'un ESP32 peut changer. En cas d'échec,
+/// la dernière adresse connue est gardée ; sans adresse, rien n'est envoyé.
 final class DdpSender implements LedSink {
   DdpSender._(this.host, this.port, this._socket, this._resolve, this._log);
 
@@ -51,7 +52,13 @@ final class DdpSender implements LedSink {
         ),
       ),
     );
-    await sender._refreshAddress();
+    // Ne pas attendre la résolution : elle retarderait le démarrage du Hub
+    // et l'enregistrement d'une configuration.
+    if (InternetAddress.tryParse(host) case final ip?
+        when ip.type == InternetAddressType.IPv4) {
+      sender._use(ip);
+    }
+    unawaited(sender._refreshAddress());
     sender._timer = Timer.periodic(
       refresh,
       (_) => unawaited(sender._refreshAddress()),
@@ -138,11 +145,13 @@ final class DdpSender implements LedSink {
       );
       return;
     }
-    if (address != known) {
-      _address = address;
-      _lastWarning = null;
-      _log(LocalizedText.same('WLED: $host → ${address.address}:$port'));
-    }
+    if (address != known) _use(address);
+  }
+
+  void _use(InternetAddress address) {
+    _address = address;
+    _lastWarning = null;
+    _log(LocalizedText.same('WLED: $host → ${address.address}:$port'));
   }
 
   /// Un même avertissement n'est journalisé qu'une fois de suite.

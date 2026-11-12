@@ -1,4 +1,4 @@
-<!-- BuildBeacon — guide de contribution (français). Version 1.3 (2026-11-11) — interface web : tâches, traductions ARB. -->
+<!-- BuildBeacon — guide de contribution (français). Version 1.4 (2026-11-12) — mise run hub crée data/config.json. -->
 # Participer à BuildBeacon
 
 [English version](CONTRIBUTING.md)
@@ -41,7 +41,7 @@ Tâches utiles (`mise tasks` les liste toutes) :
 | `mise run check` | format, analyse statique, tous les tests — comme la CI |
 | `mise run format` | formate le code |
 | `mise run test` | tests de chaque paquet |
-| `mise run hub` | lance le Hub avec `data/config.json` (copie de `config.example.json`) et son interface web sur http://localhost:8080 |
+| `mise run hub` | lance le Hub avec `data/config.json` (créé au premier démarrage, ou copie de `config.example.json`) et son interface web sur http://localhost:8080 |
 | `mise run ui-build` | compile l'interface web (Flutter Web), servie par `mise run hub` |
 | `mise run ui-dev` | interface web avec rechargement à chaud sur http://localhost:8081, à côté de `mise run hub` |
 | `mise run simulator -- --open` | faux WLED dans une page web, pour travailler sans matériel |
