@@ -1,0 +1,64 @@
+# BuildBeacon — publishes the Docker image of the Hub on GHCR (GitHub Container Registry).
+# File version: 1.0 (2026-11-12)
+#
+#   ghcr.io/devcafeine/buildbeacon-hub:latest     every merge into main
+#   ghcr.io/devcafeine/buildbeacon-hub:0.2.0      a version tag v0.2.0 (and 0.2)
+#   ghcr.io/devcafeine/buildbeacon-hub:sha-abc1234   every published commit
+#
+# For linux/amd64, linux/arm64 and linux/arm/v7, cross-compiled without
+# emulation (see hub/Dockerfile). main is protected: what is published here
+# has passed the check workflow (including the image smoke test) in its pull
+# request. No secret goes into the image: tokens stay in the .env of each
+# machine.
+name: publish
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/buildbeacon-hub
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+          labels: |
+            org.opencontainers.image.title=BuildBeacon Hub
+            org.opencontainers.image.description=Drives the BuildBeacon LED tiles through WLED, with its web interface.
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: hub
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,15 +1,18 @@
 # BuildBeacon — the Hub in Docker (Linux: mini PC, server, Raspberry Pi).
-# File version: 1.1 (2026-11-12) — comments in English.
+# File version: 1.2 (2026-11-12) — published image (GHCR) by default.
 #
-#   docker compose up -d --build      then http://<machine address>:8080
-#   docker compose logs -f            log of the Hub
+#   docker compose pull && docker compose up -d   published image, then
+#                                                 http://<machine address>:8080
+#   docker compose up -d --build                  or build it from the sources
+#   docker compose logs -f                        log of the Hub
 #
 # Secrets and options in .env (copy of .env.example): BB_GITHUB_TOKEN,
 # BB_API_TOKEN, BB_LANG=fr, BB_PORT…
 services:
   hub:
+    # Published for x86-64, arm64 and ARMv7; `--build` builds it from hub/ instead.
+    image: ghcr.io/devcafeine/buildbeacon-hub:latest
     build: hub
-    image: buildbeacon-hub
     container_name: buildbeacon
     restart: unless-stopped
     # Network of the machine: DDP stream (UDP) to WLED and buildbeacon.local

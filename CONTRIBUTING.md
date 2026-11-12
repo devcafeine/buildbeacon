@@ -1,4 +1,4 @@
-<!-- BuildBeacon — contributing guide (English). Version 1.7 (2026-11-12) — test names in English. -->
+<!-- BuildBeacon — contributing guide (English). Version 1.8 (2026-11-12) — publishing a version. -->
 # Contributing to BuildBeacon
 
 [Version française](CONTRIBUTING.fr.md)
@@ -99,6 +99,18 @@ first line. Exception: `LICENSE`, kept verbatim so that GitHub recognizes it.
 
 A maintainer reviews it, may ask for changes, then merges. Be kind and patient: this is a
 side project.
+
+Each merge into `main` publishes the Docker image `ghcr.io/devcafeine/buildbeacon-hub:latest`
+(workflow `publish`).
+
+### Publishing a version (maintainers)
+
+1. In a pull request, set the new version in `hub/server/lib/src/api/api.dart`
+   (`hubVersion`, shown by `/api/health`) and in `hub/server/pubspec.yaml`.
+2. Once merged, tag the merge commit and push the tag:
+   `git tag v0.2.0 && git push origin v0.2.0`.
+3. The `publish` workflow publishes the image as `0.2.0` and `0.2` (`latest` already has
+   it, since the merge).
 
 ## Security
 

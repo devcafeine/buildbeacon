@@ -1,4 +1,4 @@
-<!-- BuildBeacon — guide de contribution (français). Version 1.7 (2026-11-12) — noms des tests en anglais. -->
+<!-- BuildBeacon — guide de contribution (français). Version 1.8 (2026-11-12) — publier une version. -->
 # Participer à BuildBeacon
 
 [English version](CONTRIBUTING.md)
@@ -105,6 +105,18 @@ GitHub le reconnaisse.
 
 Un mainteneur la relit, peut demander des changements, puis la fusionne. Merci de votre
 bienveillance et de votre patience : c'est un projet personnel.
+
+Chaque fusion dans `main` publie l'image Docker `ghcr.io/devcafeine/buildbeacon-hub:latest`
+(workflow `publish`).
+
+### Publier une version (mainteneurs)
+
+1. Dans une pull request, mettre la nouvelle version dans `hub/server/lib/src/api/api.dart`
+   (`hubVersion`, affichée par `/api/health`) et dans `hub/server/pubspec.yaml`.
+2. Une fois fusionnée, étiqueter le commit fusionné et pousser l'étiquette :
+   `git tag v0.2.0 && git push origin v0.2.0`.
+3. Le workflow `publish` publie l'image en `0.2.0` et `0.2` (`latest` l'a déjà, depuis la
+   fusion).
 
 ## Sécurité
 
