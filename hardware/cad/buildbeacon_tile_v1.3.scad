@@ -1,6 +1,7 @@
 // =====================================================================
 //  BuildBeacon - hexagonal light-up tile (parametric)
-//  Version 1.2 (2026-11-12) - comments in English
+//  Version 1.3 (2026-11-12) - PCB: 4 spacers and 4 screws (comment and message)
+//  v1.2: comments in English
 //  v1.1: references the v1.2 boards
 //  v1.0: first public version
 //  Boards: buildbeacon_tuile_v1.2 / buildbeacon_master_v1.2
@@ -306,7 +307,7 @@ cable_clip_h = 3.5;
 part = "both"; // [tile, letters, back, both, stand, plugs, skadis_clips, skadis, links, link_test, led_bridge, base, cable_clips, knockout_test]
 
 /* [Hidden] */
-bb_version = "1.2";
+bb_version = "1.3";
 echo(str("BuildBeacon model v", bb_version));
 $fn = 48;
 eps = 0.01;
@@ -731,7 +732,7 @@ module back_plate() {
                 // old flat plate, fitted inside the shell
                 linear_extrude(back_t) hex2d(inner_flat - 2 * tol, r_in);
             }
-            // PCB: 3 spacers instead of the rails
+            // PCB: 4 spacers (the 4 holes of the board) instead of the rails
             if (pcb_on) for (h = pcb_holes)
                 translate([h[0], h[1], back_t - eps]) pcb_standoff3d();
             // LED strip guide rails (not with D1 mini: strip on the bridge)
@@ -1216,7 +1217,10 @@ if (part == "back" || part == "both")
             color("green") linear_extrude(pcb_t) pcb2d();
     }
 if (pcb_on && (part == "back" || part == "both" || part == "tile"))
-    echo(str("PCB: 3 M2.5 x 6 self-tapping screws. Strip raised by ",
+    echo(str("PCB: 4 M2.5 x 6 screws",
+             pcb_fix == "insert" ? " in M2.5 x 4 x 3.5 brass inserts"
+                                 : " (self-tapping)",
+             ". Strip raised by ",
              lift, " mm: dot walls shortened by the same amount ",
              "(reprint the shell, the old walls touch the PCB)."));
 if (led_mount == "pcb" && !pcb_on)
