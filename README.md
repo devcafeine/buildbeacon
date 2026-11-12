@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.11 (2026-11-12) — 3D printing: file name of any model version. -->
+<!-- BuildBeacon — README (English). Version 1.12 (2026-11-12) — the Hub task builds the web interface when needed. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -82,11 +82,12 @@ layout, `--terminal` to draw in the terminal.
 ### Run the Hub
 
 ```sh
-mise run ui-build   # once: the web interface
 mise run hub        # then open http://localhost:8080
 ```
 
-On its first start, the Hub creates `data/config.json` with the master tile only. Then open
+`mise run hub` first builds the web interface if its code changed (a few seconds, skipped
+when up to date). On its first start, the Hub creates `data/config.json` with the master
+tile only. Then open
 **http://localhost:8080**: the wall drawn at its real place, with the live
 colors. Select a tile to choose the source and the display mode of each zone; add a tile
 with a **+**, move it by dragging it, set the chain order, WLED, the brightness and the

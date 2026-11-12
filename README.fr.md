@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (français). Version 1.11 (2026-11-12) — Impression 3D : nom du fichier pour toute version du modèle. -->
+<!-- BuildBeacon — README (français). Version 1.12 (2026-11-12) — la tâche hub compile l'interface web si besoin. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -84,11 +84,12 @@ vraie disposition, `--terminal` pour dessiner dans le terminal.
 ### Lancer le Hub
 
 ```sh
-mise run ui-build   # une fois : l'interface web
 mise run hub        # puis ouvrir http://localhost:8080
 ```
 
-À son premier démarrage, le Hub crée `data/config.json` avec la tuile master seule.
+`mise run hub` compile d'abord l'interface web si son code a changé (quelques secondes,
+rien s'il est à jour). À son premier démarrage, le Hub crée `data/config.json` avec la
+tuile master seule.
 Ouvrez ensuite **http://localhost:8080** : le mur dessiné à sa vraie place, avec les
 couleurs en direct. Touchez une tuile pour choisir la source et le mode d'affichage de
 chaque zone ; ajoutez une tuile avec un **+**, déplacez-la en la faisant glisser, réglez

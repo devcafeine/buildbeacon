@@ -1,5 +1,5 @@
 # BuildBeacon — project tools and tasks (mise).
-# Version 1.10 (2026-11-12) — comments in English.
+# Version 1.11 (2026-11-12) — hub rebuilds the web interface when its sources changed.
 #
 # Flutter 3.47.6 ships Dart 3.13.5: the same SDK serves the Hub (hub/) and the
 # Flutter Web interface (hub/ui). hub/Dockerfile and the CI use the same versions.
@@ -46,14 +46,17 @@ dir = "{{config_root}}/hub"
 run = "dart run tool/new_plugin.dart"
 
 [tasks.hub]
-description = "Run the Hub: data/config.json (created on the first start) and .env at the repository root; web interface on http://localhost:8080 once built (mise run ui-build)"
+description = "Run the Hub: data/config.json (created on the first start) and .env at the repository root; web interface on http://localhost:8080"
+# The web interface is rebuilt first if its sources changed: never an old
+# interface served by a newer Hub.
+depends = ["ui-build"]
 dir = "{{config_root}}/hub/server"
 run = "dart run bin/hub.dart --config {{config_root}}/data/config.json --env-file {{config_root}}/.env --web {{config_root}}/hub/ui/build/web"
 
 [tasks.ui-build]
-description = "Build the web interface (hub/ui/build/web), served by the Hub"
-dir = "{{config_root}}/hub/ui"
-run = "flutter build web --release --no-web-resources-cdn --no-wasm-dry-run"
+description = "Build the web interface (hub/ui/build/web), served by the Hub; skipped when up to date"
+dir = "{{config_root}}/hub"
+run = "sh tool/ui_build.sh"
 
 [tasks.ui-dev]
 description = "Web interface with hot reload on http://localhost:8081, next to a running Hub (mise run hub)"
