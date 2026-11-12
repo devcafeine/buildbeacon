@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (français). Version 1.5 (2026-11-12) — premier démarrage sans config.json. -->
+<!-- BuildBeacon — README (français). Version 1.6 (2026-11-12) — Docker. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -16,7 +16,7 @@ l'ESP32, affiche l'état du système.
 
 > **État : début du développement.** Le Hub tourne à partir de `config.json` : plugin
 > GitHub, rendu des LED, sortie vers WLED, rechargement à chaud de la configuration, API
-> REST et interface web, plus un simulateur et une mire. L'image Docker arrive ensuite.
+> REST, interface web et image Docker, plus un simulateur et une mire.
 
 ## Fonctionnement
 
@@ -151,15 +151,50 @@ sources.
 
 | Matériel | Pris en charge | Remarques |
 |---|---|---|
-| Mini PC, serveur ou NAS, Linux x86-64 | oui | recommandé : allumé en permanence (image Docker bientôt) |
-| Raspberry Pi 3, 4, 5, Zero 2 W avec un système 64 bits (arm64) | oui | un bon choix sans serveur |
-| Raspberry Pi 2 ou 3 avec un système 32 bits (ARMv7) | oui | |
+| Mini PC, serveur ou NAS, Linux x86-64 | oui | recommandé : allumé en permanence, [avec Docker](#installer-avec-docker-linux) |
+| Raspberry Pi 3, 4, 5, Zero 2 W avec un système 64 bits (arm64) | oui | un bon choix sans serveur ; Docker aussi |
+| Raspberry Pi 2 ou 3 avec un système 32 bits (ARMv7) | oui | image Docker à construire sur une autre machine |
 | macOS, Windows, Linux de bureau | oui | pour développer ou essayer |
 | Raspberry Pi 1, Zero, Zero W (ARMv6) | non | Dart ne prend pas en charge l'ARMv6 |
 | ESP32 et autres microcontrôleurs | non | l'ESP32 fait tourner WLED et reçoit seulement les couleurs |
 
-Testé à ce jour : macOS (Apple Silicon) et Linux x86-64 (CI). Les autres plateformes sont
-prises en charge par Dart mais pas encore testées : vos retours sont bienvenus.
+Testé à ce jour : macOS (Apple Silicon), Linux x86-64 (CI) et l'image Docker (x86-64 dans
+la CI, arm64 avec OrbStack ; images arm64 et ARMv7 construites dans la CI). Les autres
+plateformes sont prises en charge par Dart mais pas encore testées : vos retours sont
+bienvenus.
+
+## Installer avec Docker (Linux)
+
+L'installation conseillée : une machine Linux allumée en permanence, sur le même réseau que
+WLED — mini PC, serveur, Raspberry Pi 4 ou 5 avec un système 64 bits.
+
+```sh
+git clone https://github.com/devcafeine/buildbeacon.git
+cd buildbeacon
+cp .env.example .env          # facultatif : BB_GITHUB_TOKEN, BB_LANG=fr, BB_PORT…
+docker compose up -d --build
+```
+
+Ouvrez ensuite **http://<adresse de la machine>:8080**. À son premier démarrage, le Hub
+crée sa configuration avec la tuile master seule, dans le volume `buildbeacon-data` : tout
+le reste se règle dans l'interface web.
+
+- **Réseau** : le conteneur utilise le réseau de la machine (`network_mode: host`) ; les
+  images des LED arrivent donc à WLED en UDP et `buildbeacon.local` est trouvé par mDNS,
+  comme hors de Docker. L'interface écoute sur le port 8080 ; `BB_PORT` dans `.env` pour
+  en changer.
+- **Mise à jour** : `git pull && docker compose up -d --build`. **Journal** :
+  `docker compose logs -f`.
+- **Construire l'image** prend quelques minutes la première fois (elle télécharge Flutter
+  pour compiler l'interface) et environ 2 Go de mémoire, sur une machine Linux x86-64 ou
+  arm64. Pour un Raspberry Pi en 32 bits, construisez-la ailleurs :
+  `docker buildx build --platform linux/arm/v7 hub`.
+- **L'image** (environ 40 Mo) contient seulement le Hub compilé et son interface, et tourne
+  avec un utilisateur sans privilèges. Les secrets restent dans `.env`, hors de l'image et
+  du volume.
+- **Sur macOS ou Windows**, Docker tourne dans une machine virtuelle : indiquez l'adresse IP
+  de WLED, mDNS n'atteignant pas le réseau local depuis celle-ci. Pour essayer BuildBeacon
+  sur ces systèmes, `mise run hub` est plus simple.
 
 ## Configuration
 
@@ -205,10 +240,12 @@ hub/                 espace de travail Dart
   plugins/github/    plugin GitHub Actions
   server/            le Hub (bin/hub.dart), API REST, sortie DDP, simulateur, mire
   ui/                interface web (Flutter Web), servie par le Hub
+  Dockerfile         image Docker du Hub et de son interface
   tool/              new_plugin.dart (mise run new-plugin <nom>)
 docs/                guides, API REST
 hardware/            modèles 3D (cad/), cartes (pcb/), guide de montage
 config.example.json configuration d'exemple (dépôts publics)
+docker-compose.yml  le Hub dans Docker (docker compose up -d --build)
 ```
 
 ## Participer

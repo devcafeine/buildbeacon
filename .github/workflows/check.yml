@@ -1,5 +1,5 @@
 # BuildBeacon — vérification continue : format, analyse statique, tests (comme `mise run check`).
-# Version du fichier : 1.1 (2026-11-11) — Flutter (interface web) : tests et compilation web.
+# Version du fichier : 1.2 (2026-11-12) — image Docker : construite, essayée, compilée pour arm64 et ARMv7.
 name: check
 
 on:
@@ -48,3 +48,33 @@ jobs:
       - name: Web build
         working-directory: hub/ui
         run: flutter build web --release --no-web-resources-cdn --no-wasm-dry-run
+
+  # Image Docker : construite pour x86-64 et essayée (premier démarrage,
+  # interface, API, volume, HTTPS), puis compilée pour arm64 et ARMv7
+  # (compilation croisée, sans émulation). Rien n'est publié.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Image (x86-64)
+        uses: docker/build-push-action@v6
+        with:
+          context: hub
+          load: true
+          tags: buildbeacon-hub:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test
+        run: hub/tool/docker_smoke_test.sh buildbeacon-hub:ci
+
+      - name: Images arm64 and ARMv7
+        uses: docker/build-push-action@v6
+        with:
+          context: hub
+          platforms: linux/arm64,linux/arm/v7
+          outputs: type=cacheonly
+          cache-from: type=gha

@@ -1,5 +1,5 @@
 // BuildBeacon Hub — API publique du serveur.
-// Version 1.6 (2026-11-11) — API REST, service du Hub.
+// Version 1.7 (2026-11-12) — résolution du nom de WLED (host_resolver, mDNS).
 
 /// Serveur BuildBeacon : plugins intégrés, exécution des sources, sortie des
 /// LED vers WLED (DDP) et simulateur.
@@ -14,6 +14,7 @@ export 'src/hub.dart';
 export 'src/hub_service.dart';
 export 'src/output/ddp.dart';
 export 'src/output/ddp_sender.dart';
+export 'src/output/host_resolver.dart';
 export 'src/output/led_output_loop.dart';
 export 'src/output/wled_client.dart';
 export 'src/simulator/ddp_receiver.dart';

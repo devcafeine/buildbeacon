@@ -1,5 +1,5 @@
 # BuildBeacon — outils et tâches du projet (mise).
-# Version 1.8 (2026-11-12) — hub : data/config.json créé au premier démarrage.
+# Version 1.9 (2026-11-12) — docker-test : image Docker construite et essayée.
 #
 # Flutter 3.47.6 embarque Dart 3.13.5 : le même SDK sert au Hub (hub/) et à
 # l'interface Flutter Web (hub/ui). L'image Docker devra suivre cette version.
@@ -69,3 +69,11 @@ run = "dart run bin/simulator.dart"
 description = "Test pattern to WLED; to the simulator: mise run test-pattern -- --host 127.0.0.1"
 dir = "{{config_root}}/hub/server"
 run = "dart run bin/test_pattern.dart"
+
+[tasks.docker-test]
+description = "Build the Docker image and try it (first start, web interface, API, volume, HTTPS)"
+dir = "{{config_root}}"
+run = [
+  "docker build -t buildbeacon-hub hub",
+  "hub/tool/docker_smoke_test.sh buildbeacon-hub",
+]

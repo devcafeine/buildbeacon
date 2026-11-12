@@ -1,4 +1,4 @@
-<!-- BuildBeacon — README (English). Version 1.5 (2026-11-12) — first start without config.json. -->
+<!-- BuildBeacon — README (English). Version 1.6 (2026-11-12) — Docker. -->
 # BuildBeacon
 
 [![check](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml/badge.svg)](https://github.com/devcafeine/buildbeacon/actions/workflows/check.yml)
@@ -15,8 +15,8 @@ its five dots show the last five runs. The master tile, which holds the ESP32, s
 state of the system.
 
 > **Status: early development.** The Hub runs from `config.json`: GitHub plugin, LED
-> rendering, output to WLED, hot reload of the configuration, REST API and web interface,
-> plus a simulator and a test pattern. The Docker image is next.
+> rendering, output to WLED, hot reload of the configuration, REST API, web interface and
+> Docker image, plus a simulator and a test pattern.
 
 ## How it works
 
@@ -33,7 +33,7 @@ GitHub API ──(polling, ETag)──┐
 
 - **Hardware**: WS2812B LEDs on a single data line, driven by an ESP32-C3 running
   [WLED](https://kno.wled.ge/). No custom firmware: WLED only receives the colors.
-- **Hub**: a Dart program (Docker image soon) that reads the sources through **plugins**,
+- **Hub**: a Dart program (Docker image) that reads the sources through **plugins**,
   computes the color of every LED and streams the frames to WLED over DDP.
 - **Plugins**: GitHub Actions first. Anyone can add a source (another CI, a 3D printer, a
   web service…) with the plugin SDK — see [Writing a plugin](docs/writing-a-plugin.md).
@@ -146,15 +146,45 @@ same network as WLED (UDP 4048, HTTP 80) and reach the Internet for the sources.
 
 | Hardware | Supported | Notes |
 |---|---|---|
-| Mini PC, server or NAS, Linux x86-64 | yes | recommended: always on (Docker image soon) |
-| Raspberry Pi 3, 4, 5, Zero 2 W with a 64-bit OS (arm64) | yes | a good choice without a server |
-| Raspberry Pi 2 or 3 with a 32-bit OS (ARMv7) | yes | |
+| Mini PC, server or NAS, Linux x86-64 | yes | recommended: always on, [with Docker](#install-with-docker-linux) |
+| Raspberry Pi 3, 4, 5, Zero 2 W with a 64-bit OS (arm64) | yes | a good choice without a server; Docker too |
+| Raspberry Pi 2 or 3 with a 32-bit OS (ARMv7) | yes | Docker image to build on another machine |
 | macOS, Windows, Linux desktop | yes | to develop or try it out |
 | Raspberry Pi 1, Zero, Zero W (ARMv6) | no | Dart does not support ARMv6 |
 | ESP32 and other microcontrollers | no | the ESP32 runs WLED and only receives the colors |
 
-Tested so far: macOS (Apple Silicon) and Linux x86-64 (CI). The other platforms are
-supported by Dart but not tested yet: reports are welcome.
+Tested so far: macOS (Apple Silicon), Linux x86-64 (CI) and the Docker image (x86-64 in
+the CI, arm64 with OrbStack; arm64 and ARMv7 images built in the CI). The other platforms
+are supported by Dart but not tested yet: reports are welcome.
+
+## Install with Docker (Linux)
+
+The recommended setup: an always-on Linux machine on the same network as WLED — mini PC,
+server, Raspberry Pi 4 or 5 with a 64-bit OS.
+
+```sh
+git clone https://github.com/devcafeine/buildbeacon.git
+cd buildbeacon
+cp .env.example .env          # optional: BB_GITHUB_TOKEN, BB_LANG=fr, BB_PORT…
+docker compose up -d --build
+```
+
+Then open **http://<address of the machine>:8080**. On its first start, the Hub creates
+its configuration with the master tile only, in the `buildbeacon-data` volume: everything
+else is set up in the web interface.
+
+- **Network**: the container uses the network of the machine (`network_mode: host`), so
+  the LED frames reach WLED over UDP and `buildbeacon.local` is found by mDNS, as outside
+  Docker. The interface listens on port 8080; set `BB_PORT` in `.env` to change it.
+- **Update**: `git pull && docker compose up -d --build`. **Logs**: `docker compose logs -f`.
+- **Building the image** takes a few minutes the first time (it downloads Flutter to build
+  the interface) and about 2 GB of RAM, on a Linux x86-64 or arm64 machine. For a Raspberry
+  Pi with a 32-bit OS, build it elsewhere: `docker buildx build --platform linux/arm/v7 hub`.
+- **The image** (about 40 MB) holds the compiled Hub and its interface only, and runs as
+  an unprivileged user. Secrets stay in `.env`, outside the image and the volume.
+- **On macOS or Windows**, Docker runs in a virtual machine: set the IP address of WLED, as
+  mDNS does not reach the local network from there. To try BuildBeacon on these systems,
+  `mise run hub` is simpler.
 
 ## Configuration
 
@@ -199,10 +229,12 @@ hub/                 Dart workspace
   plugins/github/    GitHub Actions plugin
   server/            the Hub (bin/hub.dart), REST API, DDP output, simulator, test pattern
   ui/                web interface (Flutter Web), served by the Hub
+  Dockerfile         Docker image of the Hub and its interface
   tool/              new_plugin.dart (mise run new-plugin <name>)
 docs/                guides, REST API
 hardware/            3D models (cad/), circuit boards (pcb/), build guide
 config.example.json example configuration (public repositories)
+docker-compose.yml  the Hub in Docker (docker compose up -d --build)
 ```
 
 ## Contributing
