@@ -1,4 +1,4 @@
-<!-- BuildBeacon — matériel (français). Version 1.8 (2026-11-12) — modèle v1.6 -->
+<!-- BuildBeacon — matériel (français). Version 1.9 (2026-11-13) — modèle v1.7 -->
 # BuildBeacon — matériel
 
 [English version](README.md)
@@ -15,7 +15,7 @@ circuits imprimés (KiCad), sous licence [CERN-OHL-P-2.0](LICENSE).
 
 ```
 hardware/
-  cad/buildbeacon_tile_v1.6.scad      tuiles, plaques arrière, socle, clips Skådis… (OpenSCAD)
+  cad/buildbeacon_tile_v1.7.scad      tuiles, plaques arrière, socle, clips Skådis… (OpenSCAD)
   pcb/buildbeacon_tuile_v1.2.kicad_pcb    carte de la tuile projet (9 LED)
   pcb/buildbeacon_master_v1.2.kicad_pcb   carte de la tuile master (ESP32-C3 + 3 LED)
   pcb/gen_buildbeacon_pcb_v1.2.py     script Python qui génère les deux cartes
@@ -183,14 +183,14 @@ fichiers et le texte imprimé au dos de la carte).
 
 ## Modèles 3D
 
-Un seul fichier paramétrique : [`cad/buildbeacon_tile_v1.6.scad`](cad/buildbeacon_tile_v1.6.scad),
+Un seul fichier paramétrique : [`cad/buildbeacon_tile_v1.7.scad`](cad/buildbeacon_tile_v1.7.scad),
 à ouvrir dans [OpenSCAD](https://openscad.org/) (2021 ou plus récent). Réglez les paramètres
 dans le **Customizer**, choisissez la pièce avec `part`, faites le rendu (**F6**) puis
 exportez en STL.
 
 **Depuis l'interface web du Hub** : l'onglet **Impression 3D** liste les pièces de votre mur
 (une coque par tuile avec son nom, les plaques arrière, les os de chien) et télécharge
-`buildbeacon_tile_v1.6.json`, un jeu de paramètres par pièce. Placez-le à côté du fichier
+`buildbeacon_tile_v1.7.json`, un jeu de paramètres par pièce. Placez-le à côté du fichier
 `.scad` : le Customizer propose les jeux dans sa liste, prêts à rendre ; l'onglet donne aussi
 les commandes qui rendent toutes les pièces d'un coup (`openscad -p … -P <jeu> -o <jeu>.stl`).
 
@@ -202,6 +202,7 @@ les commandes qui rendent toutes les pièces d'un coup (`openscad -p … -P <jeu
 | `back` | plaque arrière (support des LED ou de la carte) |
 | `both` | les deux, pour l'aperçu |
 | `links` / `link_test` | « os de chien » qui relient les plaques arrière / 4 os de test de serrage |
+| `magnet_test` | morceaux de deux tuiles voisines pour essayer les aimants entre tuiles |
 | `stand` | socle de bureau (tuiles en rangée) |
 | `skadis_clips` | clips pour panneau IKEA Skådis |
 | `cable_clips`, `plugs` | clips à câbles, bouchons d'encoche |
@@ -219,6 +220,11 @@ les commandes qui rendent toutes les pièces d'un coup (`openscad -p … -P <jeu
   (inserts M3 × 5 × 4, logement `insert_d = 3.6`).
 - **Liaison des plaques** : `link_fit` règle le serrage des os de chien ; imprimez d'abord
   `part = "link_test"` pour trouver la bonne valeur.
+- **Aimants entre tuiles** (en essai, désactivés par défaut) : `link_magnets = true` place un
+  aimant 6 × 3 mm par côté dans un bossage de la plaque arrière, derrière une peau de 0,6 mm
+  de la coque (`link_mag_skin`) : les tuiles s'accrochent entre elles et s'enlèvent une à
+  une, rien ne se voit à l'extérieur. Imprimez d'abord `part = "magnet_test"` : il vérifie
+  l'ajustement et la tenue (mode d'emploi dans les commentaires du fichier).
 
 ### Impression
 

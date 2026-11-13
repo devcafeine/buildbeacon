@@ -1,7 +1,9 @@
 // =====================================================================
 //  BuildBeacon - hexagonal light-up tile (parametric)
-//  Version 1.6 (2026-11-12) - master board: why its bottom-left hole is 2 mm higher
-//                              (comment)
+//  Version 1.7 (2026-11-13) - tile-to-tile magnets in the back plates (link_magnets,
+//                              being tested: off by default) and their test
+//                              piece (part = magnet_test)
+//  v1.6: master board: why its bottom-left hole is 2 mm higher (comment)
 //  v1.5: notches: connectors centered on each side (comment)
 //  v1.4: stand: straight USB slot that follows the USB window; shell closing
 //        comment (3 points on every tile)
@@ -123,8 +125,37 @@ link_count = 6;
 // To find the right value: part = link_test (4 bones from 0.05 to 0.20).
 link_fit = 0.10; // [0:0.025:0.3]
 
+/* [Tile-to-tile magnets (being tested)] */
+// One 6x3 mm magnet per side holds neighboring tiles together. It stands on
+// edge in a boss of the back plate, under the PCB; the boss goes into a
+// recess on the inside of the shell wall, so only a thin skin of each shell
+// is left between the magnets of two neighbors and nothing shows outside.
+// Each tile can be taken off on its own. Inset plate style only.
+// Print part = magnet_test first (pieces of two neighboring tiles).
+// Polarity: mark the same face of every magnet (stack them and mark the
+// top face). Pockets engraved "+" take the magnet marked face OUT, pockets
+// engraved "-" marked face IN. A side always meets the opposite side of
+// its neighbor ("+" against "-"), so any tile holds to any other.
+link_magnets = false;
+// Offset of the magnet from the middle of the side (the JST connector and
+// the cable notch take the middle). The direction alternates from one side
+// to the next, so that the magnets of two neighbors face each other, at the
+// 3 corners without a closing column.
+link_mag_offset = 12;
+// Skin of the shell left in front of each magnet (mm): thinner = stronger
+link_mag_skin = 0.6;
+// Slot of the magnet in the boss (6 x 3 mm magnet standing on edge):
+// width and depth
+link_mag_w = 6.2;
+link_mag_t = 3.1;
+// Material left under the magnet, on the wall side of the plate
+link_mag_floor = 0.6;
+// Clearance between the boss and the recess of the shell
+link_mag_clr = 0.15;
+
 /* [Side magnets (optional)] */
-// Magnets on the sides of the shells. Not needed with plate links.
+// Magnets on the sides of the shells (older design: their bosses get in the
+// way of the PCB). Not needed with plate links.
 magnets = false;
 // Magnets per side: 2 = no pivoting or sliding between tiles.
 // Polarity (2 magnets): going clockwise around the tile seen from the
@@ -315,10 +346,11 @@ cable_clip_h = 3.5;
 // skadis_clips = 2 clips going through plate + pegboard (recommended)
 // skadis = old screw-on adapter (hangs by the keyhole)
 // knockout_test = test piece to choose the knockout skin thickness
-part = "both"; // [tile, letters, back, both, stand, plugs, skadis_clips, skadis, links, link_test, led_bridge, base, cable_clips, knockout_test]
+// magnet_test = pieces of two neighboring tiles to try the tile-to-tile magnets
+part = "both"; // [tile, letters, back, both, stand, plugs, skadis_clips, skadis, links, link_test, led_bridge, base, cable_clips, knockout_test, magnet_test]
 
 /* [Hidden] */
-bb_version = "1.6";
+bb_version = "1.7";
 echo(str("BuildBeacon model v", bb_version));
 $fn = 48;
 eps = 0.01;
@@ -454,6 +486,24 @@ key_x = 0;
 key_y = pointy ? -(plate_R - 12.5) : -0.225 * flat;
 wire_x = pointy ? 0.25 * flat : 0;
 wire_y = pointy ? 0.22 * flat : 0.25 * flat;
+// Keyhole in the back plate (removed with T-Clips and the double bottom)
+key_on = keyhole && !tclip_on && !dbl && (pointy || !amb_on);
+// Tile-to-tile magnets (link_magnets), also on for their test piece
+lm_on = (link_magnets || part == "magnet_test") && plate_style == "inset";
+lm_x = apothem - link_mag_skin - link_mag_clr;   // outer face of the boss
+lm_x0 = lm_x - link_mag_t - 0.8;                 // inner face of the boss
+lm_half = link_mag_w / 2 + 1;                    // half width along the side
+lm_h = link_mag_floor + link_mag_w;              // height from the wall side of the plate
+// Offset of the magnet along side k, in shell coordinates (local Y of
+// side(k)): toward the end of the side without a closing column. It changes
+// direction from one side to the next: side k of a tile and side k + 3 of
+// its neighbor (whose local Y is reversed) put their magnets face to face.
+function link_mag_s(k) =
+    (side_off + 60 * k + 30 - vertex_off) % 120 == 0 ? -link_mag_offset : link_mag_offset;
+// Even sides "+" (marked face out), odd sides "-" (marked face in)
+function link_mag_plus(k) = k % 2 == 0;
+// No magnet on the USB side of the master tile
+lm_sides = [for (k = [0 : 5]) if (!(master && k == USB_SIDE)) k];
 
 // ---------------------------------------------------------------------
 
@@ -680,7 +730,55 @@ module tile() {
         if (notches && plate_style == "inset") for (k = notch_sides)
             side(k) translate([0, notch_shift(k), 0]) notch();
         if (master) side(USB_SIDE) usb_cut();
+        // recesses for the bosses of the tile-to-tile magnets
+        if (lm_on) for (k = lm_sides)
+            side(k) translate([0, link_mag_s(k), 0]) link_mag_recess();
     }
+}
+
+// --------------------- Tile-to-tile magnets --------------------------
+// Side coordinates: X = outward normal of the side, Y = along the side.
+
+// Recess on the inside of the shell wall, open toward the back edge, for
+// the boss of the plate: only link_mag_skin is left on the outside.
+module link_mag_recess() {
+    w = lm_half + link_mag_clr;
+    translate([apothem - wall - 1, -w, depth - lm_h - 0.3])
+        cube([wall + 1 - link_mag_skin, 2 * w, lm_h + 0.3 + eps]);
+}
+
+// Boss of the back plate (Z = 0 on the wall side of the plate). It sticks
+// out past the edge of the plate, into the recess of the shell.
+module link_mag_boss() {
+    translate([lm_x0, -lm_half, 0]) cube([lm_x - lm_x0, 2 * lm_half, lm_h]);
+}
+
+// U-shaped slot of the magnet standing on edge, open at the top (shell side)
+// and toward the wall: pulled by the magnet of the neighbor, the magnet
+// rests against the skin of the shell.
+module link_mag_slot() {
+    zc = link_mag_floor + link_mag_w / 2;
+    translate([lm_x - link_mag_t, 0, 0]) {
+        translate([0, 0, zc]) rotate([0, 90, 0])
+            cylinder(d = link_mag_w, h = link_mag_t + 1);
+        translate([0, -link_mag_w / 2, zc]) cube([link_mag_t + 1, link_mag_w, lm_h]);
+    }
+}
+
+// Polarity mark engraved next to the boss: "+" = marked face out,
+// "-" = marked face in
+module link_mag_mark(plus) {
+    translate([lm_x0 - 2.6, 0, back_t - 0.4]) linear_extrude(1) {
+        square([0.8, 3], center = true);
+        if (plus) square([3, 0.8], center = true);
+    }
+}
+
+// Room for the head of the keyhole screw (heads up to 8 mm go through the
+// hole), cut from the bosses next to the keyhole
+module key_head_room() {
+    hull() for (dy = [0, -7])
+        translate([key_x, key_y + dy, back_t]) cylinder(r = 4.3, h = lm_h + 1);
 }
 
 // ------------------------- Back plate --------------------------------
@@ -712,7 +810,27 @@ module pcb2d() {
     }
 }
 
+// Back plate, with the bosses of the tile-to-tile magnets
 module back_plate() {
+    difference() {
+        union() {
+            back_plate_body();
+            if (lm_on) difference() {
+                for (k = lm_sides) rotate(-(side_off + 60 * k))
+                    translate([0, -link_mag_s(k), 0]) link_mag_boss();
+                if (key_on) key_head_room();
+            }
+        }
+        // (the plate is flipped: Y of the sides mirrored)
+        if (lm_on) for (k = lm_sides) rotate(-(side_off + 60 * k))
+            translate([0, -link_mag_s(k), 0]) {
+                link_mag_slot();
+                link_mag_mark(link_mag_plus(k));
+            }
+    }
+}
+
+module back_plate_body() {
     rail_w = 1.2;
     rail_h = 1.5;
     half = strip_w / 2 + 0.2 + rail_w;          // half-width of the LED channel
@@ -842,7 +960,7 @@ module back_plate() {
         // Keyhole: narrow end of the slot toward -Y of the plate,
         // which becomes the top once the plate is flipped and mounted.
         // (removed with T-Clips: it would land on the top receiver)
-        if (keyhole && !tclip_on && !dbl && (pointy || !amb_on)) {
+        if (key_on) {
             translate([key_x, key_y, -eps]) cylinder(d = 8, h = back_t + 1);
             hull() {
                 translate([key_x, key_y, -eps]) cylinder(d = 4, h = back_t + 1);
@@ -1178,6 +1296,46 @@ module knockout_test() {
 
 if (part == "knockout_test") knockout_test();
 
+// Test piece of the tile-to-tile magnets: the matching pieces of two
+// neighboring tiles, cut from the real shell and back plate (side 0 of one
+// tile, side 3 of the other). Shell pieces front face down (as the tile),
+// plate pieces flat (as the plate), no supports.
+// 1. Fit: the magnet goes into the slot of each plate piece, the plate
+//    piece goes into its shell piece (the boss into the recess).
+// 2. Hold: one magnet marked face out ("+" piece), the other marked face
+//    in ("-" piece). Put the two shell pieces skin against skin, hold one
+//    and hang weights from the hole of the other (the magnets alone, in
+//    the recesses, are enough for this test).
+module magnet_test() {
+    n = notch_w / 2 + 0.5;                  // stays clear of the cable notch
+    for (i = [0 : 1]) {
+        k = 3 * i;
+        s = link_mag_s(k);
+        // shell piece, on the corner side of the magnet
+        y0 = s < 0 ? s - 8 : n;
+        y1 = s < 0 ? -n : s + 8;
+        translate([i * 16 - (apothem - 10), -y0, 0])
+            difference() {
+                intersection() {
+                    rotate(-(side_off + 60 * k)) tile();
+                    translate([apothem - 10, y0, -1]) cube([11, y1 - y0, depth + 2]);
+                }
+                // hole to hang the weights
+                translate([apothem - 5, (y0 + y1) / 2, -1]) cylinder(d = 3, h = face + 2);
+            }
+        // plate piece (the plate is flipped: Y mirrored)
+        p0 = s > 0 ? -s - 8 : n;
+        p1 = s > 0 ? -n : -s + 8;
+        translate([i * 16 - (apothem - 10), 22 - p0, 0])
+            intersection() {
+                rotate(side_off + 60 * k) back_plate();
+                translate([apothem - 10, p0, -1]) cube([11, p1 - p0, lm_h + 2]);
+            }
+    }
+}
+
+if (part == "magnet_test") magnet_test();
+
 // SIMPLE SNAP Skådis clip (snap): two flexible arms ending in
 // hooks go through the plate slot then the pegboard slot, squeeze
 // together on the way and spread apart behind the pegboard (click).
@@ -1261,6 +1419,12 @@ if (pcb_on && master && depth - usb_from_back - usb_h / 2 < face + 1.2)
 if (pcb_on && master)
     echo(str("LOGO PCB: 4 M2.5 x 6 screws. Keep the plastic spacer of the pin headers ",
              "of the ESP32 (", esp_spacer, " mm): a screw goes under the module."));
+if ((link_magnets || part == "magnet_test") && plate_style != "inset")
+    echo("WARNING: tile-to-tile magnets (link_magnets): plate_style = inset only");
+if (lm_on && magnets)
+    echo("WARNING: link_magnets and the older side magnets (magnets) are both on");
+if (lm_on && (part == "tile" || part == "back" || part == "both"))
+    echo(str("Tile-to-tile magnets: ", len(lm_sides), " 6x3 magnets per tile"));
 if (part == "stand") {
     if (!pointy) echo("WARNING: the stand is designed for orientation = \"pointy\"");
     stand();
