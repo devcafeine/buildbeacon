@@ -1,5 +1,5 @@
 // BuildBeacon UI — 3D printing: parts of the wall and OpenSCAD parameter sets.
-// Version 1.5 (2026-11-12) — OpenSCAD model v1.6.
+// Version 1.6 (2026-11-13) — OpenSCAD model v1.7.
 
 import 'dart:convert';
 
@@ -13,7 +13,7 @@ import 'wall_geometry.dart';
 /// The parameter names used here (`part`, `label`, `master`, `master_logo`,
 /// `link_count`) are a contract with that file: a test checks that it still
 /// declares them. When the model changes version, update this name.
-const cadModelFile = 'buildbeacon_tile_v1.6.scad';
+const cadModelFile = 'buildbeacon_tile_v1.7.scad';
 
 /// Parameter sets file: OpenSCAD loads it on its own when it sits next to the
 /// model with the same name.

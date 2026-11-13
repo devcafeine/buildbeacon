@@ -1,4 +1,4 @@
-<!-- BuildBeacon — hardware (English). Version 1.8 (2026-11-12) — model v1.6 -->
+<!-- BuildBeacon — hardware (English). Version 1.9 (2026-11-13) — model v1.7 -->
 # BuildBeacon — hardware
 
 [Version française](README.fr.md)
@@ -14,7 +14,7 @@ Everything you need to build the tiles: parametric 3D models (OpenSCAD) and circ
 
 ```
 hardware/
-  cad/buildbeacon_tile_v1.6.scad      tiles, back plates, stand, Skådis clips… (OpenSCAD)
+  cad/buildbeacon_tile_v1.7.scad      tiles, back plates, stand, Skådis clips… (OpenSCAD)
   pcb/buildbeacon_tuile_v1.2.kicad_pcb    project tile board (9 LEDs)
   pcb/buildbeacon_master_v1.2.kicad_pcb   master tile board (ESP32-C3 + 3 LEDs)
   pcb/gen_buildbeacon_pcb_v1.2.py     Python script that generates both boards
@@ -181,13 +181,13 @@ printed on the back of the board).
 
 ## 3D models
 
-A single parametric file: [`cad/buildbeacon_tile_v1.6.scad`](cad/buildbeacon_tile_v1.6.scad),
+A single parametric file: [`cad/buildbeacon_tile_v1.7.scad`](cad/buildbeacon_tile_v1.7.scad),
 to open in [OpenSCAD](https://openscad.org/) (2021 or later). Set the parameters in the
 **Customizer**, pick the part with `part`, render (**F6**) and export to STL.
 
 **From the web interface of the Hub**: the **3D printing** tab lists the parts of your wall
 (a shell per tile with its name, the back plates, the dog bones) and downloads
-`buildbeacon_tile_v1.6.json`, one parameter set per part. Put it next to the `.scad` file:
+`buildbeacon_tile_v1.7.json`, one parameter set per part. Put it next to the `.scad` file:
 the Customizer offers the sets in its list, ready to render; the tab also gives the
 commands that render every part at once (`openscad -p … -P <set> -o <set>.stl`).
 
@@ -199,6 +199,7 @@ commands that render every part at once (`openscad -p … -P <set> -o <set>.stl`
 | `back` | back plate (holds the LEDs or the board) |
 | `both` | both, for preview |
 | `links` / `link_test` | "dog bones" joining the back plates / 4 test bones for fit |
+| `magnet_test` | pieces of two neighbouring tiles to try the tile-to-tile magnets |
 | `stand` | desk stand (tiles in a row) |
 | `skadis_clips` | clips for an IKEA Skådis pegboard |
 | `cable_clips`, `plugs` | cable clips, notch plugs |
@@ -216,6 +217,11 @@ commands that render every part at once (`openscad -p … -P <set> -o <set>.stl`
   inserts, hole `insert_d = 3.6`).
 - **Joining the plates**: `link_fit` sets how tight the dog bones are; print
   `part = "link_test"` first to find the right value.
+- **Tile-to-tile magnets** (being tested, off by default): `link_magnets = true` puts one
+  6 × 3 mm magnet per side in a boss of the back plate, behind a 0.6 mm skin of the shell
+  (`link_mag_skin`): tiles snap together and come off one by one, nothing shows outside.
+  Print `part = "magnet_test"` first: it checks the fit and the hold (instructions in the
+  comments of the file).
 
 ### Printing
 
